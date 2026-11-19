@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Cél-ébresztő (StopWake)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-2: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-text: #04131d;
+      --danger: #ef4444;
+      --snooze: #22c55e;
+      --snooze-text: #052e16;
+      --border: #475569;
+      --shadow: 0 10px 24px rgba(0,0,0,0.35);
+      --radius: 16px;
+      --font-main: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --font-display: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --btn-transform: none;
+      --btn-border-width: 1.5px;
+      --backdrop-blur: 0px;
+      --wallpaper-img: none;
+    }
+
+    /* 1. RAJZFILMES / KÉPREGÉNYES STÍLUS */
+    body[data-theme="cartoon"] {
+      --bg: #fef08a;
+      --surface: #ffffff;
+      --surface-2: #fde047;
+      --text: #111827;
+      --muted: #374151;
+      --accent: #2563eb;
+      --accent-text: #ffffff;
+      --danger: #dc2626;
+      --snooze: #16a34a;
+      --snooze-text: #ffffff;
+      --border: #111827;
+      --shadow: 5px 5px 0px #111827;
+      --radius: 22px 10px 20px 12px;
+      --font-main: 'Trebuchet MS', 'Comic Sans MS', system-ui, sans-serif;
+      --font-display: 'Arial Black', Impact, 'Trebuchet MS', sans-serif;
+      --btn-transform: rotate(-0.8deg);
+      --btn-border-width: 3.5px;
+      --backdrop-blur: 0px;
+      background-image: radial-gradient(#111827 1.1px, transparent 1.1px);
+      background-size: 18px 18px;
+    }
+    body[data-theme="cartoon"] .dest-btn:nth-child(even) {
+      transform: rotate(0.8deg);
+    }
+    body[data-theme="cartoon"] .dest-btn:active,
+    body[data-theme="cartoon"] .action-btn:active,
+    body[data-theme="cartoon"] .icon-btn:active {
+      transform: translate(3px, 3px);
+      box-shadow: 2px 2px 0px #111827;
+    }
+
+    /* 2. GÓTIKUS STÍLUS */
+    body[data-theme="gothic"] {
+      --bg: #09070a;
+      --surface: #161118;
+      --surface-2: #241926;
+      --text: #f3ece8;
+      --muted: #b79ea8;
+      --accent: #b91c1c;
+      --accent-text: #fff5f5;
+      --danger: #991b1b;
+      --snooze: #7f1d1d;
+      --snooze-text: #fef2f2;
+      --border: #6b5b6e;
+      --shadow: inset 0 0 0 1px rgba(226, 212, 218, 0.16), 0 12px 26px rgba(0, 0, 0, 0.78);
+      --radius: 4px 18px 4px 18px;
+      --font-main: Georgia, 'Times New Roman', serif;
+      --font-display: Palatino, 'Book Antiqua', Georgia, serif;
+      --btn-transform: none;
+      --btn-border-width: 2px;
+      --backdrop-blur: 0px;
+      background-image: linear-gradient(180deg, rgba(127,29,29,0.16) 0%, rgba(9,7,10,0.96) 55%);
+    }
+    body[data-theme="gothic"] .dest-btn::before,
+    body[data-theme="gothic"] .panel::before {
+      content: "✦";
+      position: absolute;
+      top: 6px;
+      left: 8px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      opacity: 0.7;
+    }
+
+    /* 3. RENESZÁNSZ / MICHELANGELO-IHLETÉSŰ STÍLUS */
+    body[data-theme="renaissance"] {
+      --bg: #241911;
+      --surface: #f4ead5;
+      --surface-2: #e6d5b2;
+      --text: #2a1b10;
+      --muted: #6b4e34;
+      --accent: #9a3412;
+      --accent-text: #fffbeb;
+      --danger: #881337;
+      --snooze: #1e4620;
+      --snooze-text: #f0fdf4;
+      --border: #b48a3c;
+      --shadow: inset 0 0 0 2px #d4af37, 0 8px 20px rgba(0, 0, 0, 0.45);
+      --radius: 10px;
+      --font-main: Georgia, 'Times New Roman', serif;
+      --font-display: Georgia, 'Times New Roman', serif;
+      --btn-transform: none;
+      --btn-border-width: 2.5px;
+      --backdrop-blur: 0px;
+      background-image: radial-gradient(circle at top, rgba(212,175,55,0.16), transparent 60%), linear-gradient(180deg, #2b1d13 0%, #19100a 100%);
+    }
+    body[data-theme="renaissance"] .topbar,
+    body[data-theme="renaissance"] .prompt-title,
+    body[data-theme="renaissance"] .modal-title,
+    body[data-theme="renaissance"] .drawer-title {
+      color: var(--text);
+    }
+    body[data-theme="renaissance"] .topbar {
+      background: #f4ead5;
+    }
+
+    /* 4. PUNK STÍLUS */
+    body[data-theme="punk"] {
+      --bg: #111111;
+      --surface: #1b1b1b;
+      --surface-2: #2a2a2a;
+      --text: #fafafa;
+      --muted: #d4d4d8;
+      --accent: #f43f5e;
+      --accent-text: #ffffff;
+      --danger: #e11d48;
+      --snooze: #a3e635;
+      --snooze-text: #111111;
+      --border: #f43f5e;
+      --shadow: 4px 4px 0px #a3e635;
+      --radius: 2px 12px 3px 9px;
+      --font-main: system-ui, -apple-system, sans-serif;
+      --font-display: Impact, 'Arial Black', sans-serif;
+      --btn-transform: skewX(-4deg);
+      --btn-border-width: 2px;
+      --backdrop-blur: 0px;
+      background-image: repeating-linear-gradient(-45deg, rgba(244,63,94,0.06) 0, rgba(244,63,94,0.06) 8px, transparent 8px, transparent 16px);
+    }
+
+    /* 5. ÁTLÁTSZÓ (HÁTTÉRKÉPHEZ / KÉPERNYŐHÖZ IGAZODÓ) STÍLUS */
+    body[data-theme="glass"] {
+      --backdrop-blur: 14px;
+      --btn-transform: none;
+      --btn-border-width: 1.5px;
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    /* Alap minta, ha még nincs saját kép betöltve */
+    body[data-theme="glass"]:not([data-has-wallpaper="true"]) {
+      background-image:
+        radial-gradient(circle at 18% 22%, rgba(56, 189, 248, 0.55), transparent 45%),
+        radial-gradient(circle at 82% 28%, rgba(250, 204, 21, 0.55), transparent 45%),
+        radial-gradient(circle at 50% 82%, rgba(244, 63, 94, 0.45), transparent 50%),
+        linear-gradient(135deg, #e2e8f0 0%, #64748b 50%, #0f172a 100%);
+    }
+
+    /* Saját kép / képernyőfotó esetén */
+    body[data-theme="glass"][data-has-wallpaper="true"] {
+      background-image: var(--wallpaper-img);
+    }
+
+    /* Világos háttér esetén SÖTÉT, átlátszó felület */
+    body[data-theme="glass"][data-glass-polarity="dark-ui"] {
+      --bg: #1e293b;
+      --surface: rgba(15, 23, 42, 0.62);
+      --surface-2: rgba(30, 41, 59, 0.68);
+      --text: #f8fafc;
+      --muted: #e2e8f0;
+      --accent: #38bdf8;
+      --accent-text: #04131d;
+      --danger: #ef4444;
+      --snooze: #22c55e;
+      --snooze-text: #052e16;
+      --border: rgba(255, 255, 255, 0.34);
+      --shadow: 0 10px 26px rgba(0, 0, 0, 0.32);
+    }
+
+    /* Sötét háttér esetén VILÁGOS, átlátszó felület */
+    body[data-theme="glass"][data-glass-polarity="light-ui"] {
+      --bg: #cbd5e1;
+      --surface: rgba(255, 255, 255, 0.68);
+      --surface-2: rgba(241, 245, 249, 0.74);
+      --text: #0f172a;
+      --muted: #1e293b;
+      --accent: #0284c7;
+      --accent-text: #ffffff;
+      --danger: #dc2626;
+      --snooze: #16a34a;
+      --snooze-text: #ffffff;
+      --border: rgba(15, 23, 42, 0.28);
+      --shadow: 0 10px 26px rgba(15, 23, 42, 0.18);
+    }
+
+    body[data-theme="glass"] .topbar,
+    body[data-theme="glass"] .dest-btn,
+    body[data-theme="glass"] .panel,
+    body[data-theme="glass"] .drawer,
+    body[data-theme="glass"] .modal-card,
+    body[data-theme="glass"] .icon-btn,
+    body[data-theme="glass"] .action-btn,
+    body[data-theme="glass"] .ad-slot {
+      backdrop-filter: blur(var(--backdrop-blur));
+      -webkit-backdrop-filter: blur(var(--backdrop-blur));
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      font-family: var(--font-main);
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 12px 14px 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .topbar {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: var(--surface);
+      border: var(--btn-border-width) solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      flex: 0 0 28px;
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.05rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .threshold-select,
+    .icon-btn,
+    .action-btn,
+    .dest-btn {
+      font-family: inherit;
+      color: var(--text);
+      background: var(--surface-2);
+      border: var(--btn-border-width) solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: transform 0.12s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .threshold-select {
+      padding: 7px 9px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 700;
+      box-shadow: var(--shadow);
+    }
+
+    .icon-btn.active {
+      background: var(--accent);
+      color: var(--accent-text);
+      border-color: var(--accent);
+    }
+
+    .prompt-title {
+      margin: 2px 0 0;
+      text-align: center;
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    .destinations-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .dest-btn {
+      position: relative;
+      min-height: 76px;
+      padding: 10px 12px;
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 3px;
+      box-shadow: var(--shadow);
+      transform: var(--btn-transform);
+    }
+
+    .dest-btn:active,
+    .action-btn:active,
+    .icon-btn:active {
+      transform: scale(0.98);
+    }
+
+    .dest-btn.selected {
+      background: var(--accent);
+      color: var(--accent-text);
+      border-color: var(--accent);
+    }
+
+    .dest-index {
+      font-size: 0.72rem;
+      font-weight: 800;
+      opacity: 0.72;
+    }
+
+    .dest-name {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .dest-sub {
+      font-size: 0.73rem;
+      opacity: 0.85;
+    }
+
+    .panel {
+      position: relative;
+      background: var(--surface);
+      border: var(--btn-border-width) solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .status-line {
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .status-detail {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      box-shadow: var(--shadow);
+    }
+
+    .action-btn.primary {
+      background: var(--accent);
+      color: var(--accent-text);
+      border-color: var(--accent);
+    }
+
+    .action-btn.danger {
+      background: var(--danger);
+      color: #ffffff;
+      border-color: var(--danger);
+    }
+
+    .sound-controls {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .sound-select,
+    .text-input,
+    .num-input {
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .extra-audio-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.82rem;
+    }
+
+    .toggle-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1.5px solid var(--border);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .custom-file-badge {
+      color: var(--muted);
+      font-size: 0.78rem;
+      word-break: break-all;
+    }
+
+    .drawer {
+      display: none;
+      background: var(--surface);
+      border: var(--btn-border-width) solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      box-shadow: var(--shadow);
+      gap: 10px;
+    }
+
+    .drawer.open {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .drawer-title {
+      font-family: var(--font-display);
+      font-size: 0.96rem;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .theme-chip {
+      padding: 9px 10px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 0.84rem;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .theme-chip.active {
+      background: var(--accent);
+      color: var(--accent-text);
+      border-color: var(--accent);
+    }
+
+    .glass-box {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      padding-top: 6px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .glass-box.visible {
+      display: flex;
+    }
+
+    .sim-box {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-top: 4px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .ad-slot {
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 9px 12px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      z-index: 50;
+      overflow-y: auto;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--surface);
+      color: var(--text);
+      border: var(--btn-border-width) solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 92dvh;
+      overflow-y: auto;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .field-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .search-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+
+    .search-results {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    .search-item-btn {
+      width: 100%;
+      text-align: left;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    #mapContainer {
+      width: 100%;
+      height: 210px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .coord-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .alarm-overlay {
+      position: fixed;
+      inset: 0;
+      background: #090d16;
+      color: #ffffff;
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px 18px 24px;
+    }
+
+    .alarm-overlay.active {
+      display: flex;
+    }
+
+    .alarm-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .alarm-heading {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin: 0 0 6px;
+    }
+
+    .alarm-sub {
+      font-size: 0.95rem;
+      color: #cbd5e1;
+    }
+
+    .dismiss-tiny-btn {
+      padding: 6px 9px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(127, 29, 29, 0.55);
+      color: #fecaca;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .snooze-giant-btn {
+      width: 100%;
+      min-height: 220px;
+      border-radius: 28px;
+      border: 4px solid #86efac;
+      background: var(--snooze);
+      color: var(--snooze-text);
+      font-family: var(--font-display);
+      font-size: 2.3rem;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.35);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .snooze-sub {
+      font-family: var(--font-main);
+      font-size: 1rem;
+      font-weight: 700;
+      opacity: 0.92;
+    }
+
+    .alarm-footer-note {
+      text-align: center;
+      font-size: 0.78rem;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body data-theme="classic" data-glass-polarity="dark-ui">
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <svg class="brand-icon" viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M32 4C20.4 4 11 13.4 11 25c0 15.8 21 35 21 35s21-19.2 21-35C53 13.4 43.6 4 32 4z" fill="#ef4444" stroke="#ffffff" stroke-width="3"/>
+          <circle cx="32" cy="25" r="13" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/>
+          <path d="M18 13l5-5M46 13l-5-5" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+          <path d="M32 18v7l5 3" stroke="#0f172a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+        <span class="brand-title">Cél-ébresztő</span>
+      </div>
+
+      <div class="top-controls">
+        <select id="thresholdSelect" class="threshold-select" aria-label="Riasztási távolság">
+          <option value="300">300 m előtt</option>
+          <option value="500">500 m előtt</option>
+          <option value="1000" selected>1 km előtt</option>
+          <option value="1500">1,5 km előtt</option>
+          <option value="2000">2 km előtt</option>
+          <option value="3000">3 km előtt</option>
+          <option value="5000">5 km előtt</option>
+        </select>
+        <button id="voiceBtn" class="icon-btn" type="button" title="Hangvezérlés">🎤</button>
+        <button id="themeBtn" class="icon-btn" type="button" title="Dizájn és szimuláció">🎨</button>
+        <button id="editModeBtn" class="icon-btn" type="button" title="Helyek szerkesztése">✏️</button>
+      </div>
+    </header>
+
+    <h1 class="prompt-title">Hova tartasz?</h1>
+
+    <main id="destinationsGrid" class="destinations-grid" aria-label="Mentett célpontok"></main>
+
+    <section class="panel" aria-live="polite">
+      <div id="statusLine" class="status-line">Válassz egy célpontot a 10 hely közül.</div>
+      <div id="statusDetail" class="status-detail">Koppints egy helyre a figyeléshez, vagy nyomd meg a ✏️ gombot a szerkesztéshez.</div>
+
+      <div class="action-row">
+        <button id="toggleWatchBtn" class="action-btn primary" type="button">Figyelés indítása</button>
+        <button id="stopWatchBtn" class="action-btn danger" type="button" style="display:none;">Figyelés leállítása</button>
+      </div>
+
+      <div class="sound-controls">
+        <select id="soundSelect" class="sound-select" aria-label="Ébresztőhang"></select>
+        <button id="previewSoundBtn" class="action-btn" type="button">Próbahang</button>
+      </div>
+
+      <div class="extra-audio-row">
+        <label class="toggle-pill">
+          <input id="loudModeToggle" type="checkbox" checked />
+          <span>Erős hangerő (zene mellett)</span>
+        </label>
+        <button id="pickAudioBtn" class="action-btn" type="button">Saját hang betöltése</button>
+        <input id="customAudioInput" type="file" accept="audio/*" style="display:none;" />
+      </div>
+      <div id="customAudioInfo" class="custom-file-badge">Nincs külön betöltött hangfájl (beépített hangok aktívak).</div>
+    </section>
+
+    <section id="themeDrawer" class="drawer" aria-label="Dizájn és szimuláció">
+      <h2 class="drawer-title">Megjelenési stílus</h2>
+      <div class="theme-grid">
+        <button class="theme-chip active" data-theme-choice="classic" type="button">Letisztult alap</button>
+        <button class="theme-chip" data-theme-choice="glass" type="button">Átlátszó (háttérhez igazodó)</button>
+        <button class="theme-chip" data-theme-choice="cartoon" type="button">Rajzfilmes / képregény</button>
+        <button class="theme-chip" data-theme-choice="gothic" type="button">Gótikus</button>
+        <button class="theme-chip" data-theme-choice="renaissance" type="button">Reneszánsz / Michelangelo</button>
+        <button class="theme-chip" data-theme-choice="punk" type="button">Punk</button>
+      </div>
+
+      <div id="glassBox" class="glass-box">
+        <div id="glassPolarityInfo" class="field-label">Automatikus kontraszt: világos háttérhez sötét, sötét háttérhez világos.</div>
+        <div class="action-row">
+          <button id="pickWallpaperBtn" class="action-btn" type="button">Háttér / képernyőfotó betöltése</button>
+          <button id="flipGlassPolarityBtn" class="action-btn" type="button">Világos / Sötét felület váltása</button>
+          <input id="wallpaperInput" type="file" accept="image/*" style="display:none;" />
+        </div>
+      </div>
+
+      <div class="sim-box">
+        <label for="simDistanceRange" class="field-label">
+          Közeledés tesztelése a célhoz: <strong id="simDistanceLabel">2500 m</strong>
+        </label>
+        <input id="simDistanceRange" type="range" min="100" max="5000" step="100" value="2500" />
+        <div class="action-row">
+          <button id="triggerSimAlarmBtn" class="action-btn primary" type="button">Riasztás tesztelése most</button>
+        </div>
+      </div>
+    </section>
+
+    <div id="adBannerSlot" class="ad-slot" data-ad-slot="bottom-banner">
+      Ingyenes kiadás • Diszkrét reklámhely (riasztás és szundi közben rejtve)
+    </div>
+  </div>
+
+  <!-- Hely szerkesztő modális ablak (címkereső + térkép) -->
+  <div id="editModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+    <div class="modal-card">
+      <h2 id="editModalTitle" class="modal-title">Célpont szerkesztése</h2>
+
+      <div class="field-group">
+        <label for="editNameInput" class="field-label">Hely neve</label>
+        <input id="editNameInput" class="text-input" type="text" maxlength="32" placeholder="Pl. Munka" />
+      </div>
+
+      <div class="field-group">
+        <label for="addressSearchInput" class="field-label">Cím vagy hely keresése (pl. Hilton Tel Aviv Hotel)</label>
+        <div class="search-row">
+          <input id="addressSearchInput" class="text-input" type="text" placeholder="Írd be a címet vagy a hely nevét..." />
+          <button id="searchAddressBtn" class="action-btn primary" type="button">Keresés</button>
+        </div>
+        <div id="searchResults" class="search-results"></div>
+      </div>
+
+      <div id="mapContainer" aria-label="Térkép"></div>
+
+      <div class="coord-row">
+        <div class="field-group">
+          <label for="editLatInput" class="field-label">Szélesség (lat)</label>
+          <input id="editLatInput" class="num-input" type="number" step="any" placeholder="32.0853" />
+        </div>
+        <div class="field-group">
+          <label for="editLngInput" class="field-label">Hosszúság (lng)</label>
+          <input id="editLngInput" class="num-input" type="number" step="any" placeholder="34.7729" />
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button id="useCurrentGpsBtn" class="action-btn" type="button">Jelenlegi GPS</button>
+        <button id="savePlaceBtn" class="action-btn primary" type="button">Mentés / OK</button>
+        <button id="cancelEditBtn" class="action-btn" type="button">Mégse</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ébresztő képernyő: óriási 20 mp Szundi + apró Végleges leállítás -->
+  <div id="alarmOverlay" class="alarm-overlay" role="alertdialog" aria-modal="true" aria-live="assertive">
+    <div class="alarm-top">
+      <div>
+        <h2 id="alarmHeading" class="alarm-heading">ÉBRESZTŐ! Közel a cél!</h2>
+        <div id="alarmSub" class="alarm-sub">Hamarosan eléred a megállót.</div>
+      </div>
+      <button id="dismissForeverBtn" class="dismiss-tiny-btn" type="button">Végleges leállítás</button>
+    </div>
+
+    <button id="snoozeGiantBtn" class="snooze-giant-btn" type="button">
+      <span>SZUNDI (20 MP)</span>
+      <span id="snoozeCountdownText" class="snooze-sub">Koppints a 20 másodperces némításhoz</span>
+    </button>
+
+    <div class="alarm-footer-note">
+      A szundi 20 másodpercre elnémítja a riasztást; a végleges leállítás a jobb felső apró gombbal történik.
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script>
+    try {
+      const STORAGE_KEY = "stopwake_hu_v5";
+      const DEFAULT_PLACES = [
+        { name: "Otthon", lockedName: true, lat: null, lng: null },
+        { name: "Munka", lockedName: true, lat: null, lng: null },
+        { name: "Hazafelé busz", lockedName: false, lat: null, lng: null },
+        { name: "Átszálló megálló", lockedName: false, lat: null, lng: null },
+        { name: "Vonatállomás", lockedName: false, lat: null, lng: null },
+        { name: "Edzőterem", lockedName: false, lat: null, lng: null },
+        { name: "Nagybevásárlás", lockedName: false, lat: null, lng: null },
+        { name: "Orvosi rendelő", lockedName: false, lat: null, lng: null },
+        { name: "9. Hely", lockedName: false, lat: null, lng: null },
+        { name: "10. Hely", lockedName: false, lat: null, lng: null }
+      ];
+
+      const SOUNDS = [
+        { id: "roman_horn", label: "Római kori hadi kürt" },
+        { id: "clock_bell", label: "Klasszikus vekkercsengő" },
+        { id: "ship_horn", label: "Hajókürt" },
+        { id: "train_whistle", label: "Vonatkürt" },
+        { id: "sonar_ping", label: "Szonár jelzés" },
+        { id: "fire_alarm", label: "Sürgősségi riasztó" },
+        { id: "bronze_gong", label: "Bronz gong" },
+        { id: "bugle_call", label: "Katonai kürtjel" },
+        { id: "church_bell", label: "Harangzúgás" },
+        { id: "morse_sos", label: "Morze jelzés" },
+        { id: "digital_pulse", label: "Digitális lüktetés" }
+      ];
+
+      let state = {
+        places: DEFAULT_PLACES.map(p => ({ ...p })),
+        selectedIndex: 0,
+        thresholdMeters: 1000,
+        soundId: "roman_horn",
+        loudMode: true,
+        theme: "classic",
+        glassPolarity: "dark-ui"
+      };
+
+      let editMode = false;
+      let editingIndex = null;
+      let watching = false;
+      let watchId = null;
+      let alarmActive = false;
+      let snoozeRemaining = 0;
+      let snoozeInterval = null;
+      let alarmLoopInterval = null;
+      let audioCtx = null;
+      let customAudioUrl = null;
+      let customAudioName = "";
+      let customAudioPlayer = null;
+      let wallpaperDataUrl = null;
+
+      let leafletMap = null;
+      let leafletMarker = null;
+
+      const destinationsGrid = document.getElementById("destinationsGrid");
+      const thresholdSelect = document.getElementById("thresholdSelect");
+      const voiceBtn = document.getElementById("voiceBtn");
+      const themeBtn = document.getElementById("themeBtn");
+      const editModeBtn = document.getElementById("editModeBtn");
+      const themeDrawer = document.getElementById("themeDrawer");
+      const glassBox = document.getElementById("glassBox");
+      const glassPolarityInfo = document.getElementById("glassPolarityInfo");
+      const pickWallpaperBtn = document.getElementById("pickWallpaperBtn");
+      const flipGlassPolarityBtn = document.getElementById("flipGlassPolarityBtn");
+      const wallpaperInput = document.getElementById("wallpaperInput");
+
+      const statusLine = document.getElementById("statusLine");
+      const statusDetail = document.getElementById("statusDetail");
+      const toggleWatchBtn = document.getElementById("toggleWatchBtn");
+      const stopWatchBtn = document.getElementById("stopWatchBtn");
+      const soundSelect = document.getElementById("soundSelect");
+      const previewSoundBtn = document.getElementById("previewSoundBtn");
+      const loudModeToggle = document.getElementById("loudModeToggle");
+      const pickAudioBtn = document.getElementById("pickAudioBtn");
+      const customAudioInput = document.getElementById("customAudioInput");
+      const customAudioInfo = document.getElementById("customAudioInfo");
+      const simDistanceRange = document.getElementById("simDistanceRange");
+      const simDistanceLabel = document.getElementById("simDistanceLabel");
+      const triggerSimAlarmBtn = document.getElementById("triggerSimAlarmBtn");
+
+      const editModal = document.getElementById("editModal");
+      const editNameInput = document.getElementById("editNameInput");
+      const addressSearchInput = document.getElementById("addressSearchInput");
+      const searchAddressBtn = document.getElementById("searchAddressBtn");
+      const searchResults = document.getElementById("searchResults");
+      const editLatInput = document.getElementById("editLatInput");
+      const editLngInput = document.getElementById("editLngInput");
+      const useCurrentGpsBtn = document.getElementById("useCurrentGpsBtn");
+      const savePlaceBtn = document.getElementById("savePlaceBtn");
+      const cancelEditBtn = document.getElementById("cancelEditBtn");
+
+      const alarmOverlay = document.getElementById("alarmOverlay");
+      const alarmHeading = document.getElementById("alarmHeading");
+      const alarmSub = document.getElementById("alarmSub");
+      const snoozeGiantBtn = document.getElementById("snoozeGiantBtn");
+      const snoozeCountdownText = document.getElementById("snoozeCountdownText");
+      const dismissForeverBtn = document.getElementById("dismissForeverBtn");
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed.places) && parsed.places.length === 10) {
+            state.places = parsed.places.map((p, idx) => ({
+              name: p.name || DEFAULT_PLACES[idx].name,
+              lockedName: idx < 2 ? true : Boolean(p.lockedName),
+              lat: typeof p.lat === "number" ? p.lat : null,
+              lng: typeof p.lng === "number" ? p.lng : null
+            }));
+            state.places[0].name = "Otthon";
+            state.places[1].name = "Munka";
+          }
+          if (typeof parsed.selectedIndex === "number") state.selectedIndex = parsed.selectedIndex;
+          if (typeof parsed.thresholdMeters === "number") state.thresholdMeters = parsed.thresholdMeters;
+          if (typeof parsed.soundId === "string") state.soundId = parsed.soundId;
+          if (typeof parsed.loudMode === "boolean") state.loudMode = parsed.loudMode;
+          if (typeof parsed.theme === "string") state.theme = parsed.theme;
+          if (parsed.glassPolarity === "light-ui" || parsed.glassPolarity === "dark-ui") {
+            state.glassPolarity = parsed.glassPolarity;
+          }
+        } catch (err) {
+          console.warn("Állapot betöltési hiba:", err);
+        }
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (err) {
+          console.warn("Állapot mentési hiba:", err);
+        }
+      }
+
+      function syncGlassPolarityLabel() {
+        if (state.glassPolarity === "light-ui") {
+          glassPolarityInfo.textContent = "Átlátszó mód: világos, áttetsző felület (sötét háttérhez).";
+        } else {
+          glassPolarityInfo.textContent = "Átlátszó mód: sötét, áttetsző felület (világos háttérhez).";
+        }
+      }
+
+      function applyTheme(themeName) {
+        const validThemes = ["classic", "glass", "cartoon", "gothic", "renaissance", "punk"];
+        const chosen = validThemes.includes(themeName) ? themeName : "classic";
+        state.theme = chosen;
+        document.body.setAttribute("data-theme", chosen);
+        document.body.setAttribute("data-glass-polarity", state.glassPolarity);
+        if (wallpaperDataUrl) {
+          document.body.setAttribute("data-has-wallpaper", "true");
+          document.body.style.setProperty("--wallpaper-img", `url("${wallpaperDataUrl}")`);
+        } else {
+          document.body.removeAttribute("data-has-wallpaper");
+          document.body.style.setProperty("--wallpaper-img", "none");
+        }
+
+        document.querySelectorAll(".theme-chip").forEach(chip => {
+          chip.classList.toggle("active", chip.dataset.themeChoice === chosen);
+        });
+        glassBox.classList.toggle("visible", chosen === "glass");
+        syncGlassPolarityLabel();
+        saveState();
+      }
+
+      function detectImageLuminanceAndApply(imgSrc) {
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const canvas = document.createElement("canvas");
+            const size = 48;
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, size, size);
+            const data = ctx.getImageData(0, 0, size, size).data;
+            let sum = 0;
+            const pixels = data.length / 4;
+            for (let i = 0; i < data.length; i += 4) {
+              sum += 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+            }
+            const avg = sum / pixels;
+            state.glassPolarity = avg > 135 ? "dark-ui" : "light-ui";
+            applyTheme("glass");
+          } catch (e) {
+            applyTheme("glass");
+          }
+        };
+        img.src = imgSrc;
+      }
+
+      function populateSounds() {
+        soundSelect.innerHTML = "";
+        SOUNDS.forEach(s => {
+          const opt = document.createElement("option");
+          opt.value = s.id;
+          opt.textContent = s.label;
+          if (s.id === state.soundId) opt.selected = true;
+          soundSelect.appendChild(opt);
+        });
+        if (customAudioUrl) {
+          const customOpt = document.createElement("option");
+          customOpt.value = "__custom__";
+          customOpt.textContent = "Saját hang: " + customAudioName;
+          if (state.soundId === "__custom__") customOpt.selected = true;
+          soundSelect.appendChild(customOpt);
+        }
+      }
+
+      function renderDestinations() {
+        destinationsGrid.innerHTML = "";
+        state.places.forEach((place, idx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "dest-btn" + (idx === state.selectedIndex ? " selected" : "");
+          const hasCoords = typeof place.lat === "number" && typeof place.lng === "number";
+          const roleTag = idx < 2 ? "Fix hely" : "Szabad hely";
+          btn.innerHTML = `
+            <span class="dest-index">${idx + 1}. • ${roleTag}</span>
+            <span class="dest-name">${escapeHtml(place.name)}</span>
+            <span class="dest-sub">${editMode ? "Koppints a térkép/cím beállításhoz" : (hasCoords ? "GPS cél beállítva" : "Koppints a hely megadásához")}</span>
+          `;
+          btn.addEventListener("click", () => {
+            state.selectedIndex = idx;
+            saveState();
+            renderDestinations();
+            if (editMode || !hasCoords) {
+              openEditModal(idx);
+            } else {
+              updateStatus();
+            }
+          });
+          destinationsGrid.appendChild(btn);
+        });
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function updateStatus(extraText = "") {
+        const place = state.places[state.selectedIndex] || state.places[0];
+        const hasCoords = typeof place.lat === "number" && typeof place.lng === "number";
+        statusLine.textContent = `Célpont: ${place.name} • Küszöb: ${formatDistance(state.thresholdMeters)}`;
+        if (extraText) {
+          statusDetail.textContent = extraText;
+        } else if (!hasCoords) {
+          statusDetail.textContent = "Ehhez a gombhoz még nincs cím/térképes hely. Koppints rá (vagy a ✏️ gombra) és add meg a címet vagy jelöld ki a térképen.";
+        } else if (watching) {
+          statusDetail.textContent = "GPS figyelés aktív. Amint a célhoz érsz a beállított távolságon belül, megszólal a riasztás.";
+        } else {
+          statusDetail.textContent = `Koordináta: ${place.lat.toFixed(5)}, ${place.lng.toFixed(5)}. Nyomd meg a „Figyelés indítása” gombot.`;
+        }
+      }
+
+      function formatDistance(meters) {
+        if (meters >= 1000) {
+          const km = (meters / 1000).toFixed(meters % 1000 === 0 ? 0 : 1).replace(".", ",");
+          return `${km} km előtt`;
+        }
+        return `${meters} m előtt`;
+      }
+
+      function haversineMeters(lat1, lon1, lat2, lon2) {
+        const R = 6371000;
+        const toRad = d => d * Math.PI / 180;
+        const dLat = toRad(lat2 - lat1);
+        const dLon = toRad(lon2 - lon1);
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      }
+
+      function ensureAudioContext() {
+        if (!audioCtx) {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (Ctx) audioCtx = new Ctx();
+        }
+        if (audioCtx && audioCtx.state === "suspended") {
+          audioCtx.resume().catch(() => {});
+        }
+        return audioCtx;
+      }
+
+      function getGainMultiplier() {
+        return state.loudMode ? 1.8 : 1.0;
+      }
+
+      function playTone(freq, duration, type = "sawtooth", delay = 0, peak = 0.28, endFreq = null) {
+        const ctx = ensureAudioContext();
+        if (!ctx) return;
+        const start = ctx.currentTime + delay;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, start);
+        if (endFreq !== null) {
+          osc.frequency.exponentialRampToValueAtTime(Math.max(40, endFreq), start + duration);
+        }
+
+        const scaledPeak = Math.min(0.75, peak * getGainMultiplier());
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.linearRampToValueAtTime(scaledPeak, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + duration + 0.03);
+      }
+
+      function stopAllSounds() {
+        if (alarmLoopInterval) {
+          clearInterval(alarmLoopInterval);
+          alarmLoopInterval = null;
+        }
+        if (customAudioPlayer) {
+          customAudioPlayer.pause();
+          customAudioPlayer.currentTime = 0;
+        }
+      }
+
+      function triggerSoundOnce(soundId) {
+        if (soundId === "__custom__" && customAudioUrl) {
+          if (!customAudioPlayer) {
+            customAudioPlayer = new Audio(customAudioUrl);
+          } else if (customAudioPlayer.src !== customAudioUrl) {
+            customAudioPlayer.src = customAudioUrl;
+          }
+          customAudioPlayer.volume = 1.0;
+          customAudioPlayer.currentTime = 0;
+          customAudioPlayer.play().catch(() => {});
+          return;
+        }
+
+        switch (soundId) {
+          case "roman_horn":
+            playTone(146.8, 0.9, "sawtooth", 0.0, 0.36, 152);
+            playTone(146.8, 0.9, "triangle", 0.0, 0.26, 152);
+            playTone(220.0, 1.15, "sawtooth", 0.55, 0.36, 214);
+            break;
+          case "clock_bell":
+            for (let i = 0; i < 6; i++) {
+              playTone(1850, 0.09, "square", i * 0.12, 0.26);
+            }
+            break;
+          case "ship_horn":
+            playTone(110, 1.3, "sawtooth", 0, 0.32, 104);
+            playTone(112.5, 1.3, "triangle", 0, 0.24, 106);
+            break;
+          case "train_whistle":
+            playTone(620, 0.35, "sawtooth", 0, 0.28, 660);
+            playTone(840, 0.55, "sawtooth", 0.36, 0.3, 790);
+            break;
+          case "sonar_ping":
+            playTone(1320, 0.45, "sine", 0, 0.34);
+            playTone(1320, 0.45, "sine", 0.65, 0.3);
+            break;
+          case "fire_alarm":
+            for (let i = 0; i < 4; i++) {
+              playTone(760 + i * 160, 0.18, "sawtooth", i * 0.2, 0.3);
+            }
+            break;
+          case "bronze_gong":
+            playTone(140, 1.5, "sine", 0, 0.34, 132);
+            playTone(352, 1.2, "triangle", 0, 0.2, 340);
+            break;
+          case "bugle_call":
+            playTone(440, 0.22, "sawtooth", 0, 0.26);
+            playTone(554.37, 0.22, "sawtooth", 0.24, 0.26);
+            playTone(659.25, 0.45, "sawtooth", 0.48, 0.3);
+            break;
+          case "church_bell":
+            playTone(392, 1.1, "sine", 0, 0.28, 388);
+            playTone(784, 0.9, "triangle", 0.02, 0.16);
+            break;
+          case "morse_sos":
+            [0, 0.22, 0.44, 0.72, 1.02, 1.32, 1.62, 1.84, 2.06].forEach((t, idx) => {
+              const dur = (idx >= 3 && idx <= 5) ? 0.24 : 0.11;
+              playTone(880, dur, "square", t, 0.24);
+            });
+            break;
+          case "digital_pulse":
+          default:
+            playTone(980, 0.16, "square", 0, 0.24);
+            playTone(1240, 0.16, "square", 0.2, 0.24);
+            break;
+        }
+      }
+
+      function startAlarm(messageSub = "") {
+        alarmActive = true;
+        snoozeRemaining = 0;
+        if (snoozeInterval) {
+          clearInterval(snoozeInterval);
+          snoozeInterval = null;
+        }
+        const place = state.places[state.selectedIndex] || state.places[0];
+        alarmHeading.textContent = `ÉBRESZTŐ: ${place.name}`;
+        alarmSub.textContent = messageSub || `Elérted a beállított ${formatDistance(state.thresholdMeters)} távolságot.`;
+        snoozeGiantBtn.disabled = false;
+        snoozeCountdownText.textContent = "Koppints a 20 másodperces némításhoz";
+        alarmOverlay.classList.add("active");
+
+        if (navigator.vibrate) {
+          navigator.vibrate([500, 250, 500, 250, 800]);
+        }
+
+        stopAllSounds();
+        triggerSoundOnce(state.soundId);
+        alarmLoopInterval = setInterval(() => {
+          if (alarmActive && snoozeRemaining <= 0) {
+            triggerSoundOnce(state.soundId);
+            if (navigator.vibrate) navigator.vibrate([400, 200, 400]);
+          }
+        }, 2400);
+      }
+
+      function snoozeFor20Seconds() {
+        if (!alarmActive) return;
+        stopAllSounds();
+        snoozeRemaining = 20;
+        snoozeGiantBtn.disabled = true;
+        snoozeCountdownText.textContent = `Némítva: ${snoozeRemaining} mp van hátra...`;
+
+        if (snoozeInterval) clearInterval(snoozeInterval);
+        snoozeInterval = setInterval(() => {
+          snoozeRemaining -= 1;
+          if (snoozeRemaining > 0) {
+            snoozeCountdownText.textContent = `Némítva: ${snoozeRemaining} mp van hátra...`;
+          } else {
+            clearInterval(snoozeInterval);
+            snoozeInterval = null;
+            snoozeGiantBtn.disabled = false;
+            snoozeCountdownText.textContent = "Koppints a 20 másodperces némításhoz";
+            if (alarmActive) {
+              triggerSoundOnce(state.soundId);
+              alarmLoopInterval = setInterval(() => {
+                if (alarmActive && snoozeRemaining <= 0) {
+                  triggerSoundOnce(state.soundId);
+                }
+              }, 2400);
+            }
+          }
+        }, 1000);
+      }
+
+      function dismissAlarmForever() {
+        alarmActive = false;
+        snoozeRemaining = 0;
+        if (snoozeInterval) {
+          clearInterval(snoozeInterval);
+          snoozeInterval = null;
+        }
+        stopAllSounds();
+        alarmOverlay.classList.remove("active");
+        stopWatching();
+        updateStatus("A riasztás véglegesen leállítva.");
+      }
+
+      function startWatching() {
+        const place = state.places[state.selectedIndex];
+        if (!place || typeof place.lat !== "number" || typeof place.lng !== "number") {
+          updateStatus("Előbb adj meg címet vagy térképes helyet a kiválasztott gombhoz.");
+          return;
+        }
+        if (!navigator.geolocation) {
+          updateStatus("Ez a böngésző nem támogatja a GPS helymeghatározást.");
+          return;
+        }
+
+        ensureAudioContext();
+        watching = true;
+        toggleWatchBtn.style.display = "none";
+        stopWatchBtn.style.display = "inline-flex";
+        updateStatus("GPS pozíció lekérése...");
+
+        watchId = navigator.geolocation.watchPosition(
+          pos => {
+            if (!watching || alarmActive) return;
+            const dist = haversineMeters(pos.coords.latitude, pos.coords.longitude, place.lat, place.lng);
+            updateStatus(`Távolság a célhoz (${place.name}): ${Math.round(dist)} m (küszöb: ${state.thresholdMeters} m)`);
+            if (dist <= state.thresholdMeters) {
+              startAlarm(`Távolság a célhoz (${place.name}): ${Math.round(dist)} méter.`);
+            }
+          },
+          err => {
+            updateStatus(`GPS hiba: ${err.message || "nem sikerült lekérni a pozíciót"}`);
+          },
+          { enableHighAccuracy: true, maximumAge: 3000, timeout: 10000 }
+        );
+      }
+
+      function stopWatching() {
+        watching = false;
+        if (watchId !== null && navigator.geolocation) {
+          navigator.geolocation.clearWatch(watchId);
+          watchId = null;
+        }
+        toggleWatchBtn.style.display = "inline-flex";
+        stopWatchBtn.style.display = "none";
+        updateStatus("GPS figyelés leállítva.");
+      }
+
+      function ensureLeafletMap(lat, lng) {
+        if (typeof window.L === "undefined") return;
+        const centerLat = typeof lat === "number" ? lat : 47.4979;
+        const centerLng = typeof lng === "number" ? lng : 19.0402;
+
+        if (!leafletMap) {
+          leafletMap = L.map("mapContainer").setView([centerLat, centerLng], typeof lat === "number" ? 15 : 6);
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution: "&copy; OpenStreetMap"
+          }).addTo(leafletMap);
+
+          leafletMap.on("click", e => {
+            setMapPoint(e.latlng.lat, e.latlng.lng, true);
+          });
+        } else {
+          leafletMap.setView([centerLat, centerLng], typeof lat === "number" ? 15 : 6);
+        }
+
+        if (typeof lat === "number" && typeof lng === "number") {
+          setMapPoint(lat, lng, false);
+        } else if (leafletMarker) {
+          leafletMap.removeLayer(leafletMarker);
+          leafletMarker = null;
+        }
+
+        setTimeout(() => {
+          if (leafletMap) leafletMap.invalidateSize();
+        }, 120);
+      }
+
+      function setMapPoint(lat, lng, panTo) {
+        const fixedLat = Number(lat.toFixed(6));
+        const fixedLng = Number(lng.toFixed(6));
+        editLatInput.value = fixedLat;
+        editLngInput.value = fixedLng;
+
+        if (!leafletMap || typeof window.L === "undefined") return;
+        if (!leafletMarker) {
+          leafletMarker = L.marker([fixedLat, fixedLng]).addTo(leafletMap);
+        } else {
+          leafletMarker.setLatLng([fixedLat, fixedLng]);
+        }
+        if (panTo) {
+          leafletMap.setView([fixedLat, fixedLng], Math.max(leafletMap.getZoom(), 15));
+        }
+      }
+
+      async function searchAddress() {
+        const q = addressSearchInput.value.trim();
+        if (!q) return;
+        searchResults.innerHTML = `<div class="field-label">Keresés...</div>`;
+        try {
+          const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(q)}`;
+          const res = await fetch(url, { headers: { "Accept-Language": "hu,en" } });
+          const items = await res.json();
+          searchResults.innerHTML = "";
+          if (!Array.isArray(items) || items.length === 0) {
+            searchResults.innerHTML = `<div class="field-label">Nincs találat. Próbáld pontosabban, vagy bökj rá a térképen.</div>`;
+            return;
+          }
+          items.forEach(item => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "search-item-btn";
+            btn.textContent = item.display_name;
+            btn.addEventListener("click", () => {
+              const lat = parseFloat(item.lat);
+              const lon = parseFloat(item.lon);
+              if (Number.isFinite(lat) && Number.isFinite(lon)) {
+                setMapPoint(lat, lon, true);
+              }
+            });
+            searchResults.appendChild(btn);
+          });
+        } catch (err) {
+          searchResults.innerHTML = `<div class="field-label">Keresési hiba. Bökj rá a térképen vagy írd be a koordinátát.</div>`;
+        }
+      }
+
+      function openEditModal(index) {
+        editingIndex = index;
+        const place = state.places[index];
+        editNameInput.value = place.name || "";
+        editNameInput.disabled = index < 2;
+        addressSearchInput.value = "";
+        searchResults.innerHTML = "";
+        editLatInput.value = typeof place.lat === "number" ? place.lat : "";
+        editLngInput.value = typeof place.lng === "number" ? place.lng : "";
+        editModal.classList.add("open");
+        ensureLeafletMap(place.lat, place.lng);
+      }
+
+      function closeEditModal() {
+        editModal.classList.remove("open");
+        editingIndex = null;
+      }
+
+      thresholdSelect.addEventListener("change", () => {
+        state.thresholdMeters = Number(thresholdSelect.value);
+        saveState();
+        updateStatus();
+      });
+
+      editModeBtn.addEventListener("click", () => {
+        editMode = !editMode;
+        editModeBtn.classList.toggle("active", editMode);
+        renderDestinations();
+        updateStatus(editMode ? "Szerkesztő mód aktív: koppints bármelyik helyre a cím/térkép beállításhoz." : "");
+      });
+
+      themeBtn.addEventListener("click", () => {
+        const isOpen = themeDrawer.classList.toggle("open");
+        themeBtn.classList.toggle("active", isOpen);
+      });
+
+      document.querySelectorAll(".theme-chip").forEach(chip => {
+        chip.addEventListener("click", () => applyTheme(chip.dataset.themeChoice));
+      });
+
+      pickWallpaperBtn.addEventListener("click", () => wallpaperInput.click());
+
+      wallpaperInput.addEventListener("change", e => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          wallpaperDataUrl = ev.target.result;
+          detectImageLuminanceAndApply(wallpaperDataUrl);
+        };
+        reader.readAsDataURL(file);
+      });
+
+      flipGlassPolarityBtn.addEventListener("click", () => {
+        state.glassPolarity = state.glassPolarity === "dark-ui" ? "light-ui" : "dark-ui";
+        applyTheme("glass");
+      });
+
+      soundSelect.addEventListener("change", () => {
+        state.soundId = soundSelect.value;
+        saveState();
+      });
+
+      loudModeToggle.addEventListener("change", () => {
+        state.loudMode = loudModeToggle.checked;
+        saveState();
+      });
+
+      previewSoundBtn.addEventListener("click", () => {
+        ensureAudioContext();
+        stopAllSounds();
+        triggerSoundOnce(state.soundId);
+        setTimeout(() => {
+          if (!alarmActive) stopAllSounds();
+        }, 2200);
+      });
+
+      pickAudioBtn.addEventListener("click", () => customAudioInput.click());
+
+      customAudioInput.addEventListener("change", e => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        if (customAudioUrl) URL.revokeObjectURL(customAudioUrl);
+        customAudioUrl = URL.createObjectURL(file);
+        customAudioName = file.name;
+        state.soundId = "__custom__";
+        customAudioInfo.textContent = `Betöltött saját hang: ${customAudioName}`;
+        populateSounds();
+        saveState();
+      });
+
+      simDistanceRange.addEventListener("input", () => {
+        simDistanceLabel.textContent = `${simDistanceRange.value} m`;
+      });
+
+      triggerSimAlarmBtn.addEventListener("click", () => {
+        ensureAudioContext();
+        startAlarm(`Szimulált távolság a célhoz: ${simDistanceRange.value} méter.`);
+      });
+
+      toggleWatchBtn.addEventListener("click", startWatching);
+      stopWatchBtn.addEventListener("click", stopWatching);
+      snoozeGiantBtn.addEventListener("click", snoozeFor20Seconds);
+      dismissForeverBtn.addEventListener("click", dismissAlarmForever);
+
+      searchAddressBtn.addEventListener("click", searchAddress);
+      addressSearchInput.addEventListener("keydown", e => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          searchAddress();
+        }
+      });
+
+      useCurrentGpsBtn.addEventListener("click", () => {
+        if (!navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            setMapPoint(pos.coords.latitude, pos.coords.longitude, true);
+          },
+          () => {
+            updateStatus("Nem sikerült beolvasni a jelenlegi GPS koordinátát.");
+          },
+          { enableHighAccuracy: true }
+        );
+      });
+
+      savePlaceBtn.addEventListener("click", () => {
+        if (editingIndex === null) return;
+        const name = editingIndex < 2
+          ? DEFAULT_PLACES[editingIndex].name
+          : (editNameInput.value.trim() || `${editingIndex + 1}. Hely`);
+        const latVal = parseFloat(editLatInput.value);
+        const lngVal = parseFloat(editLngInput.value);
+        state.places[editingIndex] = {
+          name,
+          lockedName: editingIndex < 2,
+          lat: Number.isFinite(latVal) ? latVal : null,
+          lng: Number.isFinite(lngVal) ? lngVal : null
+        };
+        saveState();
+        renderDestinations();
+        updateStatus();
+        closeEditModal();
+      });
+
+      cancelEditBtn.addEventListener("click", closeEditModal);
+
+      voiceBtn.addEventListener("click", () => {
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRec) {
+          updateStatus("A hangfelismerés ebben a böngészőben nem érhető el.");
+          return;
+        }
+        const rec = new SpeechRec();
+        rec.lang = "hu-HU";
+        rec.interimResults = false;
+        voiceBtn.classList.add("active");
+        updateStatus("Hallgatlak... mondd ki a célpont nevét.");
+
+        rec.onresult = event => {
+          const spoken = (event.results[0][0].transcript || "").toLowerCase().trim();
+          const foundIdx = state.places.findIndex(p => spoken.includes(p.name.toLowerCase()));
+          if (foundIdx !== -1) {
+            state.selectedIndex = foundIdx;
+            saveState();
+            renderDestinations();
+            updateStatus(`Hangvezérléssel kiválasztva: ${state.places[foundIdx].name}`);
+          } else {
+            updateStatus(`Nem ismertem fel a helyet („${spoken}”).`);
+          }
+        };
+
+        rec.onerror = () => updateStatus("A hangfelismerés nem sikerült.");
+        rec.onend = () => voiceBtn.classList.remove("active");
+        rec.start();
+      });
+
+      loadState();
+      thresholdSelect.value = String(state.thresholdMeters);
+      loudModeToggle.checked = state.loudMode;
+      applyTheme(state.theme);
+      populateSounds();
+      renderDestinations();
+      updateStatus();
+    } catch (fatalErr) {
+      document.body.innerHTML = `<div style="padding:20px;font-family:sans-serif;color:#111;background:#fff;"><h2>Cél-ébresztő</h2><p>Betöltési hiba történt: ${String(fatalErr && fatalErr.message || fatalErr)}</p></div>`;
+    }
+  </script>
+</body>
+</html>
