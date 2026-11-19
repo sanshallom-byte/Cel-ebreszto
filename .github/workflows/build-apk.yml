@@ -17,7 +17,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-        
 
       - name: Java 17 beállítása
         uses: actions/setup-java@v4
@@ -27,9 +26,13 @@ jobs:
 
       - name: Android SDK beállítása
         uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          build-tools: "34.0.0"
 
       - name: Függőségek telepítése
         run: npm install
+
       - name: Capacitor Android projekt létrehozása és szinkronizálása
         run: |
           if [ ! -d "android" ]; then
@@ -67,3 +70,4 @@ jobs:
         with:
           name: Cel-Ebreszto-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
+
