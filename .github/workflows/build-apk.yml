@@ -27,8 +27,9 @@ jobs:
       - name: Függőségek telepítése
         run: npm install
 
-      - name: Capacitor Android projekt létrehozása és szinkronizálása
+      - name: Webes alkalmazás fordítása és Capacitor szinkronizálás
         run: |
+          npm run build || true
           if [ ! -d "android" ]; then
             npx cap add android
           else
