@@ -29,8 +29,7 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Függőségek telepítése
-        
-
+        run: npm install
       - name: Capacitor Android projekt létrehozása és szinkronizálása
         run: |
           if [ ! -d "android" ]; then
