@@ -1,0 +1,8 @@
+{
+  "appId": "com.stopwake.celebreszto",
+  "appName": "Cél-ébresztő",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}
