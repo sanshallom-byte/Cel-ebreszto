@@ -1,0 +1,70 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Forráskód letöltése
+        uses: actions/checkout@v4
+
+      - name: Node.js beállítása
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Java 17 beállítása
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Android SDK beállítása
+        uses: android-actions/setup-android@v3
+
+      - name: Függőségek telepítése
+        run: npm install
+
+      - name: Capacitor Android projekt létrehozása és szinkronizálása
+        run: |
+          if [ ! -d "android" ]; then
+            npx cap add android
+          else
+            npx cap sync android
+          fi
+
+      - name: GPS, rezgés és hálózati engedélyek hozzáadása a Manifesthez
+        run: |
+          MANIFEST="android/app/src/main/AndroidManifest.xml"
+          python3 -c '
+          p = "'$MANIFEST'"
+          with open(p, "r", encoding="utf-8") as f:
+              txt = f.read()
+          perms = [
+              "android.permission.ACCESS_FINE_LOCATION",
+              "android.permission.ACCESS_COARSE_LOCATION",
+              "android.permission.VIBRATE",
+              "android.permission.INTERNET"
+          ]
+          for perm in perms:
+              tag = f"<uses-permission android:name=\"{perm}\" />"
+              if tag not in txt:
+                  txt = txt.replace("<application", tag + "\n    <application", 1)
+          with open(p, "w", encoding="utf-8") as f:
+              f.write(txt)
+          '
+
+      - name: Debug APK lefordítása
+        run: cd android && ./gradlew assembleDebug
+
+      - name: APK feltöltése letölthető csomagként
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cel-Ebreszto-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
