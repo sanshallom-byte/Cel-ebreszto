@@ -1,0 +1,15 @@
+{
+  "name": "cel-ebreszto",
+  "version": "1.0.0",
+  "description": "Cél-ébresztő (StopWake) - GPS-alapú megálló- és célfigyelő alkalmazás",
+  "private": true,
+  "scripts": {
+    "cap:add:android": "npx cap add android",
+    "cap:sync": "npx cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/android": "^6.0.0"
+  }
+}
