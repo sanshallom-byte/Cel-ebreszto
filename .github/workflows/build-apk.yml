@@ -1,4 +1,4 @@
-name: Build Android APK
+name: name: Build Android APK
 
 on:
   push:
@@ -27,35 +27,38 @@ jobs:
       - name: Függőségek telepítése
         run: npm install
 
-      - name: Webes alkalmazás fordítása és Capacitor szinkronizálás
+      - name: Capacitor Android projekt létrehozása és szinkronizálása
         run: |
           npm run build || true
           if [ ! -d "android" ]; then
             npx cap add android
           else
-            npx cap sync android
+            npx cap sync android || true
           fi
+          touch android/capacitor.settings.gradle
 
       - name: GPS, rezgés és hálózati engedélyek hozzáadása a Manifesthez
         run: |
           MANIFEST="android/app/src/main/AndroidManifest.xml"
-          python3 -c '
-          p = "'"$MANIFEST"'"
-          with open(p, "r", encoding="utf-8") as f:
-              txt = f.read()
-          perms = [
-              "android.permission.ACCESS_FINE_LOCATION",
-              "android.permission.ACCESS_COARSE_LOCATION",
-              "android.permission.VIBRATE",
-              "android.permission.INTERNET"
-          ]
-          for perm in perms:
-              tag = f"<uses-permission android:name=\"{perm}\" />"
-              if tag not in txt:
-                  txt = txt.replace("<application", tag + "\n    <application", 1)
-          with open(p, "w", encoding="utf-8") as f:
-              f.write(txt)
-          '
+          if [ -f "$MANIFEST" ]; then
+            python3 -c '
+            p = "'"$MANIFEST"'"
+            with open(p, "r", encoding="utf-8") as f:
+                txt = f.read()
+            perms = [
+                "android.permission.ACCESS_FINE_LOCATION",
+                "android.permission.ACCESS_COARSE_LOCATION",
+                "android.permission.VIBRATE",
+                "android.permission.INTERNET"
+            ]
+            for perm in perms:
+                tag = f"<uses-permission android:name=\"{perm}\" />"
+                if tag not in txt:
+                    txt = txt.replace("<application", tag + "\n    <application", 1)
+            with open(p, "w", encoding="utf-8") as f:
+                f.write(txt)
+            '
+          fi
 
       - name: Debug APK lefordítása
         run: |
@@ -70,3 +73,4 @@ jobs:
         with:
           name: Cel-Ebreszto-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
+
