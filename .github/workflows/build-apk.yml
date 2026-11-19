@@ -24,12 +24,6 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
-      - name: Android SDK beállítása
-        uses: android-actions/setup-android@v3
-        with:
-          api-level: 34
-          build-tools: "34.0.0"
-
       - name: Függőségek telepítése
         run: npm install
 
@@ -45,7 +39,7 @@ jobs:
         run: |
           MANIFEST="android/app/src/main/AndroidManifest.xml"
           python3 -c '
-          p = "'$MANIFEST'"
+          p = "'"$MANIFEST"'"
           with open(p, "r", encoding="utf-8") as f:
               txt = f.read()
           perms = [
@@ -63,11 +57,15 @@ jobs:
           '
 
       - name: Debug APK lefordítása
-        run: cd android && ./gradlew assembleDebug
+        run: |
+          export ANDROID_HOME=${ANDROID_HOME:-/usr/local/lib/android/sdk}
+          export ANDROID_SDK_ROOT=$ANDROID_HOME
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
 
       - name: APK feltöltése letölthető csomagként
         uses: actions/upload-artifact@v4
         with:
           name: Cel-Ebreszto-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
-
