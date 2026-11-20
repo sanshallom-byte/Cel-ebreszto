@@ -60,6 +60,25 @@ jobs:
             '
           fi
 
+      - name: Saját alkalmazásikon beállítása
+        run: |
+          ICON_SRC=""
+          if [ -f "www/icon.png" ]; then
+            ICON_SRC="www/icon.png"
+          elif [ -f "www/icon.jpg" ]; then
+            ICON_SRC="www/icon.jpg"
+          fi
+
+          if [ -n "$ICON_SRC" ]; then
+            for dir in android/app/src/main/res/mipmap-*; do
+              if [ -d "$dir" ]; then
+                cp "$ICON_SRC" "$dir/ic_launcher.png"
+                cp "$ICON_SRC" "$dir/ic_launcher_round.png"
+                cp "$ICON_SRC" "$dir/ic_launcher_foreground.png" 2>/dev/null || true
+              fi
+            done
+          fi
+
       - name: Debug APK lefordítása
         run: |
           export ANDROID_HOME=${ANDROID_HOME:-/usr/local/lib/android/sdk}
@@ -73,4 +92,3 @@ jobs:
         with:
           name: Cel-Ebreszto-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
-
