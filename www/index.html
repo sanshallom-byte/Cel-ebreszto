@@ -1,81 +1,2364 @@
 <!DOCTYPE html>
-<html lang="hu">
+<html lang="hu" dir="ltr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Cél-ébresztő (StopWake)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-2: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-text: #04131d;
+      --danger: #ef4444;
+      --snooze: #22c55e;
+      --snooze-text: #052e16;
+      --border: #475569;
+      --shadow: 0 10px 24px rgba(0,0,0,0.35);
+      --radius: 16px;
+      --font-main: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --font-display: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --btn-transform: none;
+      --btn-border-width: 1.5px;
+      --backdrop-blur: 0px;
+      --wallpaper-img: none;
+    }
+
+    /* 1. RAJZFILMES / KÉPREGÉNYES STÍLUS */
+    body[data-theme="cartoon"] {
+      --bg: #fef08a;
+      --surface: #ffffff;
+      --surface-2: #fde047;
+      --text: #111827;
+      --muted: #374151;
+      --accent: #2563eb;
+      --accent-text: #ffffff;
+      --danger: #dc2626;
+      --snooze: #16a34a;
+      --snooze-text: #ffffff;
+      --border: #111827;
+      --shadow: 5px 5px 0px #111827;
+      --radius: 22px 10px 20px 12px;
+      --font-main: 'Trebuchet MS', 'Comic Sans MS', system-ui, sans-serif;
+      --font-display: 'Arial Black', Impact, 'Trebuchet MS', sans-serif;
+      --btn-transform: rotate(-0.8deg);
+      --btn-border-width: 3.5px;
+      --backdrop-blur: 0px;
+      background-image: radial-gradient(#111827 1.1px, transparent 1.1px);
+      background-size: 18px 18px;
+    }
+    body[data-theme="cartoon"] .dest-btn:nth-child(even) {
+      transform: rotate(0.8deg);
+    }
+    body[data-theme="cartoon"] .dest-btn:active,
+    body[data-theme="cartoon"] .action-btn:active,
+    body[data-theme="cartoon"] .icon-btn:active {
+      transform: translate(3px, 3px);
+      box-shadow: 2px 2px 0px #111827;
+    }
+
+    /* 2. GÓTIKUS STÍLUS */
+    body[data-theme="gothic"] {
+      --bg: #09070a;
+      --surface: #161118;
+      --surface-2: #241926;
+      --text: #f3ece8;
+      --muted: #b79ea8;
+      --accent: #b91c1c;
+      --accent-text: #fff5f5;
+      --danger: #991b1b;
+      --snooze: #7f1d1d;
+      --snooze-text: #fef2f2;
+      --border: #6b5b6e;
+      --shadow: inset 0 0 0 1px rgba(226, 212, 218, 0.16), 0 12px 26px rgba(0, 0, 0, 0.78);
+      --radius: 4px 18px 4px 18px;
+      --font-main: Georgia, 'Times New Roman', serif;
+      --font-display: Palatino, 'Book Antiqua', Georgia, serif;
+      --btn-transform: none;
+      --btn-border-width: 2px;
+      --backdrop-blur: 0px;
+      background-image: linear-gradient(180deg, rgba(127,29,29,0.16) 0%, rgba(9,7,10,0.96) 55%);
+    }
+    body[data-theme="gothic"] .dest-btn::before,
+    body[data-theme="gothic"] .panel::before {
+      content: "✦";
+      position: absolute;
+      top: 6px;
+      left: 8px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      opacity: 0.7;
+    }
+
+    /* 3. RENESZÁNSZ / MICHELANGELO-IHLETÉSŰ STÍLUS */
+    body[data-theme="renaissance"] {
+      --bg: #241911;
+      --surface: #f4ead5;
+      --surface-2: #e6d5b2;
+      --text: #2a1b10;
+      --muted: #6b4e34;
+      --accent: #9a3412;
+      --accent-text: #fffbeb;
+      --danger: #881337;
+      --snooze: #1e4620;
+      --snooze-text: #f0fdf4;
+      --border: #b48a3c;
+      --shadow: inset 0 0 0 2px #d4af37, 0 8px 20px rgba(0, 0, 0, 0.45);
+      --radius: 10px;
+      --font-main: Georgia, 'Times New Roman', serif;
+      --font-display: Georgia, 'Times New Roman', serif;
+      --btn-transform: none;
+      --btn-border-width: 2.5px;
+      --backdrop-blur: 0px;
+      background-image: radial-gradient(circle at top, rgba(212,175,55,0.16), transparent 60%), linear-gradient(180deg, #2b1d13 0%, #19100a 100%);
+    }
+    body[data-theme="renaissance"] .topbar,
+    body[data-theme="renaissance"] .prompt-title,
+    body[data-theme="renaissance"] .modal-title,
+    body[data-theme="renaissance"] .drawer-title {
+      color: var(--text);
+    }
+    body[data-theme="renaissance"] .topbar {
+      background: #f4ead5;
+    }
+
+    /* 4. PUNK STÍLUS */
+    body[data-theme="punk"] {
+      --bg: #111111;
+      --surface: #1b1b1b;
+      --surface-2: #2a2a2a;
+      --text: #fafafa;
+      --muted: #d4d4d8;
+      --accent: #f43f5e;
+      --accent-text: #ffffff;
+      --danger: #e11d48;
+      --snooze: #a3e635;
+      --snooze-text: #111111;
+      --border: #f43f5e;
+      --shadow: 4px 4px 0px #a3e635;
+      --radius: 2px 12px 3px 9px;
+      --font-main: system-ui, -apple-system, sans-serif;
+      --font-display: Impact, 'Arial Black', sans-serif;
+      --btn-transform: skewX(-4deg);
+      --btn-border-width: 2px;
+      --backdrop-blur: 0px;
+      background-image: repeating-linear-gradient(-45deg, rgba(244,63,94,0.06) 0, rgba(244,63,94,0.06) 8px, transparent 8px, transparent 16px);
+    }
+
+    /* 5. ÁTLÁTSZÓ (HÁTTÉRKÉPHEZ / KÉPERNYŐHÖZ IGAZODÓ) STÍLUS */
+    body[data-theme="glass"] {
+      --backdrop-blur: 14px;
+      --btn-transform: none;
+      --btn-border-width: 1.5px;
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    body[data-theme="glass"]:not([data-has-wallpaper="true"]) {
+      background-image:
+        radial-gradient(circle at 18% 22%, rgba(56, 189, 248, 0.55), transparent 45%),
+        radial-gradient(circle at 82% 28%, rgba(250, 204, 21, 0.55), transparent 45%),
+        radial-gradient(circle at 50% 82%, rgba(244, 63, 94, 0.45), transparent 50%),
+        linear-gradient(135deg, #e2e8f0 0%, #64748b 50%, #0f172a 100%);
+    }
+
+    body[data-theme="glass"][data-has-wallpaper="true"] {
+      background-image: var(--wallpaper-img);
+    }
+
+    body[data-theme="glass"][data-glass-polarity="dark-ui"] {
+      --bg: #1e293b;
+      --surface: rgba(15, 23, 42, 0.62);
+      --surface-2: rgba(30, 41, 59, 0.68);
+      --text: #f8fafc;
+      --muted: #e2e8f0;
+      --accent: #38bdf8;
+      --accent-text: #04131d;
+      --danger: #ef4444;
+      --snooze: #22c55e;
+      --snooze-text: #052e16;
+      --border: rgba(255, 255, 255, 0.34);
+      --shadow: 0 10px 26px rgba(0, 0, 0, 0.32);
+    }
+
+    body[data-theme="glass"][data-glass-polarity="light-ui"] {
+      --bg: #cbd5e1;
+      --surface: rgba(255, 255, 255, 0.68);
+      --surface-2: rgba(241, 245, 249, 0.74);
+      --text: #0f172a;
+      --muted: #1e293b;
+      --accent: #0284c7;
+      --accent-text: #ffffff;
+      --danger: #dc2626;
+      --snooze: #16a34a;
+      --snooze-text: #ffffff;
+      --border: rgba(15, 23, 42, 0.28);
+      --shadow: 0 10px 26px rgba(15, 23, 42, 0.18);
+    }
+
+    body[data-theme="glass"] .topbar,
+    body[data-theme="glass"] .dest-btn,
+    body[data-theme="glass"] .panel,
+    body[data-theme="glass"] .drawer,
+    body[data-theme="glass"] .modal-card,
+    body[data-theme="glass"] .icon-btn,
+    body[data-theme="glass"] .action-btn,
+    body[data-theme="glass"] .ad-slot {
+      backdrop-filter: blur(var(--backdrop-blur));
+      -webkit-backdrop-filter: blur(var(--backdrop-blur));
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: #f8fafc;
+      min-height: 100dvh;
+      font-family: var(--font-main);
+      background-color: var(--bg);
+      color: var(--text);
       display: flex;
-      justify-content: center;
+      flex-direction: column;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 12px 14px 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .topbar {
+      position: relative;
+      display: flex;
       align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-      box-sizing: border-box;
+      justify-content: space-between;
+      gap: 8px;
+      background: var(--surface);
+      border: var(--btn-border-width) solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      box-shadow: var(--shadow);
     }
-    .card {
-      background: #1e293b;
-      padding: 24px;
-      border-radius: 16px;
-      max-width: 420px;
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      flex: 0 0 28px;
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.05rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .threshold-select,
+    .icon-btn,
+    .action-btn,
+    .dest-btn {
+      font-family: inherit;
+      color: var(--text);
+      background: var(--surface-2);
+      border: var(--btn-border-width) solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: transform 0.12s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .threshold-select {
+      padding: 7px 9px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 700;
+      box-shadow: var(--shadow);
+    }
+
+    .icon-btn.active {
+      background: var(--accent);
+      color: var(--accent-text);
+      border-color: var(--accent);
+    }
+
+    .prompt-title {
+      margin: 2px 0 0;
+      text-align: center;
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    .destinations-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .dest-btn {
+      position: relative;
+      min-height: 76px;
+      padding: 10px 12px;
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 3px;
+      box-shadow: var(--shadow);
+      transform: var(--btn-transform);
+    }
+
+    .dest-btn:active,
+    .action-btn:active,
+    .icon-btn:active {
+      transform: scale(0.98);
+    }
+
+    .dest-btn.selected {
+      background: var(--accent);
+      color: var(--accent-text);
+      border-color: var(--accent);
+    }
+
+    .dest-index {
+      font-size: 0.72rem;
+      font-weight: 800;
+      opacity: 0.72;
+    }
+
+    .dest-name {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .dest-sub {
+      font-size: 0.73rem;
+      opacity: 0.85;
+    }
+
+    .panel {
+      position: relative;
+      background: var(--surface);
+      border: var(--btn-border-width) solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .status-line {
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .status-detail {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      box-shadow: var(--shadow);
+    }
+
+    .action-btn.primary {
+      background: var(--accent);
+      color: var(--accent-text);
+      border-color: var(--accent);
+    }
+
+    .action-btn.danger {
+      background: var(--danger);
+      color: #ffffff;
+      border-color: var(--danger);
+    }
+
+    .sound-controls {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .sound-select,
+    .text-input,
+    .num-input {
       width: 100%;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
-    }
-    h1 {
-      margin-top: 0;
-      font-size: 24px;
-      color: #38bdf8;
-    }
-    input, button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
+      padding: 9px 10px;
       border-radius: 10px;
-      border: none;
-      font-size: 16px;
-      box-sizing: border-box;
+      border: 1.5px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
     }
-    input {
-      background: #334155;
-      color: #f8fafc;
+
+    .extra-audio-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.82rem;
     }
-    button {
-      background: #38bdf8;
-      color: #04131d;
-      font-weight: bold;
+
+    .toggle-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1.5px solid var(--border);
+      font-weight: 700;
       cursor: pointer;
     }
-    #status {
-      margin-top: 16px;
-      padding: 12px;
+
+    .custom-file-badge {
+      color: var(--muted);
+      font-size: 0.78rem;
+      word-break: break-all;
+    }
+
+    .drawer {
+      display: none;
+      background: var(--surface);
+      border: var(--btn-border-width) solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      box-shadow: var(--shadow);
+      gap: 10px;
+    }
+
+    .drawer.open {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .drawer-title {
+      font-family: var(--font-display);
+      font-size: 0.96rem;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .theme-chip {
+      padding: 9px 10px;
       border-radius: 10px;
-      background: #0f172a;
+      border: 1.5px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 0.84rem;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .theme-chip.active {
+      background: var(--accent);
+      color: var(--accent-text);
+      border-color: var(--accent);
+    }
+
+    .glass-box {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      padding-top: 6px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .glass-box.visible {
+      display: flex;
+    }
+
+    .sim-box {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-top: 4px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .ad-slot {
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 9px 12px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      z-index: 50;
+      overflow-y: auto;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--surface);
+      color: var(--text);
+      border: var(--btn-border-width) solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 92dvh;
+      overflow-y: auto;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .field-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .search-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+
+    .search-results {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    .search-item-btn {
+      width: 100%;
+      text-align: left;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    html[dir="rtl"] .search-item-btn,
+    html[dir="rtl"] .theme-chip {
+      text-align: right;
+    }
+
+    #mapContainer {
+      width: 100%;
+      height: 210px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .coord-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .alarm-overlay {
+      position: fixed;
+      inset: 0;
+      background: #090d16;
+      color: #ffffff;
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px 18px 24px;
+    }
+
+    .alarm-overlay.active {
+      display: flex;
+    }
+
+    .alarm-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .alarm-heading {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin: 0 0 6px;
+    }
+
+    .alarm-sub {
+      font-size: 0.95rem;
       color: #cbd5e1;
+    }
+
+    .dismiss-tiny-btn {
+      padding: 6px 9px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(127, 29, 29, 0.55);
+      color: #fecaca;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .snooze-giant-btn {
+      width: 100%;
+      min-height: 220px;
+      border-radius: 28px;
+      border: 4px solid #86efac;
+      background: var(--snooze);
+      color: var(--snooze-text);
+      font-family: var(--font-display);
+      font-size: 2.3rem;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.35);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .snooze-sub {
+      font-family: var(--font-main);
+      font-size: 1rem;
+      font-weight: 700;
+      opacity: 0.92;
+    }
+
+    .alarm-footer-note {
+      text-align: center;
+      font-size: 0.78rem;
+      color: #94a3b8;
     }
   </style>
 </head>
-<body>
-  <div class="card">
-    <h1>Cél-ébresztő (StopWake)</h1>
-    <p>Add meg a napi célodat és az ébresztési időpontot.</p>
-    <label for="goal">Napi cél:</label>
-    <input id="goal" type="text" placeholder="Pl. Reggeli séta" />
-    <label for="alarmTime">Ébresztő időpontja:</label>
-    <input id="alarmTime" type="time" value="07:00" />
-    <button onclick="saveAlarm()">Beállítás mentése</button>
-    <div id="status">Még nincs elmentett ébresztő.</div>
+<body data-theme="classic" data-glass-polarity="dark-ui">
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <svg class="brand-icon" viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M32 4C20.4 4 11 13.4 11 25c0 15.8 21 35 21 35s21-19.2 21-35C53 13.4 43.6 4 32 4z" fill="#ef4444" stroke="#ffffff" stroke-width="3"/>
+          <circle cx="32" cy="25" r="13" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/>
+          <path d="M18 13l5-5M46 13l-5-5" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+          <path d="M32 18v7l5 3" stroke="#0f172a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+        <span class="brand-title">Cél-ébresztő</span>
+      </div>
+
+      <div class="top-controls">
+        <select id="thresholdSelect" class="threshold-select" aria-label="Riasztási távolság">
+          <option value="300">300 m</option>
+          <option value="500">500 m</option>
+          <option value="1000" selected>1 km</option>
+          <option value="1500">1,5 km</option>
+          <option value="2000">2 km</option>
+          <option value="3000">3 km</option>
+          <option value="5000">5 km</option>
+        </select>
+        <button id="langBtn" class="icon-btn" type="button" title="Nyelv / Language">🌐</button>
+        <button id="voiceBtn" class="icon-btn" type="button" title="Hangvezérlés">🎤</button>
+        <button id="themeBtn" class="icon-btn" type="button" title="Dizájn és szimuláció">🎨</button>
+        <button id="editModeBtn" class="icon-btn" type="button" title="Helyek szerkesztése">✏️</button>
+      </div>
+    </header>
+
+    <div id="langMenu" class="panel" style="display:none; gap:8px;">
+      <div id="langMenuTitle" class="drawer-title">Nyelv kiválasztása</div>
+      <div id="langList" class="theme-grid"></div>
+    </div>
+
+    <h1 class="prompt-title">Hova tartasz?</h1>
+
+    <main id="destinationsGrid" class="destinations-grid" aria-label="Mentett célpontok"></main>
+
+    <section class="panel" aria-live="polite">
+      <div id="statusLine" class="status-line">Válassz egy célpontot a 10 hely közül.</div>
+      <div id="statusDetail" class="status-detail">Koppints egy helyre a figyeléshez, vagy nyomd meg a ✏️ gombot a szerkesztéshez.</div>
+
+      <div class="action-row">
+        <button id="toggleWatchBtn" class="action-btn primary" type="button">Figyelés indítása</button>
+        <button id="stopWatchBtn" class="action-btn danger" type="button" style="display:none;">Figyelés leállítása</button>
+      </div>
+
+      <div class="sound-controls">
+        <select id="soundSelect" class="sound-select" aria-label="Ébresztőhang"></select>
+        <button id="previewSoundBtn" class="action-btn" type="button">Próbahang</button>
+      </div>
+
+      <div class="extra-audio-row">
+        <label class="toggle-pill">
+          <input id="loudModeToggle" type="checkbox" checked />
+          <span>Erős hangerő (zene mellett)</span>
+        </label>
+        <button id="pickAudioBtn" class="action-btn" type="button">Saját hang betöltése</button>
+        <input id="customAudioInput" type="file" accept="audio/*" style="display:none;" />
+      </div>
+      <div id="customAudioInfo" class="custom-file-badge">Nincs külön betöltött hangfájl (beépített hangok aktívak).</div>
+    </section>
+
+    <section id="themeDrawer" class="drawer" aria-label="Dizájn és szimuláció">
+      <h2 id="themeDrawerTitle" class="drawer-title">Megjelenési stílus</h2>
+      <div class="theme-grid">
+        <button class="theme-chip active" data-theme-choice="classic" type="button">Letisztult alap</button>
+        <button class="theme-chip" data-theme-choice="glass" type="button">Átlátszó (háttérhez igazodó)</button>
+        <button class="theme-chip" data-theme-choice="cartoon" type="button">Rajzfilmes / képregény</button>
+        <button class="theme-chip" data-theme-choice="gothic" type="button">Gótikus</button>
+        <button class="theme-chip" data-theme-choice="renaissance" type="button">Reneszánsz / Michelangelo</button>
+        <button class="theme-chip" data-theme-choice="punk" type="button">Punk</button>
+      </div>
+
+      <div id="glassBox" class="glass-box">
+        <div id="glassPolarityInfo" class="field-label">Automatikus kontraszt: világos háttérhez sötét, sötét háttérhez világos.</div>
+        <div class="action-row">
+          <button id="pickWallpaperBtn" class="action-btn" type="button">Háttér / képernyőfotó betöltése</button>
+          <button id="flipGlassPolarityBtn" class="action-btn" type="button">Világos / Sötét felület váltása</button>
+          <input id="wallpaperInput" type="file" accept="image/*" style="display:none;" />
+        </div>
+      </div>
+
+      <div class="sim-box">
+        <label id="simDistanceLabelWrap" for="simDistanceRange" class="field-label">
+          Közeledés tesztelése a célhoz: <strong id="simDistanceLabel">2500 m</strong>
+        </label>
+        <input id="simDistanceRange" type="range" min="100" max="5000" step="100" value="2500" />
+        <div class="action-row">
+          <button id="triggerSimAlarmBtn" class="action-btn primary" type="button">Riasztás tesztelése most</button>
+        </div>
+      </div>
+    </section>
+
+    <div id="adBannerSlot" class="ad-slot" data-ad-slot="bottom-banner">
+      Ingyenes kiadás • Diszkrét reklámhely (riasztás és szundi közben rejtve)
+    </div>
   </div>
+
+  <!-- Hely szerkesztő modális ablak (címkereső + térkép) -->
+  <div id="editModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+    <div class="modal-card">
+      <h2 id="editModalTitle" class="modal-title">Célpont szerkesztése</h2>
+
+      <div class="field-group">
+        <label id="editNameLabel" for="editNameInput" class="field-label">Hely neve</label>
+        <input id="editNameInput" class="text-input" type="text" maxlength="32" placeholder="Pl. Munka" />
+      </div>
+
+      <div class="field-group">
+        <label id="addressSearchLabel" for="addressSearchInput" class="field-label">Cím vagy hely keresése</label>
+        <div class="search-row">
+          <input id="addressSearchInput" class="text-input" type="text" placeholder="Írd be a címet vagy a hely nevét..." />
+          <button id="searchAddressBtn" class="action-btn primary" type="button">Keresés</button>
+        </div>
+        <div id="searchResults" class="search-results"></div>
+      </div>
+
+      <div id="mapContainer" aria-label="Térkép"></div>
+
+      <div class="coord-row">
+        <div class="field-group">
+          <label for="editLatInput" class="field-label">Lat</label>
+          <input id="editLatInput" class="num-input" type="number" step="any" placeholder="32.0853" />
+        </div>
+        <div class="field-group">
+          <label for="editLngInput" class="field-label">Lng</label>
+          <input id="editLngInput" class="num-input" type="number" step="any" placeholder="34.7729" />
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button id="useCurrentGpsBtn" class="action-btn" type="button">Jelenlegi GPS</button>
+        <button id="savePlaceBtn" class="action-btn primary" type="button">Mentés / OK</button>
+        <button id="cancelEditBtn" class="action-btn" type="button">Mégse</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ébresztő képernyő: óriási 20 mp Szundi + apró Végleges leállítás -->
+  <div id="alarmOverlay" class="alarm-overlay" role="alertdialog" aria-modal="true" aria-live="assertive">
+    <div class="alarm-top">
+      <div>
+        <h2 id="alarmHeading" class="alarm-heading">ÉBRESZTŐ!</h2>
+        <div id="alarmSub" class="alarm-sub">Közel a cél.</div>
+      </div>
+      <button id="dismissForeverBtn" class="dismiss-tiny-btn" type="button">Végleges leállítás</button>
+    </div>
+
+    <button id="snoozeGiantBtn" class="snooze-giant-btn" type="button">
+      <span id="snoozeMainLabel">SZUNDI (20 MP)</span>
+      <span id="snoozeCountdownText" class="snooze-sub">20 mp</span>
+    </button>
+
+    <div id="alarmFooterNote" class="alarm-footer-note">
+      20 mp szundi • Végleges leállítás a jobb felső gombbal.
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script>
-    function saveAlarm() {
-      const goal = document.getElementById("goal").value.trim() || "Napi cél";
-      const time = document.getElementById("alarmTime").value;
-      document.getElementById("status").textContent =
-        "Mentve: " + time + " — Cél: " + goal;
+    try {
+      const STORAGE_KEY = "stopwake_hu_v5";
+      const LANG_STORAGE_KEY = "stopwake_lang";
+
+      const LANGUAGES = [
+        { code: "hu", speech: "hu-HU", dir: "ltr", label: "Magyar" },
+        { code: "en", speech: "en-US", dir: "ltr", label: "English" },
+        { code: "he", speech: "he-IL", dir: "rtl", label: "עברית" },
+        { code: "ar", speech: "ar-SA", dir: "rtl", label: "العربية" },
+        { code: "ru", speech: "ru-RU", dir: "ltr", label: "Русский" },
+        { code: "am", speech: "am-ET", dir: "ltr", label: "አማርኛ" },
+        { code: "ti", speech: "ti-ET", dir: "ltr", label: "ትግርኛ" },
+        { code: "vi", speech: "vi-VN", dir: "ltr", label: "Tiếng Việt" },
+        { code: "fr", speech: "fr-FR", dir: "ltr", label: "Français" },
+        { code: "es", speech: "es-ES", dir: "ltr", label: "Español" },
+        { code: "de", speech: "de-DE", dir: "ltr", label: "Deutsch" },
+        { code: "zh", speech: "zh-CN", dir: "ltr", label: "中文" },
+        { code: "ja", speech: "ja-JP", dir: "ltr", label: "日本語" },
+        { code: "ko", speech: "ko-KR", dir: "ltr", label: "한국어" },
+        { code: "it", speech: "it-IT", dir: "ltr", label: "Italiano" },
+        { code: "pt", speech: "pt-PT", dir: "ltr", label: "Português" },
+        { code: "uk", speech: "uk-UA", dir: "ltr", label: "Українська" },
+        { code: "pl", speech: "pl-PL", dir: "ltr", label: "Polski" },
+        { code: "tr", speech: "tr-TR", dir: "ltr", label: "Türkçe" },
+        { code: "hi", speech: "hi-IN", dir: "ltr", label: "हिन्दी" },
+        { code: "sw", speech: "sw-KE", dir: "ltr", label: "Kiswahili" }
+      ];
+
+      const TRANSLATIONS = {
+        hu: {
+          brandTitle: "Cél-ébresztő",
+          promptTitle: "Hova tartasz?",
+          langMenuTitle: "Nyelv kiválasztása",
+          startWatch: "Figyelés indítása",
+          stopWatch: "Figyelés leállítása",
+          previewSound: "Próbahang",
+          loudMode: "Erős hangerő (zene mellett)",
+          pickAudio: "Saját hang betöltése",
+          noCustomAudio: "Nincs külön betöltött hangfájl (beépített hangok aktívak).",
+          customAudioLoaded: "Saját hang: ",
+          choosePlace: "Válassz egy célpontot a 10 hely közül.",
+          tapToWatch: "Koppints egy helyre a figyeléshez, vagy nyomd meg a ✏️ gombot.",
+          editModeOn: "Szerkesztő mód aktív.",
+          noCoordsYet: "Még nincs beállított hely. Koppints rá a térkép/cím megadásához.",
+          watchingActive: "GPS figyelés aktív.",
+          coordsReady: "GPS cél beállítva. Nyomd meg a „Figyelés indítása” gombot.",
+          beforeSuffix: "előtt",
+          fixedPlace: "Fix hely",
+          freePlace: "Szabad hely",
+          setPlaceHint: "Hely beállítása",
+          coordsSet: "Cél beállítva",
+          themeDrawerTitle: "Megjelenési stílus",
+          pickWallpaper: "Háttér betöltése",
+          flipGlass: "Világos / Sötét váltás",
+          simPrefix: "Teszt távolság:",
+          triggerSim: "Riasztás tesztelése",
+          adBanner: "Diszkrét reklámhely",
+          editModalTitle: "Célpont szerkesztése",
+          editNameLabel: "Hely neve",
+          addressSearchLabel: "Cím vagy hely keresése",
+          addressSearchPlaceholder: "Írd be a címet...",
+          searchBtn: "Keresés",
+          useCurrentGps: "Jelenlegi GPS",
+          savePlace: "Mentés / OK",
+          cancelEdit: "Mégse",
+          alarmPrefix: "ÉBRESZTŐ:",
+          dismissForever: "Végleges leállítás",
+          snoozeMain: "SZUNDI (20 MP)",
+          snoozeTap: "20 mp némítás",
+          snoozeLeft: "mp",
+          alarmFooter: "20 mp szundi • Végleges leállítás a jobb felső gombbal.",
+          voiceListening: "Hallgatlak...",
+          voiceSelected: "Kiválasztva:",
+          voiceNotFound: "Nem ismertem fel:",
+          voiceUnavailable: "Hangfelismerés nem elérhető.",
+          defaultPlaces: ["Otthon", "Munka", "3. Hely", "4. Hely", "5. Hely", "6. Hely", "7. Hely", "8. Hely", "9. Hely", "10. Hely"],
+          themes: {
+            classic: "Letisztult alap",
+            glass: "Átlátszó",
+            cartoon: "Rajzfilmes",
+            gothic: "Gótikus",
+            renaissance: "Reneszánsz",
+            punk: "Punk"
+          },
+          sounds: {
+            roman_horn: "Római kori hadi kürt",
+            clock_bell: "Klasszikus vekkercsengő",
+            ship_horn: "Hajókürt",
+            train_whistle: "Vonatkürt",
+            sonar_ping: "Szonár jelzés",
+            fire_alarm: "Sürgősségi riasztó",
+            bronze_gong: "Bronz gong",
+            bugle_call: "Katonai kürtjel",
+            church_bell: "Harangzúgás",
+            morse_sos: "Morze jelzés",
+            digital_pulse: "Digitális lüktetés"
+          }
+        },
+        en: {
+          brandTitle: "StopWake",
+          promptTitle: "Where are you heading?",
+          langMenuTitle: "Select language",
+          startWatch: "Start watching",
+          stopWatch: "Stop watching",
+          previewSound: "Test sound",
+          loudMode: "Boost volume (with music)",
+          pickAudio: "Load custom sound",
+          noCustomAudio: "No custom audio loaded (built-in sounds active).",
+          customAudioLoaded: "Custom sound: ",
+          choosePlace: "Choose one of the 10 destinations.",
+          tapToWatch: "Tap a place to watch, or press ✏️ to edit.",
+          editModeOn: "Edit mode active.",
+          noCoordsYet: "No location set yet. Tap to pick on map or search address.",
+          watchingActive: "GPS watching active.",
+          coordsReady: "Target set. Press 'Start watching'.",
+          beforeSuffix: "before",
+          fixedPlace: "Fixed",
+          freePlace: "Custom",
+          setPlaceHint: "Set location",
+          coordsSet: "Location set",
+          themeDrawerTitle: "Appearance",
+          pickWallpaper: "Load wallpaper",
+          flipGlass: "Light / Dark toggle",
+          simPrefix: "Test distance:",
+          triggerSim: "Test alarm",
+          adBanner: "Ad slot",
+          editModalTitle: "Edit destination",
+          editNameLabel: "Place name",
+          addressSearchLabel: "Search address or place",
+          addressSearchPlaceholder: "Type address...",
+          searchBtn: "Search",
+          useCurrentGps: "Current GPS",
+          savePlace: "Save / OK",
+          cancelEdit: "Cancel",
+          alarmPrefix: "ALARM:",
+          dismissForever: "Stop permanently",
+          snoozeMain: "SNOOZE (20S)",
+          snoozeTap: "Mute for 20s",
+          snoozeLeft: "s",
+          alarmFooter: "20s snooze • Permanent stop at top corner.",
+          voiceListening: "Listening...",
+          voiceSelected: "Selected:",
+          voiceNotFound: "Not recognized:",
+          voiceUnavailable: "Speech recognition unavailable.",
+          defaultPlaces: ["Home", "Work", "Place 3", "Place 4", "Place 5", "Place 6", "Place 7", "Place 8", "Place 9", "Place 10"],
+          themes: {
+            classic: "Classic",
+            glass: "Glass",
+            cartoon: "Cartoon",
+            gothic: "Gothic",
+            renaissance: "Renaissance",
+            punk: "Punk"
+          },
+          sounds: {
+            roman_horn: "Roman war horn",
+            clock_bell: "Classic alarm bell",
+            ship_horn: "Ship horn",
+            train_whistle: "Train whistle",
+            sonar_ping: "Sonar ping",
+            fire_alarm: "Emergency alarm",
+            bronze_gong: "Bronze gong",
+            bugle_call: "Bugle call",
+            church_bell: "Church bell",
+            morse_sos: "Morse signal",
+            digital_pulse: "Digital pulse"
+          }
+        },
+        he: {
+          brandTitle: "התראת יעד",
+          promptTitle: "לאן נוסעים?",
+          langMenuTitle: "בחירת שפה",
+          startWatch: "התחל מעקב",
+          stopWatch: "עצור מעקב",
+          previewSound: "צליל בדיקה",
+          loudMode: "עוצמה מוגברת (עם מוזיקה)",
+          pickAudio: "טען צליל מותאם",
+          noCustomAudio: "לא נטען קובץ שמע (צלילים מובנים פעילים).",
+          customAudioLoaded: "צליל מותאם: ",
+          choosePlace: "בחר יעד מתוך 10 המקומות.",
+          tapToWatch: "הקש על מקום למעקב, או על ✏️ לעריכה.",
+          editModeOn: "מצב עריכה פעיל.",
+          noCoordsYet: "טרם הוגדר מיקום. הקש לבחירה במפה או חיפוש כתובת.",
+          watchingActive: "מעקב GPS פעיל.",
+          coordsReady: "היעד מוכן. לחץ על 'התחל מעקב'.",
+          beforeSuffix: "לפני",
+          fixedPlace: "קבוע",
+          freePlace: "מותאם",
+          setPlaceHint: "הגדר מיקום",
+          coordsSet: "מיקום מוגדר",
+          themeDrawerTitle: "סגנון תצוגה",
+          pickWallpaper: "טען רקע",
+          flipGlass: "בהיר / כהה",
+          simPrefix: "מרחק לבדיקה:",
+          triggerSim: "בדוק התראה",
+          adBanner: "שטח פרסום",
+          editModalTitle: "עריכת יעד",
+          editNameLabel: "שם המקום",
+          addressSearchLabel: "חיפוש כתובת או מקום",
+          addressSearchPlaceholder: "הקלד כתובת...",
+          searchBtn: "חיפוש",
+          useCurrentGps: "GPS נוכחי",
+          savePlace: "שמור / אישור",
+          cancelEdit: "ביטול",
+          alarmPrefix: "התראה:",
+          dismissForever: "עצירה סופית",
+          snoozeMain: "נודניק (20 שניות)",
+          snoozeTap: "השתקה ל-20 שניות",
+          snoozeLeft: "שנ׳",
+          alarmFooter: "נודניק 20 שניות • עצירה סופית בפינה העליונה.",
+          voiceListening: "מקשיב...",
+          voiceSelected: "נבחר:",
+          voiceNotFound: "לא זוהה:",
+          voiceUnavailable: "זיהוי קולי אינו זמין.",
+          defaultPlaces: ["בית", "עבודה", "מקום 3", "מקום 4", "מקום 5", "מקום 6", "מקום 7", "מקום 8", "מקום 9", "מקום 10"],
+          themes: {
+            classic: "קלאסי",
+            glass: "שקוף",
+            cartoon: "קומיקס",
+            gothic: "גותי",
+            renaissance: "רנסאנס",
+            punk: "פאנק"
+          },
+          sounds: {
+            roman_horn: "קרן מלחמה רומית",
+            clock_bell: "פעמון שעון קלאסי",
+            ship_horn: "צופר אונייה",
+            train_whistle: "שריקת רכבת",
+            sonar_ping: "סונאר",
+            fire_alarm: "אזעקת חירום",
+            bronze_gong: "גונג ברונזה",
+            bugle_call: "אות חצוצרה",
+            church_bell: "פעמון כנסייה",
+            morse_sos: "אות מורס",
+            digital_pulse: "פולס דיגיטלי"
+          }
+        },
+        ar: {
+          brandTitle: "منبه الوجهة",
+          promptTitle: "إلى أين تتجه؟",
+          langMenuTitle: "اختر اللغة",
+          startWatch: "بدء المتابعة",
+          stopWatch: "إيقاف المتابعة",
+          previewSound: "تجربة الصوت",
+          loudMode: "رفع الصوت (مع الموسيقى)",
+          pickAudio: "تحميل صوت مخصص",
+          noCustomAudio: "لا يوجد ملف صوت مخصص.",
+          customAudioLoaded: "صوت مخصص: ",
+          choosePlace: "اختر وجهة من بين 10 أماكن.",
+          tapToWatch: "اضغط على مكان للمتابعة أو ✏️ للتعديل.",
+          editModeOn: "وضع التعديل نشط.",
+          noCoordsYet: "لم يتم تحديد موقع بعد.",
+          watchingActive: "متابعة GPS نشطة.",
+          coordsReady: "تم تحديد الوجهة.",
+          beforeSuffix: "قبل",
+          fixedPlace: "ثابت",
+          freePlace: "مخصص",
+          setPlaceHint: "تحديد الموقع",
+          coordsSet: "الموقع محدد",
+          themeDrawerTitle: "المظهر",
+          pickWallpaper: "تحميل خلفية",
+          flipGlass: "فاتح / داكن",
+          simPrefix: "مسافة الاختبار:",
+          triggerSim: "اختبار التنبيه",
+          adBanner: "مساحة إعلانية",
+          editModalTitle: "تعديل الوجهة",
+          editNameLabel: "اسم المكان",
+          addressSearchLabel: "بحث عن عنوان أو مكان",
+          addressSearchPlaceholder: "اكتب العنوان...",
+          searchBtn: "بحث",
+          useCurrentGps: "GPS الحالي",
+          savePlace: "حفظ / موافق",
+          cancelEdit: "إلغاء",
+          alarmPrefix: "تنبيه:",
+          dismissForever: "إيقاف نهائي",
+          snoozeMain: "غفوة (20 ثانية)",
+          snoozeTap: "كتم لمدة 20 ثانية",
+          snoozeLeft: "ث",
+          alarmFooter: "غفوة 20 ثانية • إيقاف نهائي من الزاوية العلوية.",
+          voiceListening: "جارٍ الاستماع...",
+          voiceSelected: "تم الاختيار:",
+          voiceNotFound: "لم يتم التعرف:",
+          voiceUnavailable: "التعرف الصوتي غير متاح.",
+          defaultPlaces: ["المنزل", "العمل", "مكان 3", "مكان 4", "مكان 5", "مكان 6", "مكان 7", "مكان 8", "مكان 9", "مكان 10"],
+          themes: {
+            classic: "كلاسيكي",
+            glass: "شفاف",
+            cartoon: "كرتوني",
+            gothic: "قوطي",
+            renaissance: "عصر النهضة",
+            punk: "بانك"
+          },
+          sounds: {
+            roman_horn: "بوق روماني",
+            clock_bell: "جرس منبه كلاسيكي",
+            ship_horn: "بوق سفينة",
+            train_whistle: "صافرة قطار",
+            sonar_ping: "إشارة سونار",
+            fire_alarm: "إنذار طوارئ",
+            bronze_gong: "جونغ برونزي",
+            bugle_call: "نداء بوق",
+            church_bell: "جرس كنيسة",
+            morse_sos: "إشارة مورس",
+            digital_pulse: "نبض رقمي"
+          }
+        },
+        ru: {
+          brandTitle: "Будильник цели",
+          promptTitle: "Куда едем?",
+          langMenuTitle: "Выбор языка",
+          startWatch: "Начать слежение",
+          stopWatch: "Остановить слежение",
+          previewSound: "Проверка звука",
+          loudMode: "Усилить звук (с музыкой)",
+          pickAudio: "Загрузить свой звук",
+          noCustomAudio: "Свой звук не загружен.",
+          customAudioLoaded: "Свой звук: ",
+          choosePlace: "Выберите место из 10 вариантов.",
+          tapToWatch: "Нажмите на место или ✏️ для редактирования.",
+          editModeOn: "Режим редактирования включён.",
+          noCoordsYet: "Место не задано. Выберите на карте или найдите адрес.",
+          watchingActive: "GPS-слежение активно.",
+          coordsReady: "Цель задана. Нажмите «Начать слежение».",
+          beforeSuffix: "до цели",
+          fixedPlace: "Фикс.",
+          freePlace: "Свой",
+          setPlaceHint: "Задать место",
+          coordsSet: "Место задано",
+          themeDrawerTitle: "Оформление",
+          pickWallpaper: "Загрузить фон",
+          flipGlass: "Светлый / Тёмный",
+          simPrefix: "Тест дистанции:",
+          triggerSim: "Тест сигнала",
+          adBanner: "Рекламный блок",
+          editModalTitle: "Редактировать место",
+          editNameLabel: "Название места",
+          addressSearchLabel: "Поиск адреса или места",
+          addressSearchPlaceholder: "Введите адрес...",
+          searchBtn: "Найти",
+          useCurrentGps: "Текущий GPS",
+          savePlace: "Сохранить / ОК",
+          cancelEdit: "Отмена",
+          alarmPrefix: "СИГНАЛ:",
+          dismissForever: "Выключить совсем",
+          snoozeMain: "ОТЛОЖИТЬ (20 С)",
+          snoozeTap: "Тишина на 20 сек",
+          snoozeLeft: "с",
+          alarmFooter: "Отложить на 20 с • Полное отключение в верхнем углу.",
+          voiceListening: "Слушаю...",
+          voiceSelected: "Выбрано:",
+          voiceNotFound: "Не распознано:",
+          voiceUnavailable: "Голосовой ввод недоступен.",
+          defaultPlaces: ["Дом", "Работа", "Место 3", "Место 4", "Место 5", "Место 6", "Место 7", "Место 8", "Место 9", "Место 10"],
+          themes: {
+            classic: "Классика",
+            glass: "Прозрачный",
+            cartoon: "Комикс",
+            gothic: "Готика",
+            renaissance: "Ренессанс",
+            punk: "Панк"
+          },
+          sounds: {
+            roman_horn: "Римский горн",
+            clock_bell: "Звонок будильника",
+            ship_horn: "Гудок корабля",
+            train_whistle: "Гудок поезда",
+            sonar_ping: "Сигнал сонара",
+            fire_alarm: "Тревога",
+            bronze_gong: "Бронзовый гонг",
+            bugle_call: "Сигнал горна",
+            church_bell: "Колокол",
+            morse_sos: "Сигнал Морзе",
+            digital_pulse: "Импульс"
+          }
+        },
+        am: {
+          brandTitle: "የመድረሻ ማንቂያ",
+          promptTitle: "ወዴት እየሄዱ ነው?",
+          langMenuTitle: "ቋንቋ ይምረጡ",
+          startWatch: "ክትትል ጀምር",
+          stopWatch: "ክትትል አቁም",
+          previewSound: "ድምፅ ሞክር",
+          loudMode: "ከፍተኛ ድምፅ (ከሙዚቃ ጋር)",
+          pickAudio: "የራስዎን ድምፅ ይጫኑ",
+          noCustomAudio: "የተጫነ የራስ ድምፅ የለም።",
+          customAudioLoaded: "የራስ ድምፅ: ",
+          choosePlace: "ከ10 ቦታዎች አንዱን ይምረጡ።",
+          tapToWatch: "ለመከታተል ቦታ ይንኩ ወይም ✏️ ይጫኑ።",
+          editModeOn: "የማስተካከያ ሁነታ በርቷል።",
+          noCoordsYet: "ቦታ አልተመረጠም። በካርታ ይምረጡ ወይም አድራሻ ይፈልጉ።",
+          watchingActive: "የGPS ክትትል በርቷል።",
+          coordsReady: "መድረሻ ተቀምጧል። 'ክትትል ጀምር' ይጫኑ።",
+          beforeSuffix: "ቀደም ብሎ",
+          fixedPlace: "ቋሚ",
+          freePlace: "ነፃ",
+          setPlaceHint: "ቦታ ያስገቡ",
+          coordsSet: "ቦታ ተቀምጧል",
+          themeDrawerTitle: "ገጽታ",
+          pickWallpaper: "ዳራ ይጫኑ",
+          flipGlass: "ብሩህ / ጨለማ",
+          simPrefix: "የሙከራ ርቀት:",
+          triggerSim: "ማንቂያ ሞክር",
+          adBanner: "የማስታወቂያ ቦታ",
+          editModalTitle: "መድረሻ ያስተካክሉ",
+          editNameLabel: "የቦታ ስም",
+          addressSearchLabel: "አድራሻ ወይም ቦታ ይፈልጉ",
+          addressSearchPlaceholder: "አድራሻ ያስገቡ...",
+          searchBtn: "ፈልግ",
+          useCurrentGps: "የአሁኑ GPS",
+          savePlace: "አስቀምጥ / እሺ",
+          cancelEdit: "ሰርዝ",
+          alarmPrefix: "ማንቂያ:",
+          dismissForever: "ሙሉ በሙሉ አጥፋ",
+          snoozeMain: "አሸልብ (20 ሰከንድ)",
+          snoozeTap: "ለ20 ሰከንድ ጸጥታ",
+          snoozeLeft: "ሰ",
+          alarmFooter: "20 ሰከንድ ማሸለብ • በላይኛው ጥግ ሙሉ በሙሉ ያጥፉ።",
+          voiceListening: "እያዳመጥኩ ነው...",
+          voiceSelected: "ተመርጧል:",
+          voiceNotFound: "አልታወቀም:",
+          voiceUnavailable: "የድምፅ ማወቂያ የለም።",
+          defaultPlaces: ["ቤት", "ሥራ", "ቦታ 3", "ቦታ 4", "ቦታ 5", "ቦታ 6", "ቦታ 7", "ቦታ 8", "ቦታ 9", "ቦታ 10"],
+          themes: {
+            classic: "መደበኛ",
+            glass: "ግልጽ",
+            cartoon: "ካርቱን",
+            gothic: "ጎቲክ",
+            renaissance: "ህዳሴ",
+            punk: "ፓንክ"
+          },
+          sounds: {
+            roman_horn: "የሮማ ቀንድ",
+            clock_bell: "የሰዓት ደወል",
+            ship_horn: "የመርከብ ጥሪ",
+            train_whistle: "የባቡር ፉጨት",
+            sonar_ping: "ሶናር",
+            fire_alarm: "የአደጋ ማንቂያ",
+            bronze_gong: "የነሐስ ጎንግ",
+            bugle_call: "የመለከት ጥሪ",
+            church_bell: "የቤተክርስቲያን ደወል",
+            morse_sos: "ሞርስ",
+            digital_pulse: "ዲጂታል"
+          }
+        },
+        ti: {
+          brandTitle: "መጠንቀቒ መዓርፎ",
+          promptTitle: "ናበይ ትኸዱ ኣለኹም?",
+          langMenuTitle: "ቋንቋ ምረጽ",
+          startWatch: "ክትትል ጀምር",
+          stopWatch: "ክትትል ደው ኣብል",
+          previewSound: "ድምጺ ፈትን",
+          loudMode: "ዝለዓለ ድምጺ (ምስ ሙዚቃ)",
+          pickAudio: "ናይ ባዕልኻ ድምጺ ጽዓን",
+          noCustomAudio: "ዝተጻዕነ ናይ ባዕልኻ ድምጺ የለን።",
+          customAudioLoaded: "ናይ ባዕልኻ ድምጺ: ",
+          choosePlace: "ካብ 10 ቦታታት ሓደ ምረጽ።",
+          tapToWatch: "ንምክትታል ቦታ ጠውቕ ወይ ✏️ ጸቕጥ።",
+          editModeOn: "ምቅይያር ተኸፊቱ ኣሎ።",
+          noCoordsYet: "ቦታ ኣይተመደበን። ኣብ ካርታ ምረጽ ወይ ኣድራሻ ድለ።",
+          watchingActive: "GPS ክትትል ይሰርሕ ኣሎ።",
+          coordsReady: "መዓርፎ ተመዚጉ ኣሎ። 'ክትትል ጀምር' ጸቕጥ።",
+          beforeSuffix: "ቀደም",
+          fixedPlace: "ርጉጽ",
+          freePlace: "ናጻ",
+          setPlaceHint: "ቦታ ኣእቱ",
+          coordsSet: "ቦታ ተመዚጉ",
+          themeDrawerTitle: "ቅርጺ",
+          pickWallpaper: "ባይታ ጽዓን",
+          flipGlass: "ብሩህ / ጸልማት",
+          simPrefix: "ርሕቀት ፈተነ:",
+          triggerSim: "መጠንቀቒ ፈትን",
+          adBanner: "ቦታ ምልክታ",
+          editModalTitle: "መዓርፎ ኣስተኻኽል",
+          editNameLabel: "ስም ቦታ",
+          addressSearchLabel: "ኣድራሻ ወይ ቦታ ድለ",
+          addressSearchPlaceholder: "ኣድራሻ ጽሓፍ...",
+          searchBtn: "ድለ",
+          useCurrentGps: "ህሉው GPS",
+          savePlace: "ዓቅብ / ሕራይ",
+          cancelEdit: "ሰርዝ",
+          alarmPrefix: "መጠንቀቒ:",
+          dismissForever: "ፈጺምካ ኣጥፍእ",
+          snoozeMain: "ኣዕርፍ (20 ካልኢት)",
+          snoozeTap: "ን20 ካልኢት ህድእ",
+          snoozeLeft: "ካ",
+          alarmFooter: "20 ካልኢት ዕረፍቲ • ኣብ ላዕለዋይ መኣዝን ፈጺምካ ኣጥፍእ።",
+          voiceListening: "እሰምዕ ኣለኹ...",
+          voiceSelected: "ተመሪጹ:",
+          voiceNotFound: "ኣይተፈልጠን:",
+          voiceUnavailable: "ምፍላይ ድምጺ የለን።",
+          defaultPlaces: ["ገዛ", "ስራሕ", "ቦታ 3", "ቦታ 4", "ቦታ 5", "ቦታ 6", "ቦታ 7", "ቦታ 8", "ቦታ 9", "ቦታ 10"],
+          themes: {
+            classic: "መሰረታዊ",
+            glass: "ግልጺ",
+            cartoon: "ካርቱን",
+            gothic: "ጎቲክ",
+            renaissance: "ህዳሴ",
+            punk: "ፓንክ"
+          },
+          sounds: {
+            roman_horn: "ቀርኒ ሮማ",
+            clock_bell: "ደወል ሰዓት",
+            ship_horn: "ቀርኒ መርከብ",
+            train_whistle: "ፊሽካ ባቡር",
+            sonar_ping: "ሶናር",
+            fire_alarm: "መጠንቀቒ ሓደጋ",
+            bronze_gong: "ጎንግ",
+            bugle_call: "ጸዊዒት መለኸት",
+            church_bell: "ደወል ቤተክርስቲያን",
+            morse_sos: "ሞርስ",
+            digital_pulse: "ዲጂታል"
+          }
+        },
+        vi: {
+          brandTitle: "Báo thức điểm đến",
+          promptTitle: "Bạn đang đi đâu?",
+          langMenuTitle: "Chọn ngôn ngữ",
+          startWatch: "Bắt đầu theo dõi",
+          stopWatch: "Dừng theo dõi",
+          previewSound: "Nghe thử",
+          loudMode: "Tăng âm lượng (khi nghe nhạc)",
+          pickAudio: "Tải âm thanh riêng",
+          noCustomAudio: "Chưa tải âm thanh riêng.",
+          customAudioLoaded: "Âm thanh riêng: ",
+          choosePlace: "Chọn một trong 10 điểm đến.",
+          tapToWatch: "Chạm vào địa điểm để theo dõi hoặc bấm ✏️ để sửa.",
+          editModeOn: "Đang bật chế độ chỉnh sửa.",
+          noCoordsYet: "Chưa đặt vị trí. Chạm để chọn trên bản đồ hoặc tìm địa chỉ.",
+          watchingActive: "Đang theo dõi GPS.",
+          coordsReady: "Đã đặt điểm đến. Bấm 'Bắt đầu theo dõi'.",
+          beforeSuffix: "trước đích",
+          fixedPlace: "Cố định",
+          freePlace: "Tùy chọn",
+          setPlaceHint: "Đặt vị trí",
+          coordsSet: "Đã đặt vị trí",
+          themeDrawerTitle: "Giao diện",
+          pickWallpaper: "Tải hình nền",
+          flipGlass: "Sáng / Tối",
+          simPrefix: "Khoảng cách thử:",
+          triggerSim: "Thử báo thức",
+          adBanner: "Vị trí quảng cáo",
+          editModalTitle: "Sửa điểm đến",
+          editNameLabel: "Tên địa điểm",
+          addressSearchLabel: "Tìm địa chỉ hoặc địa điểm",
+          addressSearchPlaceholder: "Nhập địa chỉ...",
+          searchBtn: "Tìm",
+          useCurrentGps: "GPS hiện tại",
+          savePlace: "Lưu / OK",
+          cancelEdit: "Hủy",
+          alarmPrefix: "BÁO THỨC:",
+          dismissForever: "Tắt hẳn",
+          snoozeMain: "BÁO LẠI (20 GIÂY)",
+          snoozeTap: "Tắt tiếng 20 giây",
+          snoozeLeft: "s",
+          alarmFooter: "Báo lại 20s • Tắt hẳn ở góc trên.",
+          voiceListening: "Đang nghe...",
+          voiceSelected: "Đã chọn:",
+          voiceNotFound: "Không nhận diện được:",
+          voiceUnavailable: "Không hỗ trợ nhận diện giọng nói.",
+          defaultPlaces: ["Nhà", "Nơi làm việc", "Điểm 3", "Điểm 4", "Điểm 5", "Điểm 6", "Điểm 7", "Điểm 8", "Điểm 9", "Điểm 10"],
+          themes: {
+            classic: "Cơ bản",
+            glass: "Trong suốt",
+            cartoon: "Hoạt hình",
+            gothic: "Gothic",
+            renaissance: "Phục hưng",
+            punk: "Punk"
+          },
+          sounds: {
+            roman_horn: "Tù và La Mã",
+            clock_bell: "Chuông đồng hồ",
+            ship_horn: "Còi tàu",
+            train_whistle: "Còi tàu hỏa",
+            sonar_ping: "Sonar",
+            fire_alarm: "Báo động khẩn cấp",
+            bronze_gong: "Cồng đồng",
+            bugle_call: "Kèn hiệu",
+            church_bell: "Chuông nhà thờ",
+            morse_sos: "Tín hiệu Morse",
+            digital_pulse: "Xung số"
+          }
+        }
+      };
+
+      const SOUNDS = [
+        { id: "roman_horn" },
+        { id: "clock_bell" },
+        { id: "ship_horn" },
+        { id: "train_whistle" },
+        { id: "sonar_ping" },
+        { id: "fire_alarm" },
+        { id: "bronze_gong" },
+        { id: "bugle_call" },
+        { id: "church_bell" },
+        { id: "morse_sos" },
+        { id: "digital_pulse" }
+      ];
+
+      let currentLang = "hu";
+
+      function t(key) {
+        const cur = TRANSLATIONS[currentLang] || {};
+        const fb = TRANSLATIONS.en || TRANSLATIONS.hu || {};
+        return cur[key] !== undefined ? cur[key] : (fb[key] !== undefined ? fb[key] : "");
+      }
+
+      function getSoundLabel(id) {
+        const curSounds = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].sounds) || {};
+        const fbSounds = (TRANSLATIONS.en && TRANSLATIONS.en.sounds) || {};
+        return curSounds[id] || fbSounds[id] || id;
+      }
+
+      function getThemeLabel(id) {
+        const curThemes = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].themes) || {};
+        const fbThemes = (TRANSLATIONS.en && TRANSLATIONS.en.themes) || {};
+        return curThemes[id] || fbThemes[id] || id;
+      }
+
+      function getDefaultPlaceName(idx) {
+        const curList = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].defaultPlaces) || [];
+        const fbList = (TRANSLATIONS.en && TRANSLATIONS.en.defaultPlaces) || [];
+        return curList[idx] || fbList[idx] || `${idx + 1}`;
+      }
+
+      function makeDefaultPlaces() {
+        return Array.from({ length: 10 }, (_, idx) => ({
+          name: getDefaultPlaceName(idx),
+          isDefaultName: true,
+          lat: null,
+          lng: null
+        }));
+      }
+
+      let state = {
+        places: makeDefaultPlaces(),
+        selectedIndex: 0,
+        thresholdMeters: 1000,
+        soundId: "roman_horn",
+        loudMode: true,
+        theme: "classic",
+        glassPolarity: "dark-ui"
+      };
+
+      let editMode = false;
+      let editingIndex = null;
+      let watching = false;
+      let watchId = null;
+      let alarmActive = false;
+      let snoozeRemaining = 0;
+      let snoozeInterval = null;
+      let alarmLoopInterval = null;
+      let audioCtx = null;
+      let customAudioUrl = null;
+      let customAudioName = "";
+      let customAudioPlayer = null;
+      let wallpaperDataUrl = null;
+
+      let leafletMap = null;
+      let leafletMarker = null;
+
+      const destinationsGrid = document.getElementById("destinationsGrid");
+      const thresholdSelect = document.getElementById("thresholdSelect");
+      const langBtn = document.getElementById("langBtn");
+      const langMenu = document.getElementById("langMenu");
+      const langMenuTitle = document.getElementById("langMenuTitle");
+      const langList = document.getElementById("langList");
+      const voiceBtn = document.getElementById("voiceBtn");
+      const themeBtn = document.getElementById("themeBtn");
+      const editModeBtn = document.getElementById("editModeBtn");
+      const themeDrawer = document.getElementById("themeDrawer");
+      const themeDrawerTitle = document.getElementById("themeDrawerTitle");
+      const glassBox = document.getElementById("glassBox");
+      const glassPolarityInfo = document.getElementById("glassPolarityInfo");
+      const pickWallpaperBtn = document.getElementById("pickWallpaperBtn");
+      const flipGlassPolarityBtn = document.getElementById("flipGlassPolarityBtn");
+      const wallpaperInput = document.getElementById("wallpaperInput");
+
+      const statusLine = document.getElementById("statusLine");
+      const statusDetail = document.getElementById("statusDetail");
+      const toggleWatchBtn = document.getElementById("toggleWatchBtn");
+      const stopWatchBtn = document.getElementById("stopWatchBtn");
+      const soundSelect = document.getElementById("soundSelect");
+      const previewSoundBtn = document.getElementById("previewSoundBtn");
+      const loudModeToggle = document.getElementById("loudModeToggle");
+      const pickAudioBtn = document.getElementById("pickAudioBtn");
+      const customAudioInput = document.getElementById("customAudioInput");
+      const customAudioInfo = document.getElementById("customAudioInfo");
+      const simDistanceRange = document.getElementById("simDistanceRange");
+      const simDistanceLabel = document.getElementById("simDistanceLabel");
+      const simDistanceLabelWrap = document.getElementById("simDistanceLabelWrap");
+      const triggerSimAlarmBtn = document.getElementById("triggerSimAlarmBtn");
+      const adBannerSlot = document.getElementById("adBannerSlot");
+
+      const editModal = document.getElementById("editModal");
+      const editModalTitle = document.getElementById("editModalTitle");
+      const editNameLabel = document.getElementById("editNameLabel");
+      const editNameInput = document.getElementById("editNameInput");
+      const addressSearchLabel = document.getElementById("addressSearchLabel");
+      const addressSearchInput = document.getElementById("addressSearchInput");
+      const searchAddressBtn = document.getElementById("searchAddressBtn");
+      const searchResults = document.getElementById("searchResults");
+      const editLatInput = document.getElementById("editLatInput");
+      const editLngInput = document.getElementById("editLngInput");
+      const useCurrentGpsBtn = document.getElementById("useCurrentGpsBtn");
+      const savePlaceBtn = document.getElementById("savePlaceBtn");
+      const cancelEditBtn = document.getElementById("cancelEditBtn");
+
+      const alarmOverlay = document.getElementById("alarmOverlay");
+      const alarmHeading = document.getElementById("alarmHeading");
+      const alarmSub = document.getElementById("alarmSub");
+      const snoozeGiantBtn = document.getElementById("snoozeGiantBtn");
+      const snoozeMainLabel = document.getElementById("snoozeMainLabel");
+      const snoozeCountdownText = document.getElementById("snoozeCountdownText");
+      const dismissForeverBtn = document.getElementById("dismissForeverBtn");
+      const alarmFooterNote = document.getElementById("alarmFooterNote");
+
+      function loadState() {
+        try {
+          const savedLang = localStorage.getItem(LANG_STORAGE_KEY);
+          if (savedLang && LANGUAGES.some(l => l.code === savedLang)) {
+            currentLang = savedLang;
+          }
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed.places) && parsed.places.length === 10) {
+            state.places = parsed.places.map((p, idx) => ({
+              name: p.name || getDefaultPlaceName(idx),
+              isDefaultName: Boolean(p.isDefaultName),
+              lat: typeof p.lat === "number" ? p.lat : null,
+              lng: typeof p.lng === "number" ? p.lng : null
+            }));
+          }
+          if (typeof parsed.selectedIndex === "number") state.selectedIndex = parsed.selectedIndex;
+          if (typeof parsed.thresholdMeters === "number") state.thresholdMeters = parsed.thresholdMeters;
+          if (typeof parsed.soundId === "string") state.soundId = parsed.soundId;
+          if (typeof parsed.loudMode === "boolean") state.loudMode = parsed.loudMode;
+          if (typeof parsed.theme === "string") state.theme = parsed.theme;
+          if (parsed.glassPolarity === "light-ui" || parsed.glassPolarity === "dark-ui") {
+            state.glassPolarity = parsed.glassPolarity;
+          }
+        } catch (err) {
+          console.warn("State load error:", err);
+        }
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          localStorage.setItem(LANG_STORAGE_KEY, currentLang);
+        } catch (err) {
+          console.warn("State save error:", err);
+        }
+      }
+
+      function syncGlassPolarityLabel() {
+        glassPolarityInfo.textContent = state.glassPolarity === "light-ui"
+          ? `${t("flipGlass")}: ${getThemeLabel("glass")}`
+          : `${t("flipGlass")}: ${getThemeLabel("glass")}`;
+      }
+
+      function applyTheme(themeName) {
+        const validThemes = ["classic", "glass", "cartoon", "gothic", "renaissance", "punk"];
+        const chosen = validThemes.includes(themeName) ? themeName : "classic";
+        state.theme = chosen;
+        document.body.setAttribute("data-theme", chosen);
+        document.body.setAttribute("data-glass-polarity", state.glassPolarity);
+        if (wallpaperDataUrl) {
+          document.body.setAttribute("data-has-wallpaper", "true");
+          document.body.style.setProperty("--wallpaper-img", `url("${wallpaperDataUrl}")`);
+        } else {
+          document.body.removeAttribute("data-has-wallpaper");
+          document.body.style.setProperty("--wallpaper-img", "none");
+        }
+
+        document.querySelectorAll(".theme-chip[data-theme-choice]").forEach(chip => {
+          const id = chip.dataset.themeChoice;
+          chip.textContent = getThemeLabel(id);
+          chip.classList.toggle("active", id === chosen);
+        });
+        glassBox.classList.toggle("visible", chosen === "glass");
+        syncGlassPolarityLabel();
+        saveState();
+      }
+
+      function detectImageLuminanceAndApply(imgSrc) {
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const canvas = document.createElement("canvas");
+            const size = 48;
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, size, size);
+            const data = ctx.getImageData(0, 0, size, size).data;
+            let sum = 0;
+            const pixels = data.length / 4;
+            for (let i = 0; i < data.length; i += 4) {
+              sum += 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+            }
+            const avg = sum / pixels;
+            state.glassPolarity = avg > 135 ? "dark-ui" : "light-ui";
+            applyTheme("glass");
+          } catch (e) {
+            applyTheme("glass");
+          }
+        };
+        img.src = imgSrc;
+      }
+
+      function populateSounds() {
+        soundSelect.innerHTML = "";
+        SOUNDS.forEach(s => {
+          const opt = document.createElement("option");
+          opt.value = s.id;
+          opt.textContent = getSoundLabel(s.id);
+          if (s.id === state.soundId) opt.selected = true;
+          soundSelect.appendChild(opt);
+        });
+        if (customAudioUrl) {
+          const customOpt = document.createElement("option");
+          customOpt.value = "__custom__";
+          customOpt.textContent = t("customAudioLoaded") + customAudioName;
+          if (state.soundId === "__custom__") customOpt.selected = true;
+          soundSelect.appendChild(customOpt);
+        }
+      }
+
+      function renderLangMenu() {
+        if (!langList) return;
+        if (langMenuTitle) langMenuTitle.textContent = t("langMenuTitle");
+        langList.innerHTML = "";
+        LANGUAGES.forEach(lang => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "theme-chip" + (lang.code === currentLang ? " active" : "");
+          btn.textContent = lang.label;
+          btn.addEventListener("click", () => {
+            applyLanguage(lang.code);
+            langMenu.style.display = "none";
+          });
+          langList.appendChild(btn);
+        });
+      }
+
+      function applyLanguage(langCode) {
+        const langObj = LANGUAGES.find(l => l.code === langCode) || LANGUAGES[0];
+        currentLang = langObj.code;
+        document.documentElement.lang = langObj.code;
+        document.documentElement.dir = langObj.dir || "ltr";
+
+        state.places.forEach((p, idx) => {
+          if (p.isDefaultName) {
+            p.name = getDefaultPlaceName(idx);
+          }
+        });
+
+        document.querySelector(".brand-title").textContent = t("brandTitle");
+        document.querySelector(".prompt-title").textContent = t("promptTitle");
+        toggleWatchBtn.textContent = t("startWatch");
+        stopWatchBtn.textContent = t("stopWatch");
+        previewSoundBtn.textContent = t("previewSound");
+        const loudSpan = loudModeToggle.parentElement.querySelector("span");
+        if (loudSpan) loudSpan.textContent = t("loudMode");
+        pickAudioBtn.textContent = t("pickAudio");
+        customAudioInfo.textContent = customAudioUrl ? (t("customAudioLoaded") + customAudioName) : t("noCustomAudio");
+
+        themeDrawerTitle.textContent = t("themeDrawerTitle");
+        pickWallpaperBtn.textContent = t("pickWallpaper");
+        flipGlassPolarityBtn.textContent = t("flipGlass");
+        simDistanceLabelWrap.innerHTML = `${t("simPrefix")} <strong id="simDistanceLabel">${simDistanceRange.value} m</strong>`;
+        triggerSimAlarmBtn.textContent = t("triggerSim");
+        adBannerSlot.textContent = t("adBanner");
+
+        editModalTitle.textContent = t("editModalTitle");
+        editNameLabel.textContent = t("editNameLabel");
+        addressSearchLabel.textContent = t("addressSearchLabel");
+        addressSearchInput.placeholder = t("addressSearchPlaceholder");
+        searchAddressBtn.textContent = t("searchBtn");
+        useCurrentGpsBtn.textContent = t("useCurrentGps");
+        savePlaceBtn.textContent = t("savePlace");
+        cancelEditBtn.textContent = t("cancelEdit");
+
+        dismissForeverBtn.textContent = t("dismissForever");
+        snoozeMainLabel.textContent = t("snoozeMain");
+        if (!alarmActive || snoozeRemaining <= 0) {
+          snoozeCountdownText.textContent = t("snoozeTap");
+        }
+        alarmFooterNote.textContent = t("alarmFooter");
+
+        applyTheme(state.theme);
+        populateSounds();
+        renderDestinations();
+        renderLangMenu();
+        updateStatus();
+        saveState();
+      }
+
+      function renderDestinations() {
+        destinationsGrid.innerHTML = "";
+        state.places.forEach((place, idx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "dest-btn" + (idx === state.selectedIndex ? " selected" : "");
+          const hasCoords = typeof place.lat === "number" && typeof place.lng === "number";
+          const roleTag = idx < 2 ? t("fixedPlace") : t("freePlace");
+          btn.innerHTML = `
+            <span class="dest-index">${idx + 1}. • ${escapeHtml(roleTag)}</span>
+            <span class="dest-name">${escapeHtml(place.name)}</span>
+            <span class="dest-sub">${escapeHtml(hasCoords ? t("coordsSet") : t("setPlaceHint"))}</span>
+          `;
+          btn.addEventListener("click", () => {
+            state.selectedIndex = idx;
+            saveState();
+            renderDestinations();
+            if (editMode || !hasCoords) {
+              openEditModal(idx);
+            } else {
+              updateStatus();
+            }
+          });
+          destinationsGrid.appendChild(btn);
+        });
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function formatDistance(meters) {
+        const suffix = t("beforeSuffix");
+        if (meters >= 1000) {
+          const km = (meters / 1000).toFixed(meters % 1000 === 0 ? 0 : 1).replace(".", ",");
+          return `${km} km ${suffix}`;
+        }
+        return `${meters} m ${suffix}`;
+      }
+
+      function updateStatus(extraText = "") {
+        const place = state.places[state.selectedIndex] || state.places[0];
+        const hasCoords = typeof place.lat === "number" && typeof place.lng === "number";
+        statusLine.textContent = `${place.name} • ${formatDistance(state.thresholdMeters)}`;
+        if (extraText) {
+          statusDetail.textContent = extraText;
+        } else if (!hasCoords) {
+          statusDetail.textContent = t("noCoordsYet");
+        } else if (watching) {
+          statusDetail.textContent = t("watchingActive");
+        } else {
+          statusDetail.textContent = `${place.lat.toFixed(5)}, ${place.lng.toFixed(5)} • ${t("coordsReady")}`;
+        }
+      }
+
+      function haversineMeters(lat1, lon1, lat2, lon2) {
+        const R = 6371000;
+        const toRad = d => d * Math.PI / 180;
+        const dLat = toRad(lat2 - lat1);
+        const dLon = toRad(lon2 - lon1);
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      }
+
+      function ensureAudioContext() {
+        if (!audioCtx) {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (Ctx) audioCtx = new Ctx();
+        }
+        if (audioCtx && audioCtx.state === "suspended") {
+          audioCtx.resume().catch(() => {});
+        }
+        return audioCtx;
+      }
+
+      function getGainMultiplier() {
+        return state.loudMode ? 1.8 : 1.0;
+      }
+
+      function playTone(freq, duration, type = "sawtooth", delay = 0, peak = 0.28, endFreq = null) {
+        const ctx = ensureAudioContext();
+        if (!ctx) return;
+        const start = ctx.currentTime + delay;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, start);
+        if (endFreq !== null) {
+          osc.frequency.exponentialRampToValueAtTime(Math.max(40, endFreq), start + duration);
+        }
+
+        const scaledPeak = Math.min(0.75, peak * getGainMultiplier());
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.linearRampToValueAtTime(scaledPeak, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + duration + 0.03);
+      }
+
+      function stopAllSounds() {
+        if (alarmLoopInterval) {
+          clearInterval(alarmLoopInterval);
+          alarmLoopInterval = null;
+        }
+        if (customAudioPlayer) {
+          customAudioPlayer.pause();
+          customAudioPlayer.currentTime = 0;
+        }
+      }
+
+      function triggerSoundOnce(soundId) {
+        if (soundId === "__custom__" && customAudioUrl) {
+          if (!customAudioPlayer) {
+            customAudioPlayer = new Audio(customAudioUrl);
+          } else if (customAudioPlayer.src !== customAudioUrl) {
+            customAudioPlayer.src = customAudioUrl;
+          }
+          customAudioPlayer.volume = 1.0;
+          customAudioPlayer.currentTime = 0;
+          customAudioPlayer.play().catch(() => {});
+          return;
+        }
+
+        switch (soundId) {
+          case "roman_horn":
+            playTone(146.8, 0.9, "sawtooth", 0.0, 0.36, 152);
+            playTone(146.8, 0.9, "triangle", 0.0, 0.26, 152);
+            playTone(220.0, 1.15, "sawtooth", 0.55, 0.36, 214);
+            break;
+          case "clock_bell":
+            for (let i = 0; i < 6; i++) {
+              playTone(1850, 0.09, "square", i * 0.12, 0.26);
+            }
+            break;
+          case "ship_horn":
+            playTone(110, 1.3, "sawtooth", 0, 0.32, 104);
+            playTone(112.5, 1.3, "triangle", 0, 0.24, 106);
+            break;
+          case "train_whistle":
+            playTone(620, 0.35, "sawtooth", 0, 0.28, 660);
+            playTone(840, 0.55, "sawtooth", 0.36, 0.3, 790);
+            break;
+          case "sonar_ping":
+            playTone(1320, 0.45, "sine", 0, 0.34);
+            playTone(1320, 0.45, "sine", 0.65, 0.3);
+            break;
+          case "fire_alarm":
+            for (let i = 0; i < 4; i++) {
+              playTone(760 + i * 160, 0.18, "sawtooth", i * 0.2, 0.3);
+            }
+            break;
+          case "bronze_gong":
+            playTone(140, 1.5, "sine", 0, 0.34, 132);
+            playTone(352, 1.2, "triangle", 0, 0.2, 340);
+            break;
+          case "bugle_call":
+            playTone(440, 0.22, "sawtooth", 0, 0.26);
+            playTone(554.37, 0.22, "sawtooth", 0.24, 0.26);
+            playTone(659.25, 0.45, "sawtooth", 0.48, 0.3);
+            break;
+          case "church_bell":
+            playTone(392, 1.1, "sine", 0, 0.28, 388);
+            playTone(784, 0.9, "triangle", 0.02, 0.16);
+            break;
+          case "morse_sos":
+            [0, 0.22, 0.44, 0.72, 1.02, 1.32, 1.62, 1.84, 2.06].forEach((t0, idx) => {
+              const dur = (idx >= 3 && idx <= 5) ? 0.24 : 0.11;
+              playTone(880, dur, "square", t0, 0.24);
+            });
+            break;
+          case "digital_pulse":
+          default:
+            playTone(980, 0.16, "square", 0, 0.24);
+            playTone(1240, 0.16, "square", 0.2, 0.24);
+            break;
+        }
+      }
+
+      function startAlarm(messageSub = "") {
+        alarmActive = true;
+        snoozeRemaining = 0;
+        if (snoozeInterval) {
+          clearInterval(snoozeInterval);
+          snoozeInterval = null;
+        }
+        const place = state.places[state.selectedIndex] || state.places[0];
+        alarmHeading.textContent = `${t("alarmPrefix")} ${place.name}`;
+        alarmSub.textContent = messageSub || formatDistance(state.thresholdMeters);
+        snoozeGiantBtn.disabled = false;
+        snoozeCountdownText.textContent = t("snoozeTap");
+        alarmOverlay.classList.add("active");
+
+        if (navigator.vibrate) {
+          navigator.vibrate([500, 250, 500, 250, 800]);
+        }
+
+        stopAllSounds();
+        triggerSoundOnce(state.soundId);
+        alarmLoopInterval = setInterval(() => {
+          if (alarmActive && snoozeRemaining <= 0) {
+            triggerSoundOnce(state.soundId);
+            if (navigator.vibrate) navigator.vibrate([400, 200, 400]);
+          }
+        }, 2400);
+      }
+
+      function snoozeFor20Seconds() {
+        if (!alarmActive) return;
+        stopAllSounds();
+        snoozeRemaining = 20;
+        snoozeGiantBtn.disabled = true;
+        snoozeCountdownText.textContent = `${snoozeRemaining} ${t("snoozeLeft")}`;
+
+        if (snoozeInterval) clearInterval(snoozeInterval);
+        snoozeInterval = setInterval(() => {
+          snoozeRemaining -= 1;
+          if (snoozeRemaining > 0) {
+            snoozeCountdownText.textContent = `${snoozeRemaining} ${t("snoozeLeft")}`;
+          } else {
+            clearInterval(snoozeInterval);
+            snoozeInterval = null;
+            snoozeGiantBtn.disabled = false;
+            snoozeCountdownText.textContent = t("snoozeTap");
+            if (alarmActive) {
+              triggerSoundOnce(state.soundId);
+              alarmLoopInterval = setInterval(() => {
+                if (alarmActive && snoozeRemaining <= 0) {
+                  triggerSoundOnce(state.soundId);
+                }
+              }, 2400);
+            }
+          }
+        }, 1000);
+      }
+
+      function dismissAlarmForever() {
+        alarmActive = false;
+        snoozeRemaining = 0;
+        if (snoozeInterval) {
+          clearInterval(snoozeInterval);
+          snoozeInterval = null;
+        }
+        stopAllSounds();
+        alarmOverlay.classList.remove("active");
+        stopWatching();
+        updateStatus();
+      }
+
+      function startWatching() {
+        const place = state.places[state.selectedIndex];
+        if (!place || typeof place.lat !== "number" || typeof place.lng !== "number") {
+          updateStatus(t("noCoordsYet"));
+          return;
+        }
+        if (!navigator.geolocation) return;
+
+        ensureAudioContext();
+        watching = true;
+        toggleWatchBtn.style.display = "none";
+        stopWatchBtn.style.display = "inline-flex";
+        updateStatus(t("watchingActive"));
+
+        watchId = navigator.geolocation.watchPosition(
+          pos => {
+            if (!watching || alarmActive) return;
+            const dist = haversineMeters(pos.coords.latitude, pos.coords.longitude, place.lat, place.lng);
+            updateStatus(`${place.name}: ${Math.round(dist)} m`);
+            if (dist <= state.thresholdMeters) {
+              startAlarm(`${place.name}: ${Math.round(dist)} m`);
+            }
+          },
+          err => {
+            updateStatus(err.message || "GPS");
+          },
+          { enableHighAccuracy: true, maximumAge: 3000, timeout: 10000 }
+        );
+      }
+
+      function stopWatching() {
+        watching = false;
+        if (watchId !== null && navigator.geolocation) {
+          navigator.geolocation.clearWatch(watchId);
+          watchId = null;
+        }
+        toggleWatchBtn.style.display = "inline-flex";
+        stopWatchBtn.style.display = "none";
+        updateStatus();
+      }
+
+      function ensureLeafletMap(lat, lng) {
+        if (typeof window.L === "undefined") return;
+        const centerLat = typeof lat === "number" ? lat : 32.0853;
+        const centerLng = typeof lng === "number" ? lng : 34.7818;
+
+        if (!leafletMap) {
+          leafletMap = L.map("mapContainer").setView([centerLat, centerLng], typeof lat === "number" ? 15 : 8);
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution: "&copy; OpenStreetMap"
+          }).addTo(leafletMap);
+
+          leafletMap.on("click", e => {
+            setMapPoint(e.latlng.lat, e.latlng.lng, true);
+          });
+        } else {
+          leafletMap.setView([centerLat, centerLng], typeof lat === "number" ? 15 : 8);
+        }
+
+        if (typeof lat === "number" && typeof lng === "number") {
+          setMapPoint(lat, lng, false);
+        } else if (leafletMarker) {
+          leafletMap.removeLayer(leafletMarker);
+          leafletMarker = null;
+        }
+
+        setTimeout(() => {
+          if (leafletMap) leafletMap.invalidateSize();
+        }, 120);
+      }
+
+      function setMapPoint(lat, lng, panTo) {
+        const fixedLat = Number(lat.toFixed(6));
+        const fixedLng = Number(lng.toFixed(6));
+        editLatInput.value = fixedLat;
+        editLngInput.value = fixedLng;
+
+        if (!leafletMap || typeof window.L === "undefined") return;
+        if (!leafletMarker) {
+          leafletMarker = L.marker([fixedLat, fixedLng]).addTo(leafletMap);
+        } else {
+          leafletMarker.setLatLng([fixedLat, fixedLng]);
+        }
+        if (panTo) {
+          leafletMap.setView([fixedLat, fixedLng], Math.max(leafletMap.getZoom(), 15));
+        }
+      }
+
+      async function searchAddress() {
+        const q = addressSearchInput.value.trim();
+        if (!q) return;
+        searchResults.innerHTML = `<div class="field-label">...</div>`;
+        try {
+          const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(q)}`;
+          const res = await fetch(url, { headers: { "Accept-Language": currentLang } });
+          const items = await res.json();
+          searchResults.innerHTML = "";
+          if (!Array.isArray(items) || items.length === 0) return;
+          items.forEach(item => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "search-item-btn";
+            btn.textContent = item.display_name;
+            btn.addEventListener("click", () => {
+              const lat = parseFloat(item.lat);
+              const lon = parseFloat(item.lon);
+              if (Number.isFinite(lat) && Number.isFinite(lon)) {
+                setMapPoint(lat, lon, true);
+              }
+            });
+            searchResults.appendChild(btn);
+          });
+        } catch (err) {
+          searchResults.innerHTML = "";
+        }
+      }
+
+      function openEditModal(index) {
+        editingIndex = index;
+        const place = state.places[index];
+        editNameInput.value = place.name || "";
+        addressSearchInput.value = "";
+        searchResults.innerHTML = "";
+        editLatInput.value = typeof place.lat === "number" ? place.lat : "";
+        editLngInput.value = typeof place.lng === "number" ? place.lng : "";
+        editModal.classList.add("open");
+        ensureLeafletMap(place.lat, place.lng);
+      }
+
+      function closeEditModal() {
+        editModal.classList.remove("open");
+        editingIndex = null;
+      }
+
+      thresholdSelect.addEventListener("change", () => {
+        state.thresholdMeters = Number(thresholdSelect.value);
+        saveState();
+        updateStatus();
+      });
+
+      langBtn.addEventListener("click", () => {
+        const isOpen = langMenu.style.display !== "none";
+        langMenu.style.display = isOpen ? "none" : "flex";
+        if (!isOpen) renderLangMenu();
+      });
+
+      editModeBtn.addEventListener("click", () => {
+        editMode = !editMode;
+        editModeBtn.classList.toggle("active", editMode);
+        renderDestinations();
+        updateStatus(editMode ? t("editModeOn") : "");
+      });
+
+      themeBtn.addEventListener("click", () => {
+        const isOpen = themeDrawer.classList.toggle("open");
+        themeBtn.classList.toggle("active", isOpen);
+      });
+
+      document.querySelectorAll(".theme-chip[data-theme-choice]").forEach(chip => {
+        chip.addEventListener("click", () => applyTheme(chip.dataset.themeChoice));
+      });
+
+      pickWallpaperBtn.addEventListener("click", () => wallpaperInput.click());
+
+      wallpaperInput.addEventListener("change", e => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          wallpaperDataUrl = ev.target.result;
+          detectImageLuminanceAndApply(wallpaperDataUrl);
+        };
+        reader.readAsDataURL(file);
+      });
+
+      flipGlassPolarityBtn.addEventListener("click", () => {
+        state.glassPolarity = state.glassPolarity === "dark-ui" ? "light-ui" : "dark-ui";
+        applyTheme("glass");
+      });
+
+      soundSelect.addEventListener("change", () => {
+        state.soundId = soundSelect.value;
+        saveState();
+      });
+
+      loudModeToggle.addEventListener("change", () => {
+        state.loudMode = loudModeToggle.checked;
+        saveState();
+      });
+
+      previewSoundBtn.addEventListener("click", () => {
+        ensureAudioContext();
+        stopAllSounds();
+        triggerSoundOnce(state.soundId);
+        setTimeout(() => {
+          if (!alarmActive) stopAllSounds();
+        }, 2200);
+      });
+
+      pickAudioBtn.addEventListener("click", () => customAudioInput.click());
+
+      customAudioInput.addEventListener("change", e => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        if (customAudioUrl) URL.revokeObjectURL(customAudioUrl);
+        customAudioUrl = URL.createObjectURL(file);
+        customAudioName = file.name;
+        state.soundId = "__custom__";
+        customAudioInfo.textContent = t("customAudioLoaded") + customAudioName;
+        populateSounds();
+        saveState();
+      });
+
+      simDistanceRange.addEventListener("input", () => {
+        const lbl = document.getElementById("simDistanceLabel");
+        if (lbl) lbl.textContent = `${simDistanceRange.value} m`;
+      });
+
+      triggerSimAlarmBtn.addEventListener("click", () => {
+        ensureAudioContext();
+        startAlarm(`${simDistanceRange.value} m`);
+      });
+
+      toggleWatchBtn.addEventListener("click", startWatching);
+      stopWatchBtn.addEventListener("click", stopWatching);
+      snoozeGiantBtn.addEventListener("click", snoozeFor20Seconds);
+      dismissForeverBtn.addEventListener("click", dismissAlarmForever);
+
+      searchAddressBtn.addEventListener("click", searchAddress);
+      addressSearchInput.addEventListener("keydown", e => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          searchAddress();
+        }
+      });
+
+      useCurrentGpsBtn.addEventListener("click", () => {
+        if (!navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            setMapPoint(pos.coords.latitude, pos.coords.longitude, true);
+          },
+          () => {},
+          { enableHighAccuracy: true }
+        );
+      });
+
+      savePlaceBtn.addEventListener("click", () => {
+        if (editingIndex === null) return;
+        const customName = editNameInput.value.trim();
+        const defName = getDefaultPlaceName(editingIndex);
+        const name = customName || defName;
+        const isDefaultName = !customName || customName === defName;
+        const latVal = parseFloat(editLatInput.value);
+        const lngVal = parseFloat(editLngInput.value);
+        state.places[editingIndex] = {
+          name,
+          isDefaultName,
+          lat: Number.isFinite(latVal) ? latVal : null,
+          lng: Number.isFinite(lngVal) ? lngVal : null
+        };
+        saveState();
+        renderDestinations();
+        updateStatus();
+        closeEditModal();
+      });
+
+      cancelEditBtn.addEventListener("click", closeEditModal);
+
+      voiceBtn.addEventListener("click", () => {
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRec) {
+          updateStatus(t("voiceUnavailable"));
+          return;
+        }
+        const langObj = LANGUAGES.find(l => l.code === currentLang) || LANGUAGES[0];
+        const rec = new SpeechRec();
+        rec.lang = langObj.speech || "en-US";
+        rec.interimResults = false;
+        voiceBtn.classList.add("active");
+        updateStatus(t("voiceListening"));
+
+        rec.onresult = event => {
+          const spoken = (event.results[0][0].transcript || "").toLowerCase().trim();
+          const foundIdx = state.places.findIndex(p => spoken.includes(p.name.toLowerCase()));
+          if (foundIdx !== -1) {
+            state.selectedIndex = foundIdx;
+            saveState();
+            renderDestinations();
+            updateStatus(`${t("voiceSelected")} ${state.places[foundIdx].name}`);
+          } else {
+            updateStatus(`${t("voiceNotFound")} ${spoken}`);
+          }
+        };
+
+        rec.onerror = () => updateStatus(t("voiceUnavailable"));
+        rec.onend = () => voiceBtn.classList.remove("active");
+        rec.start();
+      });
+
+      loadState();
+      thresholdSelect.value = String(state.thresholdMeters);
+      loudModeToggle.checked = state.loudMode;
+      applyLanguage(currentLang);
+    } catch (fatalErr) {
+      document.body.innerHTML = `<div style="padding:20px;font-family:sans-serif;color:#111;background:#fff;"><h2>StopWake</h2><p>${String(fatalErr && fatalErr.message || fatalErr)}</p></div>`;
     }
   </script>
 </body>
 </html>
+
