@@ -28,137 +28,57 @@
       --wallpaper-img: none;
     }
 
-    /* 1. RAJZFILMES / KÉPREGÉNYES STÍLUS */
     body[data-theme="cartoon"] {
-      --bg: #fef08a;
-      --surface: #ffffff;
-      --surface-2: #fde047;
-      --text: #111827;
-      --muted: #374151;
-      --accent: #2563eb;
-      --accent-text: #ffffff;
-      --danger: #dc2626;
-      --snooze: #16a34a;
-      --snooze-text: #ffffff;
-      --border: #111827;
-      --shadow: 5px 5px 0px #111827;
-      --radius: 22px 10px 20px 12px;
+      --bg: #fef08a; --surface: #ffffff; --surface-2: #fde047; --text: #111827; --muted: #374151;
+      --accent: #2563eb; --accent-text: #ffffff; --danger: #dc2626; --snooze: #16a34a; --snooze-text: #ffffff;
+      --border: #111827; --shadow: 5px 5px 0px #111827; --radius: 22px 10px 20px 12px;
       --font-main: 'Trebuchet MS', 'Comic Sans MS', system-ui, sans-serif;
       --font-display: 'Arial Black', Impact, 'Trebuchet MS', sans-serif;
-      --btn-transform: rotate(-0.8deg);
-      --btn-border-width: 3.5px;
-      --backdrop-blur: 0px;
-      background-image: radial-gradient(#111827 1.1px, transparent 1.1px);
-      background-size: 18px 18px;
+      --btn-transform: rotate(-0.8deg); --btn-border-width: 3.5px; --backdrop-blur: 0px;
+      background-image: radial-gradient(#111827 1.1px, transparent 1.1px); background-size: 18px 18px;
     }
-    body[data-theme="cartoon"] .dest-btn:nth-child(even) {
-      transform: rotate(0.8deg);
-    }
-    body[data-theme="cartoon"] .dest-btn:active,
-    body[data-theme="cartoon"] .action-btn:active,
-    body[data-theme="cartoon"] .icon-btn:active {
-      transform: translate(3px, 3px);
-      box-shadow: 2px 2px 0px #111827;
+    body[data-theme="cartoon"] .dest-btn:nth-child(even) { transform: rotate(0.8deg); }
+    body[data-theme="cartoon"] .dest-btn:active, body[data-theme="cartoon"] .action-btn:active, body[data-theme="cartoon"] .icon-btn:active {
+      transform: translate(3px, 3px); box-shadow: 2px 2px 0px #111827;
     }
 
-    /* 2. GÓTIKUS STÍLUS */
     body[data-theme="gothic"] {
-      --bg: #09070a;
-      --surface: #161118;
-      --surface-2: #241926;
-      --text: #f3ece8;
-      --muted: #b79ea8;
-      --accent: #b91c1c;
-      --accent-text: #fff5f5;
-      --danger: #991b1b;
-      --snooze: #7f1d1d;
-      --snooze-text: #fef2f2;
-      --border: #6b5b6e;
-      --shadow: inset 0 0 0 1px rgba(226, 212, 218, 0.16), 0 12px 26px rgba(0, 0, 0, 0.78);
-      --radius: 4px 18px 4px 18px;
-      --font-main: Georgia, 'Times New Roman', serif;
-      --font-display: Palatino, 'Book Antiqua', Georgia, serif;
-      --btn-transform: none;
-      --btn-border-width: 2px;
-      --backdrop-blur: 0px;
+      --bg: #09070a; --surface: #161118; --surface-2: #241926; --text: #f3ece8; --muted: #b79ea8;
+      --accent: #b91c1c; --accent-text: #fff5f5; --danger: #991b1b; --snooze: #7f1d1d; --snooze-text: #fef2f2;
+      --border: #6b5b6e; --shadow: inset 0 0 0 1px rgba(226, 212, 218, 0.16), 0 12px 26px rgba(0, 0, 0, 0.78);
+      --radius: 4px 18px 4px 18px; --font-main: Georgia, 'Times New Roman', serif; --font-display: Palatino, 'Book Antiqua', Georgia, serif;
+      --btn-transform: none; --btn-border-width: 2px; --backdrop-blur: 0px;
       background-image: linear-gradient(180deg, rgba(127,29,29,0.16) 0%, rgba(9,7,10,0.96) 55%);
     }
-    body[data-theme="gothic"] .dest-btn::before,
-    body[data-theme="gothic"] .panel::before {
-      content: "✦";
-      position: absolute;
-      top: 6px;
-      left: 8px;
-      font-size: 0.72rem;
-      color: var(--muted);
-      opacity: 0.7;
+    body[data-theme="gothic"] .dest-btn::before, body[data-theme="gothic"] .panel::before {
+      content: "✦"; position: absolute; top: 6px; left: 8px; font-size: 0.72rem; color: var(--muted); opacity: 0.7;
     }
 
-    /* 3. RENESZÁNSZ / MICHELANGELO-IHLETÉSŰ STÍLUS */
     body[data-theme="renaissance"] {
-      --bg: #241911;
-      --surface: #f4ead5;
-      --surface-2: #e6d5b2;
-      --text: #2a1b10;
-      --muted: #6b4e34;
-      --accent: #9a3412;
-      --accent-text: #fffbeb;
-      --danger: #881337;
-      --snooze: #1e4620;
-      --snooze-text: #f0fdf4;
-      --border: #b48a3c;
-      --shadow: inset 0 0 0 2px #d4af37, 0 8px 20px rgba(0, 0, 0, 0.45);
-      --radius: 10px;
-      --font-main: Georgia, 'Times New Roman', serif;
-      --font-display: Georgia, 'Times New Roman', serif;
-      --btn-transform: none;
-      --btn-border-width: 2.5px;
-      --backdrop-blur: 0px;
+      --bg: #241911; --surface: #f4ead5; --surface-2: #e6d5b2; --text: #2a1b10; --muted: #6b4e34;
+      --accent: #9a3412; --accent-text: #fffbeb; --danger: #881337; --snooze: #1e4620; --snooze-text: #f0fdf4;
+      --border: #b48a3c; --shadow: inset 0 0 0 2px #d4af37, 0 8px 20px rgba(0, 0, 0, 0.45);
+      --radius: 10px; --font-main: Georgia, 'Times New Roman', serif; --font-display: Georgia, 'Times New Roman', serif;
+      --btn-transform: none; --btn-border-width: 2.5px; --backdrop-blur: 0px;
       background-image: radial-gradient(circle at top, rgba(212,175,55,0.16), transparent 60%), linear-gradient(180deg, #2b1d13 0%, #19100a 100%);
     }
-    body[data-theme="renaissance"] .topbar,
-    body[data-theme="renaissance"] .prompt-title,
-    body[data-theme="renaissance"] .modal-title,
-    body[data-theme="renaissance"] .drawer-title {
-      color: var(--text);
-    }
-    body[data-theme="renaissance"] .topbar {
-      background: #f4ead5;
-    }
+    body[data-theme="renaissance"] .topbar, body[data-theme="renaissance"] .prompt-title,
+    body[data-theme="renaissance"] .modal-title, body[data-theme="renaissance"] .drawer-title { color: var(--text); }
+    body[data-theme="renaissance"] .topbar { background: #f4ead5; }
 
-    /* 4. PUNK STÍLUS */
     body[data-theme="punk"] {
-      --bg: #111111;
-      --surface: #1b1b1b;
-      --surface-2: #2a2a2a;
-      --text: #fafafa;
-      --muted: #d4d4d8;
-      --accent: #f43f5e;
-      --accent-text: #ffffff;
-      --danger: #e11d48;
-      --snooze: #a3e635;
-      --snooze-text: #111111;
-      --border: #f43f5e;
-      --shadow: 4px 4px 0px #a3e635;
-      --radius: 2px 12px 3px 9px;
-      --font-main: system-ui, -apple-system, sans-serif;
-      --font-display: Impact, 'Arial Black', sans-serif;
-      --btn-transform: skewX(-4deg);
-      --btn-border-width: 2px;
-      --backdrop-blur: 0px;
+      --bg: #111111; --surface: #1b1b1b; --surface-2: #2a2a2a; --text: #fafafa; --muted: #d4d4d8;
+      --accent: #f43f5e; --accent-text: #ffffff; --danger: #e11d48; --snooze: #a3e635; --snooze-text: #111111;
+      --border: #f43f5e; --shadow: 4px 4px 0px #a3e635; --radius: 2px 12px 3px 9px;
+      --font-main: system-ui, -apple-system, sans-serif; --font-display: Impact, 'Arial Black', sans-serif;
+      --btn-transform: skewX(-4deg); --btn-border-width: 2px; --backdrop-blur: 0px;
       background-image: repeating-linear-gradient(-45deg, rgba(244,63,94,0.06) 0, rgba(244,63,94,0.06) 8px, transparent 8px, transparent 16px);
     }
 
-    /* 5. ÁTLÁTSZÓ (HÁTTÉRKÉPHEZ / KÉPERNYŐHÖZ IGAZODÓ) STÍLUS */
     body[data-theme="glass"] {
-      --backdrop-blur: 14px;
-      --btn-transform: none;
-      --btn-border-width: 1.5px;
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
+      --backdrop-blur: 14px; --btn-transform: none; --btn-border-width: 1.5px;
+      background-size: cover; background-position: center; background-attachment: fixed;
     }
-
     body[data-theme="glass"]:not([data-has-wallpaper="true"]) {
       background-image:
         radial-gradient(circle at 18% 22%, rgba(56, 189, 248, 0.55), transparent 45%),
@@ -166,570 +86,142 @@
         radial-gradient(circle at 50% 82%, rgba(244, 63, 94, 0.45), transparent 50%),
         linear-gradient(135deg, #e2e8f0 0%, #64748b 50%, #0f172a 100%);
     }
-
-    body[data-theme="glass"][data-has-wallpaper="true"] {
-      background-image: var(--wallpaper-img);
-    }
-
+    body[data-theme="glass"][data-has-wallpaper="true"] { background-image: var(--wallpaper-img); }
     body[data-theme="glass"][data-glass-polarity="dark-ui"] {
-      --bg: #1e293b;
-      --surface: rgba(15, 23, 42, 0.62);
-      --surface-2: rgba(30, 41, 59, 0.68);
-      --text: #f8fafc;
-      --muted: #e2e8f0;
-      --accent: #38bdf8;
-      --accent-text: #04131d;
-      --danger: #ef4444;
-      --snooze: #22c55e;
-      --snooze-text: #052e16;
-      --border: rgba(255, 255, 255, 0.34);
-      --shadow: 0 10px 26px rgba(0, 0, 0, 0.32);
+      --bg: #1e293b; --surface: rgba(15, 23, 42, 0.62); --surface-2: rgba(30, 41, 59, 0.68);
+      --text: #f8fafc; --muted: #e2e8f0; --accent: #38bdf8; --accent-text: #04131d;
+      --danger: #ef4444; --snooze: #22c55e; --snooze-text: #052e16;
+      --border: rgba(255, 255, 255, 0.34); --shadow: 0 10px 26px rgba(0, 0, 0, 0.32);
     }
-
     body[data-theme="glass"][data-glass-polarity="light-ui"] {
-      --bg: #cbd5e1;
-      --surface: rgba(255, 255, 255, 0.68);
-      --surface-2: rgba(241, 245, 249, 0.74);
-      --text: #0f172a;
-      --muted: #1e293b;
-      --accent: #0284c7;
-      --accent-text: #ffffff;
-      --danger: #dc2626;
-      --snooze: #16a34a;
-      --snooze-text: #ffffff;
-      --border: rgba(15, 23, 42, 0.28);
-      --shadow: 0 10px 26px rgba(15, 23, 42, 0.18);
+      --bg: #cbd5e1; --surface: rgba(255, 255, 255, 0.68); --surface-2: rgba(241, 245, 249, 0.74);
+      --text: #0f172a; --muted: #1e293b; --accent: #0284c7; --accent-text: #ffffff;
+      --danger: #dc2626; --snooze: #16a34a; --snooze-text: #ffffff;
+      --border: rgba(15, 23, 42, 0.28); --shadow: 0 10px 26px rgba(15, 23, 42, 0.18);
+    }
+    body[data-theme="glass"] .topbar, body[data-theme="glass"] .dest-btn, body[data-theme="glass"] .panel,
+    body[data-theme="glass"] .drawer, body[data-theme="glass"] .modal-card, body[data-theme="glass"] .icon-btn,
+    body[data-theme="glass"] .action-btn, body[data-theme="glass"] .ad-slot {
+      backdrop-filter: blur(var(--backdrop-blur)); -webkit-backdrop-filter: blur(var(--backdrop-blur));
     }
 
-    body[data-theme="glass"] .topbar,
-    body[data-theme="glass"] .dest-btn,
-    body[data-theme="glass"] .panel,
-    body[data-theme="glass"] .drawer,
-    body[data-theme="glass"] .modal-card,
-    body[data-theme="glass"] .icon-btn,
-    body[data-theme="glass"] .action-btn,
-    body[data-theme="glass"] .ad-slot {
-      backdrop-filter: blur(var(--backdrop-blur));
-      -webkit-backdrop-filter: blur(var(--backdrop-blur));
-    }
-
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
-      margin: 0;
-      min-height: 100dvh;
-      font-family: var(--font-main);
-      background-color: var(--bg);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      transition: background-color 0.25s ease, color 0.25s ease;
+      margin: 0; min-height: 100dvh; font-family: var(--font-main);
+      background-color: var(--bg); color: var(--text);
+      display: flex; flex-direction: column; transition: background-color 0.25s ease, color 0.25s ease;
     }
-
-    .app-shell {
-      width: 100%;
-      max-width: 640px;
-      margin: 0 auto;
-      padding: 12px 14px 20px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
+    .app-shell { width: 100%; max-width: 640px; margin: 0 auto; padding: 12px 14px 20px; flex: 1; display: flex; flex-direction: column; gap: 12px; }
     .topbar {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      background: var(--surface);
-      border: var(--btn-border-width) solid var(--border);
-      border-radius: var(--radius);
-      padding: 10px 12px;
-      box-shadow: var(--shadow);
+      position: relative; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      background: var(--surface); border: var(--btn-border-width) solid var(--border);
+      border-radius: var(--radius); padding: 10px 12px; box-shadow: var(--shadow);
     }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-    }
-
-    .brand-icon {
-      width: 28px;
-      height: 28px;
-      flex: 0 0 28px;
-    }
-
-    .brand-title {
-      font-family: var(--font-display);
-      font-weight: 800;
-      font-size: 1.05rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .top-controls {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .threshold-select,
-    .icon-btn,
-    .action-btn,
-    .dest-btn {
-      font-family: inherit;
-      color: var(--text);
-      background: var(--surface-2);
-      border: var(--btn-border-width) solid var(--border);
-      border-radius: var(--radius);
-      cursor: pointer;
+    .brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .brand-icon { width: 28px; height: 28px; flex: 0 0 28px; }
+    .brand-title { font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .top-controls { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+    .threshold-select, .icon-btn, .action-btn, .dest-btn {
+      font-family: inherit; color: var(--text); background: var(--surface-2);
+      border: var(--btn-border-width) solid var(--border); border-radius: var(--radius); cursor: pointer;
       transition: transform 0.12s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     }
-
-    .threshold-select {
-      padding: 7px 9px;
-      font-size: 0.82rem;
-      font-weight: 700;
-    }
-
-    .icon-btn {
-      width: 36px;
-      height: 36px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      font-weight: 700;
-      box-shadow: var(--shadow);
-    }
-
-    .icon-btn.active {
-      background: var(--accent);
-      color: var(--accent-text);
-      border-color: var(--accent);
-    }
-
-    .prompt-title {
-      margin: 2px 0 0;
-      text-align: center;
-      font-family: var(--font-display);
-      font-size: 1.35rem;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-    }
-
-    .destinations-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-
+    .threshold-select { padding: 7px 9px; font-size: 0.82rem; font-weight: 700; }
+    .icon-btn { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700; box-shadow: var(--shadow); }
+    .icon-btn.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+    .prompt-title { margin: 2px 0 0; text-align: center; font-family: var(--font-display); font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em; }
+    .destinations-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .dest-btn {
-      position: relative;
-      min-height: 76px;
-      padding: 10px 12px;
-      background: var(--surface);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      gap: 3px;
-      box-shadow: var(--shadow);
-      transform: var(--btn-transform);
+      position: relative; min-height: 76px; padding: 10px 12px; background: var(--surface);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 3px;
+      box-shadow: var(--shadow); transform: var(--btn-transform);
     }
-
-    .dest-btn:active,
-    .action-btn:active,
-    .icon-btn:active {
-      transform: scale(0.98);
-    }
-
-    .dest-btn.selected {
-      background: var(--accent);
-      color: var(--accent-text);
-      border-color: var(--accent);
-    }
-
-    .dest-index {
-      font-size: 0.72rem;
-      font-weight: 800;
-      opacity: 0.72;
-    }
-
-    .dest-name {
-      font-family: var(--font-display);
-      font-size: 1.05rem;
-      font-weight: 800;
-      line-height: 1.2;
-      word-break: break-word;
-    }
-
-    .dest-sub {
-      font-size: 0.73rem;
-      opacity: 0.85;
-    }
-
+    .dest-btn:active, .action-btn:active, .icon-btn:active { transform: scale(0.98); }
+    .dest-btn.selected { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+    .dest-index { font-size: 0.72rem; font-weight: 800; opacity: 0.72; }
+    .dest-name { font-family: var(--font-display); font-size: 1.05rem; font-weight: 800; line-height: 1.2; word-break: break-word; }
+    .dest-sub { font-size: 0.73rem; opacity: 0.85; }
     .panel {
-      position: relative;
-      background: var(--surface);
-      border: var(--btn-border-width) solid var(--border);
-      border-radius: var(--radius);
-      padding: 12px 14px;
-      box-shadow: var(--shadow);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      position: relative; background: var(--surface); border: var(--btn-border-width) solid var(--border);
+      border-radius: var(--radius); padding: 12px 14px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px;
+    }
+    .status-line { font-size: 0.9rem; font-weight: 700; line-height: 1.4; }
+    .status-detail { font-size: 0.8rem; color: var(--muted); line-height: 1.35; }
+    .action-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .action-btn { padding: 10px 14px; font-size: 0.88rem; font-weight: 800; box-shadow: var(--shadow); }
+    .action-btn.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+    .action-btn.danger { background: var(--danger); color: #ffffff; border-color: var(--danger); }
+
+    @keyframes blinkReady {
+      0%, 100% { filter: brightness(1); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
+      50% { filter: brightness(1.22); box-shadow: 0 0 0 8px rgba(56, 189, 248, 0); }
+    }
+    .action-btn.ready-blink {
+      animation: blinkReady 1.2s infinite;
     }
 
-    .status-line {
-      font-size: 0.9rem;
-      font-weight: 700;
-      line-height: 1.4;
+    .sound-controls { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
+    .sound-select, .text-input, .num-input {
+      width: 100%; padding: 9px 10px; border-radius: 10px; border: 1.5px solid var(--border);
+      background: var(--surface-2); color: var(--text); font-family: inherit; font-size: 0.88rem; font-weight: 600;
     }
-
-    .status-detail {
-      font-size: 0.8rem;
-      color: var(--muted);
-      line-height: 1.35;
-    }
-
-    .action-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .action-btn {
-      padding: 10px 14px;
-      font-size: 0.88rem;
-      font-weight: 800;
-      box-shadow: var(--shadow);
-    }
-
-    .action-btn.primary {
-      background: var(--accent);
-      color: var(--accent-text);
-      border-color: var(--accent);
-    }
-
-    .action-btn.danger {
-      background: var(--danger);
-      color: #ffffff;
-      border-color: var(--danger);
-    }
-
-    .sound-controls {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .sound-select,
-    .text-input,
-    .num-input {
-      width: 100%;
-      padding: 9px 10px;
-      border-radius: 10px;
-      border: 1.5px solid var(--border);
-      background: var(--surface-2);
-      color: var(--text);
-      font-family: inherit;
-      font-size: 0.88rem;
-      font-weight: 600;
-    }
-
-    .extra-audio-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 0.82rem;
-    }
-
-    .toggle-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 10px;
-      border-radius: 999px;
-      background: var(--surface-2);
-      border: 1.5px solid var(--border);
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .custom-file-badge {
-      color: var(--muted);
-      font-size: 0.78rem;
-      word-break: break-all;
-    }
-
-    .drawer {
-      display: none;
-      background: var(--surface);
-      border: var(--btn-border-width) solid var(--border);
-      border-radius: var(--radius);
-      padding: 12px 14px;
-      box-shadow: var(--shadow);
-      gap: 10px;
-    }
-
-    .drawer.open {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .drawer-title {
-      font-family: var(--font-display);
-      font-size: 0.96rem;
-      font-weight: 800;
-      margin: 0;
-    }
-
-    .theme-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
-    }
-
-    .theme-chip {
-      padding: 9px 10px;
-      border-radius: 10px;
-      border: 1.5px solid var(--border);
-      background: var(--surface-2);
-      color: var(--text);
-      font-weight: 700;
-      font-size: 0.84rem;
-      cursor: pointer;
-      text-align: left;
-    }
-
-    .theme-chip.active {
-      background: var(--accent);
-      color: var(--accent-text);
-      border-color: var(--accent);
-    }
-
-    .glass-box {
-      display: none;
-      flex-direction: column;
-      gap: 8px;
-      padding-top: 6px;
-      border-top: 1px dashed var(--border);
-    }
-
-    .glass-box.visible {
-      display: flex;
-    }
-
-    .sim-box {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding-top: 4px;
-      border-top: 1px dashed var(--border);
-    }
-
-    .ad-slot {
-      background: var(--surface);
-      border: 1px dashed var(--border);
-      border-radius: var(--radius);
-      padding: 9px 12px;
-      text-align: center;
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
+    .extra-audio-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between; font-size: 0.82rem; }
+    .toggle-pill { display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 999px; background: var(--surface-2); border: 1.5px solid var(--border); font-weight: 700; cursor: pointer; }
+    .custom-file-badge { color: var(--muted); font-size: 0.78rem; word-break: break-all; }
+    .drawer { display: none; background: var(--surface); border: var(--btn-border-width) solid var(--border); border-radius: var(--radius); padding: 12px 14px; box-shadow: var(--shadow); gap: 10px; }
+    .drawer.open { display: flex; flex-direction: column; }
+    .drawer-title { font-family: var(--font-display); font-size: 0.96rem; font-weight: 800; margin: 0; }
+    .theme-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .theme-chip { padding: 9px 10px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface-2); color: var(--text); font-weight: 700; font-size: 0.84rem; cursor: pointer; text-align: left; }
+    .theme-chip.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+    .glass-box { display: none; flex-direction: column; gap: 8px; padding-top: 6px; border-top: 1px dashed var(--border); }
+    .glass-box.visible { display: flex; }
+    .sim-box { display: flex; flex-direction: column; gap: 6px; padding-top: 4px; border-top: 1px dashed var(--border); }
+    .ad-slot { background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius); padding: 9px 12px; text-align: center; font-size: 0.75rem; color: var(--muted); }
 
     .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(2, 6, 23, 0.72);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 14px;
-      z-index: 50;
-      overflow-y: auto;
+      position: fixed; inset: 0; background: rgba(2, 6, 23, 0.76); display: none;
+      align-items: center; justify-content: center; padding: 14px; z-index: 60; overflow-y: auto;
     }
-
-    .modal-backdrop.open {
-      display: flex;
-    }
-
+    .modal-backdrop.open { display: flex; }
     .modal-card {
-      width: 100%;
-      max-width: 480px;
-      background: var(--surface);
-      color: var(--text);
-      border: var(--btn-border-width) solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      box-shadow: var(--shadow);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-height: 92dvh;
-      overflow-y: auto;
+      width: 100%; max-width: 480px; background: var(--surface); color: var(--text);
+      border: var(--btn-border-width) solid var(--border); border-radius: var(--radius);
+      padding: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; max-height: 92dvh; overflow-y: auto;
     }
-
-    .modal-title {
-      margin: 0;
-      font-family: var(--font-display);
-      font-size: 1.1rem;
-      font-weight: 800;
+    .modal-title { margin: 0; font-family: var(--font-display); font-size: 1.1rem; font-weight: 800; }
+    .panel-badge-art { font-size: 2rem; text-align: center; line-height: 1.2; }
+    @keyframes flagWave {
+      0%, 100% { transform: rotate(-6deg) scale(1); }
+      50% { transform: rotate(6deg) scale(1.08); }
     }
-
-    .field-group {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .field-label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--muted);
-    }
-
-    .search-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px;
-    }
-
-    .search-results {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      max-height: 150px;
-      overflow-y: auto;
-    }
-
-    .search-item-btn {
-      width: 100%;
-      text-align: left;
-      padding: 8px 10px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--surface-2);
-      color: var(--text);
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    html[dir="rtl"] .search-item-btn,
-    html[dir="rtl"] .theme-chip {
-      text-align: right;
-    }
-
-    #mapContainer {
-      width: 100%;
-      height: 210px;
-      border-radius: 12px;
-      border: 1.5px solid var(--border);
-      overflow: hidden;
-      z-index: 1;
-    }
-
-    .coord-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
+    .flag-wave { display: inline-block; animation: flagWave 1s ease-in-out infinite; }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 0.82rem; font-weight: 700; color: var(--muted); line-height: 1.4; }
+    .search-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+    .search-results { display: flex; flex-direction: column; gap: 6px; max-height: 150px; overflow-y: auto; }
+    .search-item-btn { width: 100%; text-align: left; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+    html[dir="rtl"] .search-item-btn, html[dir="rtl"] .theme-chip { text-align: right; }
+    #mapContainer { width: 100%; height: 210px; border-radius: 12px; border: 1.5px solid var(--border); overflow: hidden; z-index: 1; }
+    .coord-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
     .alarm-overlay {
-      position: fixed;
-      inset: 0;
-      background: #090d16;
-      color: #ffffff;
-      z-index: 100;
-      display: none;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 20px 18px 24px;
+      position: fixed; inset: 0; background: #090d16; color: #ffffff; z-index: 100;
+      display: none; flex-direction: column; justify-content: space-between; padding: 20px 18px 24px;
     }
-
-    .alarm-overlay.active {
-      display: flex;
-    }
-
-    .alarm-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-    }
-
-    .alarm-heading {
-      font-family: var(--font-display);
-      font-size: 1.6rem;
-      font-weight: 800;
-      margin: 0 0 6px;
-    }
-
-    .alarm-sub {
-      font-size: 0.95rem;
-      color: #cbd5e1;
-    }
-
-    .dismiss-tiny-btn {
-      padding: 6px 9px;
-      font-size: 0.7rem;
-      font-weight: 700;
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.25);
-      background: rgba(127, 29, 29, 0.55);
-      color: #fecaca;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-
+    .alarm-overlay.active { display: flex; }
+    .alarm-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .alarm-heading { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; margin: 0 0 6px; }
+    .alarm-sub { font-size: 0.95rem; color: #cbd5e1; }
+    .dismiss-tiny-btn { padding: 6px 9px; font-size: 0.7rem; font-weight: 700; border-radius: 8px; border: 1px solid rgba(255,255,255,0.25); background: rgba(127, 29, 29, 0.55); color: #fecaca; cursor: pointer; flex-shrink: 0; }
     .snooze-giant-btn {
-      width: 100%;
-      min-height: 220px;
-      border-radius: 28px;
-      border: 4px solid #86efac;
-      background: var(--snooze);
-      color: var(--snooze-text);
-      font-family: var(--font-display);
-      font-size: 2.3rem;
-      font-weight: 900;
-      letter-spacing: 0.02em;
-      cursor: pointer;
-      box-shadow: 0 0 40px rgba(34, 197, 94, 0.35);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+      width: 100%; min-height: 220px; border-radius: 28px; border: 4px solid #86efac;
+      background: var(--snooze); color: var(--snooze-text); font-family: var(--font-display);
+      font-size: 2.3rem; font-weight: 900; letter-spacing: 0.02em; cursor: pointer;
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.35); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
     }
-
-    .snooze-sub {
-      font-family: var(--font-main);
-      font-size: 1rem;
-      font-weight: 700;
-      opacity: 0.92;
-    }
-
-    .alarm-footer-note {
-      text-align: center;
-      font-size: 0.78rem;
-      color: #94a3b8;
-    }
+    .snooze-sub { font-family: var(--font-main); font-size: 1rem; font-weight: 700; opacity: 0.92; }
+    .alarm-footer-note { text-align: center; font-size: 0.78rem; color: #94a3b8; }
   </style>
 </head>
 <body data-theme="classic" data-glass-polarity="dark-ui">
@@ -832,7 +324,7 @@
     </div>
   </div>
 
-  <!-- Hely szerkesztő modális ablak (címkereső + térkép) -->
+  <!-- Hely szerkesztő modális ablak -->
   <div id="editModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
     <div class="modal-card">
       <h2 id="editModalTitle" class="modal-title">Célpont szerkesztése</h2>
@@ -872,7 +364,17 @@
     </div>
   </div>
 
-  <!-- Ébresztő képernyő: óriási 20 mp Szundi + apró Végleges leállítás -->
+  <!-- Közös flow/állapot panel (GPS, engedélyek, "Mégsem" figyelmeztetés, leállítás-megerősítés, megállásfigyelő, érkezés, újrakezdés) -->
+  <div id="flowModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="flowModalTitle">
+    <div class="modal-card">
+      <div id="flowBadge" class="panel-badge-art">📍</div>
+      <h2 id="flowModalTitle" class="modal-title"></h2>
+      <div id="flowModalBody" class="field-label"></div>
+      <div id="flowActions" class="action-row"></div>
+    </div>
+  </div>
+
+  <!-- Ébresztő képernyő -->
   <div id="alarmOverlay" class="alarm-overlay" role="alertdialog" aria-modal="true" aria-live="assertive">
     <div class="alarm-top">
       <div>
@@ -891,11 +393,10 @@
       20 mp szundi • Végleges leállítás a jobb felső gombbal.
     </div>
   </div>
-
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script>
     try {
-      const STORAGE_KEY = "stopway_v6";
+      const STORAGE_KEY = "stopway_v7";
       const LANG_STORAGE_KEY = "stopway_lang";
 
       const LANGUAGES = [
@@ -922,9 +423,42 @@
         { code: "sw", speech: "sw-KE", dir: "ltr", label: "Kiswahili" }
       ];
 
+      const BASE_NEW_STRINGS_HU = {
+        gpsOffTitle: "A GPS ki van kapcsolva",
+        gpsOffBody: "A megállóelőtti figyeléshez be kell kapcsolni a helymeghatározást (GPS). Kapcsold be a készülék beállításaiban, majd próbáld újra.",
+        fgPermTitle: "Alkalmazásbeli helyhozzáférés",
+        fgPermBody: "A célpont távolságának követéséhez engedélyezni kell a helymeghatározást az alkalmazás használata közben.",
+        bgPermTitle: "Háttérbeli GPS-hozzáférés",
+        bgPermBody: "Ha elalszol vagy más alkalmazásra váltasz az úton, a háttérbeli GPS segít, hogy időben szóljon az ébresztő.",
+        allowBtn: "Engedélyezés",
+        cancelBtn: "Mégsem",
+        cancelWarnTitle: "Biztosan megszakítod?",
+        cancelWarnBody: "Háttérbeli GPS-engedély nélkül a képernyő lezárásakor vagy más appra váltáskor leállhat a figyelés, és lemaradhatsz a megállóról.",
+        yesSureBtn: "Igen biztos",
+        noNotSureBtn: "Nem biztos",
+        readyBlinkHint: "Engedélyek rendben. Nyomd meg a villogó „Figyelés indítása” gombot!",
+        stopConfirmTitle: "Biztos, hogy leállítja?",
+        stopConfirmBody: "Ha most leállítod a figyelést, a megállóelőtti ébresztés kikapcsol.",
+        confirmStopYes: "Igen, leállítom",
+        confirmStopNo: "Mégsem",
+        stallWatchTitle: "Megállásfigyelő",
+        stallWatchBody: "Úgy tűnik, a jármű hosszabb ideje egy helyben áll. Ellenőrizd, hogy minden rendben van-e, vagy folytasd a figyelést.",
+        stallContinueBtn: "Figyelés folytatása",
+        stallStopBtn: "Figyelés leállítása",
+        arrivedTitle: "Megérkeztél!",
+        arrivedBody: "Elérted a beállított célpontot.",
+        arrivedOkBtn: "Rendben (OK)",
+        arrivedChoiceBody: "Mit szeretnél most tenni?",
+        disableTrackingBtn: "Követés kikapcsolása",
+        newTripBtn: "Új utazás választása",
+        restartRequiredTitle: "Újrakezdés szükséges",
+        restartRequiredBody: "A figyelés háttérbeli GPS-engedély nélkül indult, és a képernyőzár vagy egy másik alkalmazás miatt leállt. Újra végig kell menni az engedélykérő paneleken.",
+        restartFlowBtn: "Újrakezdés"
+      };
+
       const TRANSLATIONS = {
         hu: {
-          brandTitle: "Cél-ébresztő",
+          brandTitle: "StopWay",
           promptTitle: "Hova tartasz?",
           langMenuTitle: "Nyelv kiválasztása",
           startWatch: "Figyelés indítása",
@@ -971,1239 +505,521 @@
           voiceUnavailable: "Hangfelismerés nem elérhető.",
           defaultPlaces: ["Otthon", "Munka", "3. Hely", "4. Hely", "5. Hely", "6. Hely", "7. Hely", "8. Hely", "9. Hely", "10. Hely"],
           themes: {
-            classic: "Letisztult alap",
-            glass: "Átlátszó",
-            cartoon: "Rajzfilmes",
-            gothic: "Gótikus",
-            renaissance: "Reneszánsz",
-            punk: "Punk"
+            classic: "Letisztult alap", glass: "Átlátszó", cartoon: "Rajzfilmes",
+            gothic: "Gótikus", renaissance: "Reneszánsz", punk: "Punk"
           },
           sounds: {
-            roman_horn: "Római kori hadi kürt",
-            clock_bell: "Klasszikus vekkercsengő",
-            ship_horn: "Hajókürt",
-            train_whistle: "Vonatkürt",
-            sonar_ping: "Szonár jelzés",
-            fire_alarm: "Sürgősségi riasztó",
-            bronze_gong: "Bronz gong",
-            bugle_call: "Katonai kürtjel",
-            church_bell: "Harangzúgás",
-            morse_sos: "Morze jelzés",
-            digital_pulse: "Digitális lüktetés"
-          }
+            roman_horn: "Római kori hadi kürt", clock_bell: "Klasszikus vekkercsengő", ship_horn: "Hajókürt",
+            train_whistle: "Vonatkürt", sonar_ping: "Szonár jelzés", fire_alarm: "Sürgősségi riasztó",
+            bronze_gong: "Bronz gong", bugle_call: "Katonai kürtjel", church_bell: "Harangzúgás",
+            morse_sos: "Morze jelzés", digital_pulse: "Digitális lüktetés"
+          },
+          ...BASE_NEW_STRINGS_HU
         },
         en: {
-          brandTitle: "StopWay",
-          promptTitle: "Where are you heading?",
-          langMenuTitle: "Select language",
-          startWatch: "Start watching",
-          stopWatch: "Stop watching",
-          previewSound: "Test sound",
-          loudMode: "Boost volume (with music)",
-          pickAudio: "Load custom sound",
-          noCustomAudio: "No custom audio loaded (built-in sounds active).",
-          customAudioLoaded: "Custom sound: ",
-          choosePlace: "Choose one of the 10 destinations.",
-          tapToWatch: "Tap a place to watch, or press ✏️ to edit.",
-          editModeOn: "Edit mode active.",
-          noCoordsYet: "No location set yet. Tap to pick on map or search address.",
-          watchingActive: "GPS watching active.",
-          coordsReady: "Target set. Press 'Start watching'.",
-          beforeSuffix: "before",
-          fixedPlace: "Fixed",
-          freePlace: "Custom",
-          setPlaceHint: "Set location",
-          coordsSet: "Location set",
-          themeDrawerTitle: "Appearance",
-          pickWallpaper: "Load wallpaper",
-          flipGlass: "Light / Dark toggle",
-          simPrefix: "Test distance:",
-          triggerSim: "Test alarm",
-          adBanner: "Ad slot",
-          editModalTitle: "Edit destination",
-          editNameLabel: "Place name",
-          addressSearchLabel: "Search address or place",
-          addressSearchPlaceholder: "Type address...",
-          searchBtn: "Search",
-          useCurrentGps: "Current GPS",
-          savePlace: "Save / OK",
-          cancelEdit: "Cancel",
-          alarmPrefix: "ALARM:",
-          dismissForever: "Stop permanently",
-          snoozeMain: "SNOOZE (20S)",
-          snoozeTap: "Mute for 20s",
-          snoozeLeft: "s",
-          alarmFooter: "20s snooze • Permanent stop at top corner.",
-          voiceListening: "Listening...",
-          voiceSelected: "Selected:",
-          voiceNotFound: "Not recognized:",
+          brandTitle: "StopWay", promptTitle: "Where are you heading?", langMenuTitle: "Select language",
+          startWatch: "Start watching", stopWatch: "Stop watching", previewSound: "Test sound",
+          loudMode: "Boost volume (with music)", pickAudio: "Load custom sound",
+          noCustomAudio: "No custom audio loaded (built-in sounds active).", customAudioLoaded: "Custom sound: ",
+          choosePlace: "Choose one of the 10 destinations.", tapToWatch: "Tap a place to watch, or press ✏️ to edit.",
+          editModeOn: "Edit mode active.", noCoordsYet: "No location set yet. Tap to pick on map or search address.",
+          watchingActive: "GPS watching active.", coordsReady: "Target set. Press 'Start watching'.",
+          beforeSuffix: "before", fixedPlace: "Fixed", freePlace: "Custom", setPlaceHint: "Set location",
+          coordsSet: "Location set", themeDrawerTitle: "Appearance", pickWallpaper: "Load wallpaper",
+          flipGlass: "Light / Dark toggle", simPrefix: "Test distance:", triggerSim: "Test alarm",
+          adBanner: "Ad slot", editModalTitle: "Edit destination", editNameLabel: "Place name",
+          addressSearchLabel: "Search address or place", addressSearchPlaceholder: "Type address...",
+          searchBtn: "Search", useCurrentGps: "Current GPS", savePlace: "Save / OK", cancelEdit: "Cancel",
+          alarmPrefix: "ALARM:", dismissForever: "Stop permanently", snoozeMain: "SNOOZE (20S)",
+          snoozeTap: "Mute for 20s", snoozeLeft: "s", alarmFooter: "20s snooze • Permanent stop at top corner.",
+          voiceListening: "Listening...", voiceSelected: "Selected:", voiceNotFound: "Not recognized:",
           voiceUnavailable: "Speech recognition unavailable.",
           defaultPlaces: ["Home", "Work", "Place 3", "Place 4", "Place 5", "Place 6", "Place 7", "Place 8", "Place 9", "Place 10"],
-          themes: {
-            classic: "Classic",
-            glass: "Glass",
-            cartoon: "Cartoon",
-            gothic: "Gothic",
-            renaissance: "Renaissance",
-            punk: "Punk"
-          },
+          themes: { classic: "Classic", glass: "Glass", cartoon: "Cartoon", gothic: "Gothic", renaissance: "Renaissance", punk: "Punk" },
           sounds: {
-            roman_horn: "Roman war horn",
-            clock_bell: "Classic alarm bell",
-            ship_horn: "Ship horn",
-            train_whistle: "Train whistle",
-            sonar_ping: "Sonar ping",
-            fire_alarm: "Emergency alarm",
-            bronze_gong: "Bronze gong",
-            bugle_call: "Bugle call",
-            church_bell: "Church bell",
-            morse_sos: "Morse signal",
-            digital_pulse: "Digital pulse"
-          }
+            roman_horn: "Roman war horn", clock_bell: "Classic alarm bell", ship_horn: "Ship horn",
+            train_whistle: "Train whistle", sonar_ping: "Sonar ping", fire_alarm: "Emergency alarm",
+            bronze_gong: "Bronze gong", bugle_call: "Bugle call", church_bell: "Church bell",
+            morse_sos: "Morse signal", digital_pulse: "Digital pulse"
+          },
+          gpsOffTitle: "GPS is turned off",
+          gpsOffBody: "Location (GPS) must be enabled for stop-ahead alerts. Turn it on in device settings and try again.",
+          fgPermTitle: "While-using location access",
+          fgPermBody: "Location permission while using the app is required to track distance to your destination.",
+          bgPermTitle: "Background GPS access",
+          bgPermBody: "If you fall asleep or switch apps during your trip, background GPS helps alert you in time.",
+          allowBtn: "Allow", cancelBtn: "Cancel",
+          cancelWarnTitle: "Are you sure you want to cancel?",
+          cancelWarnBody: "Without background GPS permission, watching may stop when locking the screen or switching apps, risking a missed stop.",
+          yesSureBtn: "Yes, sure", noNotSureBtn: "Not sure",
+          readyBlinkHint: "Permissions ready. Tap the blinking 'Start watching' button!",
+          stopConfirmTitle: "Are you sure you want to stop?",
+          stopConfirmBody: "Stopping now turns off your stop-ahead alarm.",
+          confirmStopYes: "Yes, stop it", confirmStopNo: "Cancel",
+          stallWatchTitle: "Stop-stall monitor",
+          stallWatchBody: "The vehicle appears stationary for a while. Check if everything is fine or continue watching.",
+          stallContinueBtn: "Continue watching", stallStopBtn: "Stop watching",
+          arrivedTitle: "You have arrived!", arrivedBody: "You reached your destination.",
+          arrivedOkBtn: "OK", arrivedChoiceBody: "What would you like to do next?",
+          disableTrackingBtn: "Turn off tracking", newTripBtn: "Choose new trip",
+          restartRequiredTitle: "Restart required",
+          restartRequiredBody: "Watching started without background GPS permission and stopped due to screen lock or another app. Please go through the permission steps again.",
+          restartFlowBtn: "Restart"
         },
         he: {
-          brandTitle: "התראת יעד",
-          promptTitle: "לאן נוסעים?",
-          langMenuTitle: "בחירת שפה",
-          startWatch: "התחל מעקב",
-          stopWatch: "עצור מעקב",
-          previewSound: "צליל בדיקה",
-          loudMode: "עוצמה מוגברת (עם מוזיקה)",
-          pickAudio: "טען צליל מותאם",
-          noCustomAudio: "לא נטען קובץ שמע (צלילים מובנים פעילים).",
-          customAudioLoaded: "צליל מותאם: ",
-          choosePlace: "בחר יעד מתוך 10 המקומות.",
-          tapToWatch: "הקש על מקום למעקב, או על ✏️ לעריכה.",
-          editModeOn: "מצב עריכה פעיל.",
-          noCoordsYet: "טרם הוגדר מיקום. הקש לבחירה במפה או חיפוש כתובת.",
-          watchingActive: "מעקב GPS פעיל.",
-          coordsReady: "היעד מוכן. לחץ על 'התחל מעקב'.",
-          beforeSuffix: "לפני",
-          fixedPlace: "קבוע",
-          freePlace: "מותאם",
-          setPlaceHint: "הגדר מיקום",
-          coordsSet: "מיקום מוגדר",
-          themeDrawerTitle: "סגנון תצוגה",
-          pickWallpaper: "טען רקע",
-          flipGlass: "בהיר / כהה",
-          simPrefix: "מרחק לבדיקה:",
-          triggerSim: "בדוק התראה",
-          adBanner: "שטח פרסום",
-          editModalTitle: "עריכת יעד",
-          editNameLabel: "שם המקום",
-          addressSearchLabel: "חיפוש כתובת או מקום",
-          addressSearchPlaceholder: "הקלד כתובת...",
-          searchBtn: "חיפוש",
-          useCurrentGps: "GPS נוכחי",
-          savePlace: "שמור / אישור",
-          cancelEdit: "ביטול",
-          alarmPrefix: "התראה:",
-          dismissForever: "עצירה סופית",
-          snoozeMain: "נודניק (20 שניות)",
-          snoozeTap: "השתקה ל-20 שניות",
-          snoozeLeft: "שנ׳",
-          alarmFooter: "נודניק 20 שניות • עצירה סופית בפינה העליונה.",
-          voiceListening: "מקשיב...",
-          voiceSelected: "נבחר:",
-          voiceNotFound: "לא זוהה:",
+          brandTitle: "StopWay", promptTitle: "לאן נוסעים?", langMenuTitle: "בחירת שפה",
+          startWatch: "התחל מעקב", stopWatch: "עצור מעקב", previewSound: "צליל בדיקה",
+          loudMode: "עוצמה מוגברת (עם מוזיקה)", pickAudio: "טען צליל מותאם",
+          noCustomAudio: "לא נטען קובץ שמע (צלילים מובנים פעילים).", customAudioLoaded: "צליל מותאם: ",
+          choosePlace: "בחר יעד מתוך 10 המקומות.", tapToWatch: "הקש על מקום למעקב, או על ✏️ לעריכה.",
+          editModeOn: "מצב עריכה פעיל.", noCoordsYet: "טרם הוגדר מיקום. הקש לבחירה במפה או חיפוש כתובת.",
+          watchingActive: "מעקב GPS פעיל.", coordsReady: "היעד מוכן. לחץ על 'התחל מעקב'.",
+          beforeSuffix: "לפני", fixedPlace: "קבוע", freePlace: "מותאם", setPlaceHint: "הגדר מיקום",
+          coordsSet: "מיקום מוגדר", themeDrawerTitle: "סגנון תצוגה", pickWallpaper: "טען רקע",
+          flipGlass: "בהיר / כהה", simPrefix: "מרחק לבדיקה:", triggerSim: "בדוק התראה",
+          adBanner: "שטח פרסום", editModalTitle: "עריכת יעד", editNameLabel: "שם המקום",
+          addressSearchLabel: "חיפוש כתובת או מקום", addressSearchPlaceholder: "הקלד כתובת...",
+          searchBtn: "חיפוש", useCurrentGps: "GPS נוכחי", savePlace: "שמור / אישור", cancelEdit: "ביטול",
+          alarmPrefix: "התראה:", dismissForever: "עצירה סופית", snoozeMain: "נודניק (20 שניות)",
+          snoozeTap: "השתקה ל-20 שניות", snoozeLeft: "שנ׳", alarmFooter: "נודניק 20 שניות • עצירה סופית בפינה העליונה.",
+          voiceListening: "מקשיב...", voiceSelected: "נבחר:", voiceNotFound: "לא זוהה:",
           voiceUnavailable: "זיהוי קולי אינו זמין.",
           defaultPlaces: ["בית", "עבודה", "מקום 3", "מקום 4", "מקום 5", "מקום 6", "מקום 7", "מקום 8", "מקום 9", "מקום 10"],
-          themes: {
-            classic: "קלאסי",
-            glass: "שקוף",
-            cartoon: "קומיקס",
-            gothic: "גותי",
-            renaissance: "רנסאנס",
-            punk: "פאנק"
-          },
+          themes: { classic: "קלאסי", glass: "שקוף", cartoon: "קומיקס", gothic: "גותי", renaissance: "רנסאנס", punk: "פאנק" },
           sounds: {
-            roman_horn: "קרן מלחמה רומית",
-            clock_bell: "פעמון שעון קלאסי",
-            ship_horn: "צופר אונייה",
-            train_whistle: "שריקת רכבת",
-            sonar_ping: "סונאר",
-            fire_alarm: "אזעקת חירום",
-            bronze_gong: "גונג ברונזה",
-            bugle_call: "אות חצוצרה",
-            church_bell: "פעמון כנסייה",
-            morse_sos: "אות מורס",
-            digital_pulse: "פולס דיגיטלי"
-          }
+            roman_horn: "קרן מלחמה רומית", clock_bell: "פעמון שעון קלאסי", ship_horn: "צופר אונייה",
+            train_whistle: "שריקת רכבת", sonar_ping: "סונאר", fire_alarm: "אזעקת חירום",
+            bronze_gong: "גונג ברונזה", bugle_call: "אות חצוצרה", church_bell: "פעמון כנסייה",
+            morse_sos: "אות מורס", digital_pulse: "פולס דיגיטלי"
+          },
+          gpsOffTitle: "ה-GPS כבוי",
+          gpsOffBody: "יש להפעיל מיקום (GPS) להתרעה לפני תחנה. הפעל בהגדרות המכשיר ונסה שוב.",
+          fgPermTitle: "גישת מיקום בזמן שימוש",
+          fgPermBody: "נדרשת הרשאת מיקום בזמן השימוש באפליקציה כדי לעקוב אחרי המרחק ליעד.",
+          bgPermTitle: "גישת GPS ברקע",
+          bgPermBody: "אם תירדם או תעבור לאפליקציה אחרת בדרך, GPS ברקע יעזור להעיר אותך בזמן.",
+          allowBtn: "אפשר", cancelBtn: "ביטול",
+          cancelWarnTitle: "בטוח שברצונך לבטל?",
+          cancelWarnBody: "ללא הרשאת GPS ברקע, המעקב עלול להיפסק בנעילת מסך או במעבר אפליקציה ועלול לפספס את התחנה.",
+          yesSureBtn: "כן, בטוח", noNotSureBtn: "לא בטוח",
+          readyBlinkHint: "ההרשאות מוכנות. לחץ על כפתור 'התחל מעקב' המהבהב!",
+          stopConfirmTitle: "בטוח שברצונך לעצור?",
+          stopConfirmBody: "עצירה כעת תכבה את ההתראה לפני התחנה.",
+          confirmStopYes: "כן, עצור", confirmStopNo: "ביטול",
+          stallWatchTitle: "ניטור עצירה ממושכת",
+          stallWatchBody: "נראה שהרכב עומד במקום זמן ממושך. בדוק שהכול תקין או המשך מעקב.",
+          stallContinueBtn: "המשך מעקב", stallStopBtn: "עצור מעקב",
+          arrivedTitle: "הגעת ליעד!", arrivedBody: "הגעת ליעד שהוגדר.",
+          arrivedOkBtn: "אישור", arrivedChoiceBody: "מה תרצה לעשות עכשיו?",
+          disableTrackingBtn: "כבה מעקב", newTripBtn: "בחר נסיעה חדשה",
+          restartRequiredTitle: "נדרשת התחלה מחדש",
+          restartRequiredBody: "המעקב התחיל ללא הרשאת GPS ברקע ונעצר עקב נעילת מסך או אפליקציה אחרת. יש לעבור שוב על שלבי ההרשאה.",
+          restartFlowBtn: "התחל מחדש"
         },
         ar: {
-          brandTitle: "منبه الوجهة",
-          promptTitle: "إلى أين تتجه؟",
-          langMenuTitle: "اختر اللغة",
-          startWatch: "بدء المتابعة",
-          stopWatch: "إيقاف المتابعة",
-          previewSound: "تجربة الصوت",
-          loudMode: "رفع الصوت (مع الموسيقى)",
-          pickAudio: "تحميل صوت مخصص",
-          noCustomAudio: "لا يوجد ملف صوت مخصص.",
-          customAudioLoaded: "صوت مخصص: ",
-          choosePlace: "اختر وجهة من بين 10 أماكن.",
-          tapToWatch: "اضغط على مكان للمتابعة أو ✏️ للتعديل.",
-          editModeOn: "وضع التعديل نشط.",
-          noCoordsYet: "لم يتم تحديد موقع بعد.",
-          watchingActive: "متابعة GPS نشطة.",
-          coordsReady: "تم تحديد الوجهة.",
-          beforeSuffix: "قبل",
-          fixedPlace: "ثابت",
-          freePlace: "مخصص",
-          setPlaceHint: "تحديد الموقع",
-          coordsSet: "الموقع محدد",
-          themeDrawerTitle: "المظهر",
-          pickWallpaper: "تحميل خلفية",
-          flipGlass: "فاتح / داكن",
-          simPrefix: "مسافة الاختبار:",
-          triggerSim: "اختبار التنبيه",
-          adBanner: "مساحة إعلانية",
-          editModalTitle: "تعديل الوجهة",
-          editNameLabel: "اسم المكان",
-          addressSearchLabel: "بحث عن عنوان أو مكان",
-          addressSearchPlaceholder: "اكتب العنوان...",
-          searchBtn: "بحث",
-          useCurrentGps: "GPS الحالي",
-          savePlace: "حفظ / موافق",
-          cancelEdit: "إلغاء",
-          alarmPrefix: "تنبيه:",
-          dismissForever: "إيقاف نهائي",
-          snoozeMain: "غفوة (20 ثانية)",
-          snoozeTap: "كتم لمدة 20 ثانية",
-          snoozeLeft: "ث",
-          alarmFooter: "غفوة 20 ثانية • إيقاف نهائي من الزاوية العلوية.",
-          voiceListening: "جارٍ الاستماع...",
-          voiceSelected: "تم الاختيار:",
-          voiceNotFound: "لم يتم التعرف:",
+          brandTitle: "StopWay", promptTitle: "إلى أين تتجه؟", langMenuTitle: "اختر اللغة",
+          startWatch: "بدء المتابعة", stopWatch: "إيقاف المتابعة", previewSound: "تجربة الصوت",
+          loudMode: "رفع الصوت (مع الموسيقى)", pickAudio: "تحميل صوت مخصص",
+          noCustomAudio: "لا يوجد ملف صوت مخصص.", customAudioLoaded: "صوت مخصص: ",
+          choosePlace: "اختر وجهة من بين 10 أماكن.", tapToWatch: "اضغط على مكان للمتابعة أو ✏️ للتعديل.",
+          editModeOn: "وضع التعديل نشط.", noCoordsYet: "لم يتم تحديد موقع بعد.",
+          watchingActive: "متابعة GPS نشطة.", coordsReady: "تم تحديد الوجهة.",
+          beforeSuffix: "قبل", fixedPlace: "ثابت", freePlace: "مخصص", setPlaceHint: "تحديد الموقع",
+          coordsSet: "الموقع محدد", themeDrawerTitle: "المظهر", pickWallpaper: "تحميل خلفية",
+          flipGlass: "فاتح / داكن", simPrefix: "مسافة الاختبار:", triggerSim: "اختبار التنبيه",
+          adBanner: "مساحة إعلانية", editModalTitle: "تعديل الوجهة", editNameLabel: "اسم المكان",
+          addressSearchLabel: "بحث عن عنوان أو مكان", addressSearchPlaceholder: "اكتب العنوان...",
+          searchBtn: "بحث", useCurrentGps: "GPS الحالي", savePlace: "حفظ / موافق", cancelEdit: "إلغاء",
+          alarmPrefix: "تنبيه:", dismissForever: "إيقاف نهائي", snoozeMain: "غفوة (20 ثانية)",
+          snoozeTap: "كتم لمدة 20 ثانية", snoozeLeft: "ث", alarmFooter: "غفوة 20 ثانية • إيقاف نهائي من الزاوية العلوية.",
+          voiceListening: "جارٍ الاستماع...", voiceSelected: "تم الاختيار:", voiceNotFound: "لم يتم التعرف:",
           voiceUnavailable: "التعرف الصوتي غير متاح.",
           defaultPlaces: ["المنزل", "العمل", "مكان 3", "مكان 4", "مكان 5", "مكان 6", "مكان 7", "مكان 8", "مكان 9", "مكان 10"],
-          themes: {
-            classic: "كلاسيكي",
-            glass: "شفاف",
-            cartoon: "كرتوني",
-            gothic: "قوطي",
-            renaissance: "عصر النهضة",
-            punk: "بانك"
-          },
+          themes: { classic: "كلاسيكي", glass: "شفاف", cartoon: "كرتوني", gothic: "قوطي", renaissance: "عصر النهضة", punk: "بانك" },
           sounds: {
-            roman_horn: "بوق روماني",
-            clock_bell: "جرس منبه كلاسيكي",
-            ship_horn: "بوق سفينة",
-            train_whistle: "صافرة قطار",
-            sonar_ping: "إشارة سونار",
-            fire_alarm: "إنذار طوارئ",
-            bronze_gong: "جونغ برونزي",
-            bugle_call: "نداء بوق",
-            church_bell: "جرس كنيسة",
-            morse_sos: "إشارة مورس",
-            digital_pulse: "نبض رقمي"
-          }
+            roman_horn: "بوق روماني", clock_bell: "جرس منبه كلاسيكي", ship_horn: "بوق سفينة",
+            train_whistle: "صافرة قطار", sonar_ping: "إشارة سونار", fire_alarm: "إنذار طوارئ",
+            bronze_gong: "جونغ برونزي", bugle_call: "نداء بوق", church_bell: "جرس كنيسة",
+            morse_sos: "إشارة مورس", digital_pulse: "نبض رقمي"
+          },
+          gpsOffTitle: "GPS متوقف",
+          gpsOffBody: "يجب تشغيل الموقع (GPS) للتنبيه قبل المحطة. فعّله من إعدادات الجهاز ثم أعد المحاولة.",
+          fgPermTitle: "الوصول للموقع أثناء الاستخدام",
+          fgPermBody: "يلزم إذن الموقع أثناء استخدام التطبيق لتتبع المسافة إلى الوجهة.",
+          bgPermTitle: "الوصول إلى GPS في الخلفية",
+          bgPermBody: "إذا نمت أو بدّلت إلى تطبيق آخر أثناء الرحلة، يساعد GPS في الخلفية على التنبيه في الوقت المناسب.",
+          allowBtn: "سماح", cancelBtn: "إلغاء",
+          cancelWarnTitle: "هل أنت متأكد من الإلغاء؟",
+          cancelWarnBody: "بدون إذن GPS في الخلفية قد تتوقف المتابعة عند قفل الشاشة أو فتح تطبيق آخر وقد تفوتك المحطة.",
+          yesSureBtn: "نعم، متأكد", noNotSureBtn: "غير متأكد",
+          readyBlinkHint: "الأذونات جاهزة. اضغط على زر «بدء المتابعة» الوامض!",
+          stopConfirmTitle: "هل أنت متأكد من الإيقاف؟",
+          stopConfirmBody: "إيقاف المتابعة الآن سيُعطّل تنبيه الوصول قبل المحطة.",
+          confirmStopYes: "نعم، أوقف", confirmStopNo: "إلغاء",
+          stallWatchTitle: "مراقبة التوقف",
+          stallWatchBody: "يبدو أن المركبة متوقفة لفترة. تحقق من الوضع أو تابع المتابعة.",
+          stallContinueBtn: "متابعة المراقبة", stallStopBtn: "إيقاف المتابعة",
+          arrivedTitle: "لقد وصلت!", arrivedBody: "وصلت إلى وجهتك المحددة.",
+          arrivedOkBtn: "حسنًا", arrivedChoiceBody: "ماذا تريد أن تفعل الآن؟",
+          disableTrackingBtn: "إيقاف التتبع", newTripBtn: "اختيار رحلة جديدة",
+          restartRequiredTitle: "إعادة البدء مطلوبة",
+          restartRequiredBody: "بدأت المتابعة دون إذن GPS في الخلفية وتوقفت بسبب قفل الشاشة أو تطبيق آخر. يُرجى إعادة خطوات الأذونات.",
+          restartFlowBtn: "إعادة البدء"
         },
         ru: {
-          brandTitle: "Будильник цели",
-          promptTitle: "Куда едем?",
-          langMenuTitle: "Выбор языка",
-          startWatch: "Начать слежение",
-          stopWatch: "Остановить слежение",
-          previewSound: "Проверка звука",
-          loudMode: "Усилить звук (с музыкой)",
-          pickAudio: "Загрузить свой звук",
-          noCustomAudio: "Свой звук не загружен.",
-          customAudioLoaded: "Свой звук: ",
-          choosePlace: "Выберите место из 10 вариантов.",
-          tapToWatch: "Нажмите на место или ✏️ для редактирования.",
-          editModeOn: "Режим редактирования включён.",
-          noCoordsYet: "Место не задано. Выберите на карте или найдите адрес.",
-          watchingActive: "GPS-слежение активно.",
-          coordsReady: "Цель задана. Нажмите «Начать слежение».",
-          beforeSuffix: "до цели",
-          fixedPlace: "Фикс.",
-          freePlace: "Свой",
-          setPlaceHint: "Задать место",
-          coordsSet: "Место задано",
-          themeDrawerTitle: "Оформление",
-          pickWallpaper: "Загрузить фон",
-          flipGlass: "Светлый / Тёмный",
-          simPrefix: "Тест дистанции:",
-          triggerSim: "Тест сигнала",
-          adBanner: "Рекламный блок",
-          editModalTitle: "Редактировать место",
-          editNameLabel: "Название места",
-          addressSearchLabel: "Поиск адреса или места",
-          addressSearchPlaceholder: "Введите адрес...",
-          searchBtn: "Найти",
-          useCurrentGps: "Текущий GPS",
-          savePlace: "Сохранить / ОК",
-          cancelEdit: "Отмена",
-          alarmPrefix: "СИГНАЛ:",
-          dismissForever: "Выключить совсем",
-          snoozeMain: "ОТЛОЖИТЬ (20 С)",
-          snoozeTap: "Тишина на 20 сек",
-          snoozeLeft: "с",
-          alarmFooter: "Отложить на 20 с • Полное отключение в верхнем углу.",
-          voiceListening: "Слушаю...",
-          voiceSelected: "Выбрано:",
-          voiceNotFound: "Не распознано:",
+          brandTitle: "StopWay", promptTitle: "Куда едем?", langMenuTitle: "Выбор языка",
+          startWatch: "Начать слежение", stopWatch: "Остановить слежение", previewSound: "Проверка звука",
+          loudMode: "Усилить звук (с музыкой)", pickAudio: "Загрузить свой звук",
+          noCustomAudio: "Свой звук не загружен.", customAudioLoaded: "Свой звук: ",
+          choosePlace: "Выберите место из 10 вариантов.", tapToWatch: "Нажмите на место или ✏️ для редактирования.",
+          editModeOn: "Режим редактирования включён.", noCoordsYet: "Место не задано. Выберите на карте или найдите адрес.",
+          watchingActive: "GPS-слежение активно.", coordsReady: "Цель задана. Нажмите «Начать слежение».",
+          beforeSuffix: "до цели", fixedPlace: "Фикс.", freePlace: "Свой", setPlaceHint: "Задать место",
+          coordsSet: "Место задано", themeDrawerTitle: "Оформление", pickWallpaper: "Загрузить фон",
+          flipGlass: "Светлый / Тёмный", simPrefix: "Тест дистанции:", triggerSim: "Тест сигнала",
+          adBanner: "Рекламный блок", editModalTitle: "Редактировать место", editNameLabel: "Название места",
+          addressSearchLabel: "Поиск адреса или места", addressSearchPlaceholder: "Введите адрес...",
+          searchBtn: "Найти", useCurrentGps: "Текущий GPS", savePlace: "Сохранить / ОК", cancelEdit: "Отмена",
+          alarmPrefix: "СИГНАЛ:", dismissForever: "Выключить совсем", snoozeMain: "ОТЛОЖИТЬ (20 С)",
+          snoozeTap: "Тишина на 20 сек", snoozeLeft: "с", alarmFooter: "Отложить на 20 с • Полное отключение в верхнем углу.",
+          voiceListening: "Слушаю...", voiceSelected: "Выбрано:", voiceNotFound: "Не распознано:",
           voiceUnavailable: "Голосовой ввод недоступен.",
           defaultPlaces: ["Дом", "Работа", "Место 3", "Место 4", "Место 5", "Место 6", "Место 7", "Место 8", "Место 9", "Место 10"],
-          themes: {
-            classic: "Классика",
-            glass: "Прозрачный",
-            cartoon: "Комикс",
-            gothic: "Готика",
-            renaissance: "Ренессанс",
-            punk: "Панк"
+          themes: { classic: "Классика", glass: "Прозрачный", cartoon: "Комикс", gothic: "Готика", renaissance: "Ренессанс", punk: "Панк" },
+          sounds: {
+            roman_horn: "Римский горн", clock_bell: "Звонок будильника", ship_horn: "Гудок корабля",
+            train_whistle: "Гудок поезда", sonar_ping: "Сигнал сонара", fire_alarm: "Тревога",
+            bronze_gong: "Бронзовый гонг", bugle_call: "Сигнал горна", church_bell: "Колокол",
+            morse_sos: "Сигнал Морзе", digital_pulse: "Импульс"
           },
-          sounds: {
-            roman_horn: "Римский горн",
-            clock_bell: "Звонок будильника",
-            ship_horn: "Гудок корабля",
-            train_whistle: "Гудок поезда",
-            sonar_ping: "Сигнал сонара",
-            fire_alarm: "Тревога",
-            bronze_gong: "Бронзовый гонг",
-            bugle_call: "Сигнал горна",
-            church_bell: "Колокол",
-            morse_sos: "Сигнал Морзе",
-            digital_pulse: "Импульс"
-          }
-        },
-        am: {
-          brandTitle: "የመድረሻ ማንቂያ",
-          promptTitle: "ወዴት እየሄዱ ነው?",
-          langMenuTitle: "ቋንቋ ይምረጡ",
-          startWatch: "ክትትል ጀምር",
-          stopWatch: "ክትትል አቁም",
-          previewSound: "ድምፅ ሞክር",
-          loudMode: "ከፍተኛ ድምፅ (ከሙዚቃ ጋር)",
-          pickAudio: "የራስዎን ድምፅ ይጫኑ",
-          noCustomAudio: "የተጫነ የራስ ድምፅ የለም።",
-          customAudioLoaded: "የራስ ድምፅ: ",
-          choosePlace: "ከ10 ቦታዎች አንዱን ይምረጡ።",
-          tapToWatch: "ለመከታተል ቦታ ይንኩ ወይም ✏️ ይጫኑ።",
-          editModeOn: "የማስተካከያ ሁነታ በርቷል።",
-          noCoordsYet: "ቦታ አልተመረጠም። በካርታ ይምረጡ ወይም አድራሻ ይፈልጉ።",
-          watchingActive: "የGPS ክትትል በርቷል።",
-          coordsReady: "መድረሻ ተቀምጧል። 'ክትትል ጀምር' ይጫኑ።",
-          beforeSuffix: "ቀደም ብሎ",
-          fixedPlace: "ቋሚ",
-          freePlace: "ነፃ",
-          setPlaceHint: "ቦታ ያስገቡ",
-          coordsSet: "ቦታ ተቀምጧል",
-          themeDrawerTitle: "ገጽታ",
-          pickWallpaper: "ዳራ ይጫኑ",
-          flipGlass: "ብሩህ / ጨለማ",
-          simPrefix: "የሙከራ ርቀት:",
-          triggerSim: "ማንቂያ ሞክር",
-          adBanner: "የማስታወቂያ ቦታ",
-          editModalTitle: "መድረሻ ያስተካክሉ",
-          editNameLabel: "የቦታ ስም",
-          addressSearchLabel: "አድራሻ ወይም ቦታ ይፈልጉ",
-          addressSearchPlaceholder: "አድራሻ ያስገቡ...",
-          searchBtn: "ፈልግ",
-          useCurrentGps: "የአሁኑ GPS",
-          savePlace: "አስቀምጥ / እሺ",
-          cancelEdit: "ሰርዝ",
-          alarmPrefix: "ማንቂያ:",
-          dismissForever: "ሙሉ በሙሉ አጥፋ",
-          snoozeMain: "አሸልብ (20 ሰከንድ)",
-          snoozeTap: "ለ20 ሰከንድ ጸጥታ",
-          snoozeLeft: "ሰ",
-          alarmFooter: "20 ሰከንድ ማሸለብ • በላይኛው ጥግ ሙሉ በሙሉ ያጥፉ።",
-          voiceListening: "እያዳመጥኩ ነው...",
-          voiceSelected: "ተመርጧል:",
-          voiceNotFound: "አልታወቀም:",
-          voiceUnavailable: "የድምፅ ማወቂያ የለም።",
-          defaultPlaces: ["ቤት", "ሥራ", "ቦታ 3", "ቦታ 4", "ቦታ 5", "ቦታ 6", "ቦታ 7", "ቦታ 8", "ቦታ 9", "ቦታ 10"],
-          themes: {
-            classic: "መደበኛ",
-            glass: "ግልጽ",
-            cartoon: "ካርቱን",
-            gothic: "ጎቲክ",
-            renaissance: "ህዳሴ",
-            punk: "ፓንክ"
-          },
-          sounds: {
-            roman_horn: "የሮማ ቀንድ",
-            clock_bell: "የሰዓት ደወል",
-            ship_horn: "የመርከብ ጥሪ",
-            train_whistle: "የባቡር ፉጨት",
-            sonar_ping: "ሶናር",
-            fire_alarm: "የአደጋ ማንቂያ",
-            bronze_gong: "የነሐስ ጎንግ",
-            bugle_call: "የመለከት ጥሪ",
-            church_bell: "የቤተክርስቲያን ደወል",
-            morse_sos: "ሞርስ",
-            digital_pulse: "ዲጂታል"
-          }
-        },
-        ti: {
-          brandTitle: "መጠንቀቒ መዓርፎ",
-          promptTitle: "ናበይ ትኸዱ ኣለኹም?",
-          langMenuTitle: "ቋንቋ ምረጽ",
-          startWatch: "ክትትል ጀምር",
-          stopWatch: "ክትትል ደው ኣብል",
-          previewSound: "ድምጺ ፈትን",
-          loudMode: "ዝለዓለ ድምጺ (ምስ ሙዚቃ)",
-          pickAudio: "ናይ ባዕልኻ ድምጺ ጽዓን",
-          noCustomAudio: "ዝተጻዕነ ናይ ባዕልኻ ድምጺ የለን።",
-          customAudioLoaded: "ናይ ባዕልኻ ድምጺ: ",
-          choosePlace: "ካብ 10 ቦታታት ሓደ ምረጽ።",
-          tapToWatch: "ንምክትታል ቦታ ጠውቕ ወይ ✏️ ጸቕጥ።",
-          editModeOn: "ምቅይያር ተኸፊቱ ኣሎ።",
-          noCoordsYet: "ቦታ ኣይተመደበን። ኣብ ካርታ ምረጽ ወይ ኣድራሻ ድለ።",
-          watchingActive: "GPS ክትትል ይሰርሕ ኣሎ።",
-          coordsReady: "መዓርፎ ተመዚጉ ኣሎ። 'ክትትል ጀምር' ጸቕጥ።",
-          beforeSuffix: "ቀደም",
-          fixedPlace: "ርጉጽ",
-          freePlace: "ናጻ",
-          setPlaceHint: "ቦታ ኣእቱ",
-          coordsSet: "ቦታ ተመዚጉ",
-          themeDrawerTitle: "ቅርጺ",
-          pickWallpaper: "ባይታ ጽዓን",
-          flipGlass: "ብሩህ / ጸልማት",
-          simPrefix: "ርሕቀት ፈተነ:",
-          triggerSim: "መጠንቀቒ ፈትን",
-          adBanner: "ቦታ ምልክታ",
-          editModalTitle: "መዓርፎ ኣስተኻኽል",
-          editNameLabel: "ስም ቦታ",
-          addressSearchLabel: "ኣድራሻ ወይ ቦታ ድለ",
-          addressSearchPlaceholder: "ኣድራሻ ጽሓፍ...",
-          searchBtn: "ድለ",
-          useCurrentGps: "ህሉው GPS",
-          savePlace: "ዓቅብ / ሕራይ",
-          cancelEdit: "ሰርዝ",
-          alarmPrefix: "መጠንቀቒ:",
-          dismissForever: "ፈጺምካ ኣጥፍእ",
-          snoozeMain: "ኣዕርፍ (20 ካልኢት)",
-          snoozeTap: "ን20 ካልኢት ህድእ",
-          snoozeLeft: "ካ",
-          alarmFooter: "20 ካልኢት ዕረፍቲ • ኣብ ላዕለዋይ መኣዝን ፈጺምካ ኣጥፍእ።",
-          voiceListening: "እሰምዕ ኣለኹ...",
-          voiceSelected: "ተመሪጹ:",
-          voiceNotFound: "ኣይተፈልጠን:",
-          voiceUnavailable: "ምፍላይ ድምጺ የለን።",
-          defaultPlaces: ["ገዛ", "ስራሕ", "ቦታ 3", "ቦታ 4", "ቦታ 5", "ቦታ 6", "ቦታ 7", "ቦታ 8", "ቦታ 9", "ቦታ 10"],
-          themes: {
-            classic: "መሰረታዊ",
-            glass: "ግልጺ",
-            cartoon: "ካርቱን",
-            gothic: "ጎቲክ",
-            renaissance: "ህዳሴ",
-            punk: "ፓንክ"
-          },
-          sounds: {
-            roman_horn: "ቀርኒ ሮማ",
-            clock_bell: "ደወል ሰዓት",
-            ship_horn: "ቀርኒ መርከብ",
-            train_whistle: "ፊሽካ ባቡር",
-            sonar_ping: "ሶናር",
-            fire_alarm: "መጠንቀቒ ሓደጋ",
-            bronze_gong: "ጎንግ",
-            bugle_call: "ጸዊዒት መለኸት",
-            church_bell: "ደወል ቤተክርስቲያን",
-            morse_sos: "ሞርስ",
-            digital_pulse: "ዲጂታል"
-          }
-        },
-        vi: {
-          brandTitle: "Báo thức điểm đến",
-          promptTitle: "Bạn đang đi đâu?",
-          langMenuTitle: "Chọn ngôn ngữ",
-          startWatch: "Bắt đầu theo dõi",
-          stopWatch: "Dừng theo dõi",
-          previewSound: "Nghe thử",
-          loudMode: "Tăng âm lượng (khi nghe nhạc)",
-          pickAudio: "Tải âm thanh riêng",
-          noCustomAudio: "Chưa tải âm thanh riêng.",
-          customAudioLoaded: "Âm thanh riêng: ",
-          choosePlace: "Chọn một trong 10 điểm đến.",
-          tapToWatch: "Chạm vào địa điểm để theo dõi hoặc bấm ✏️ để sửa.",
-          editModeOn: "Đang bật chế độ chỉnh sửa.",
-          noCoordsYet: "Chưa đặt vị trí. Chạm để chọn trên bản đồ hoặc tìm địa chỉ.",
-          watchingActive: "Đang theo dõi GPS.",
-          coordsReady: "Đã đặt điểm đến. Bấm 'Bắt đầu theo dõi'.",
-          beforeSuffix: "trước đích",
-          fixedPlace: "Cố định",
-          freePlace: "Tùy chọn",
-          setPlaceHint: "Đặt vị trí",
-          coordsSet: "Đã đặt vị trí",
-          themeDrawerTitle: "Giao diện",
-          pickWallpaper: "Tải hình nền",
-          flipGlass: "Sáng / Tối",
-          simPrefix: "Khoảng cách thử:",
-          triggerSim: "Thử báo thức",
-          adBanner: "Vị trí quảng cáo",
-          editModalTitle: "Sửa điểm đến",
-          editNameLabel: "Tên địa điểm",
-          addressSearchLabel: "Tìm địa chỉ hoặc địa điểm",
-          addressSearchPlaceholder: "Nhập địa chỉ...",
-          searchBtn: "Tìm",
-          useCurrentGps: "GPS hiện tại",
-          savePlace: "Lưu / OK",
-          cancelEdit: "Hủy",
-          alarmPrefix: "BÁO THỨC:",
-          dismissForever: "Tắt hẳn",
-          snoozeMain: "BÁO LẠI (20 GIÂY)",
-          snoozeTap: "Tắt tiếng 20 giây",
-          snoozeLeft: "s",
-          alarmFooter: "Báo lại 20s • Tắt hẳn ở góc trên.",
-          voiceListening: "Đang nghe...",
-          voiceSelected: "Đã chọn:",
-          voiceNotFound: "Không nhận diện được:",
-          voiceUnavailable: "Không hỗ trợ nhận diện giọng nói.",
-          defaultPlaces: ["Nhà", "Nơi làm việc", "Điểm 3", "Điểm 4", "Điểm 5", "Điểm 6", "Điểm 7", "Điểm 8", "Điểm 9", "Điểm 10"],
-          themes: {
-            classic: "Cơ bản",
-            glass: "Trong suốt",
-            cartoon: "Hoạt hình",
-            gothic: "Gothic",
-            renaissance: "Phục hưng",
-            punk: "Punk"
-          },
-          sounds: {
-            roman_horn: "Tù và La Mã",
-            clock_bell: "Chuông đồng hồ",
-            ship_horn: "Còi tàu",
-            train_whistle: "Còi tàu hỏa",
-            sonar_ping: "Sonar",
-            fire_alarm: "Báo động khẩn cấp",
-            bronze_gong: "Cồng đồng",
-            bugle_call: "Kèn hiệu",
-            church_bell: "Chuông nhà thờ",
-            morse_sos: "Tín hiệu Morse",
-            digital_pulse: "Xung số"
-          }
-        },
-        fr: {
-          brandTitle: "Réveil destination",
-          promptTitle: "Où allez-vous ?",
-          langMenuTitle: "Choisir la langue",
-          startWatch: "Démarrer le suivi",
-          stopWatch: "Arrêter le suivi",
-          previewSound: "Tester le son",
-          loudMode: "Volume élevé (avec musique)",
-          pickAudio: "Charger un son",
-          noCustomAudio: "Aucun son personnalisé chargé.",
-          customAudioLoaded: "Son personnalisé : ",
-          choosePlace: "Choisissez l'une des 10 destinations.",
-          tapToWatch: "Touchez un lieu ou appuyez sur ✏️ pour modifier.",
-          editModeOn: "Mode édition actif.",
-          noCoordsYet: "Aucun lieu défini.",
-          watchingActive: "Suivi GPS actif.",
-          coordsReady: "Destination prête.",
-          beforeSuffix: "avant",
-          fixedPlace: "Fixe",
-          freePlace: "Libre",
-          setPlaceHint: "Définir le lieu",
-          coordsSet: "Lieu défini",
-          themeDrawerTitle: "Apparence",
-          pickWallpaper: "Charger un fond",
-          flipGlass: "Clair / Sombre",
-          simPrefix: "Distance test :",
-          triggerSim: "Tester l'alarme",
-          adBanner: "Emplacement pub",
-          editModalTitle: "Modifier la destination",
-          editNameLabel: "Nom du lieu",
-          addressSearchLabel: "Rechercher une adresse",
-          addressSearchPlaceholder: "Saisir l'adresse...",
-          searchBtn: "Chercher",
-          useCurrentGps: "GPS actuel",
-          savePlace: "Enregistrer",
-          cancelEdit: "Annuler",
-          alarmPrefix: "ALARME :",
-          dismissForever: "Arrêter définitivement",
-          snoozeMain: "RAPPEL (20 S)",
-          snoozeTap: "Couper 20 s",
-          snoozeLeft: "s",
-          alarmFooter: "Rappel 20 s • Arrêt définitif en haut à droite.",
-          voiceListening: "Écoute...",
-          voiceSelected: "Sélectionné :",
-          voiceNotFound: "Non reconnu :",
-          voiceUnavailable: "Reconnaissance vocale indisponible.",
-          defaultPlaces: ["Maison", "Travail", "Lieu 3", "Lieu 4", "Lieu 5", "Lieu 6", "Lieu 7", "Lieu 8", "Lieu 9", "Lieu 10"],
-          themes: { classic: "Classique", glass: "Verre", cartoon: "BD", gothic: "Gothique", renaissance: "Renaissance", punk: "Punk" },
-          sounds: {
-            roman_horn: "Cor romain", clock_bell: "Cloche réveil", ship_horn: "Corne de brume",
-            train_whistle: "Sifflet de train", sonar_ping: "Sonar", fire_alarm: "Alarme",
-            bronze_gong: "Gong", bugle_call: "Clairon", church_bell: "Cloche d'église",
-            morse_sos: "Morse", digital_pulse: "Impulsion"
-          }
-        },
-        es: {
-          brandTitle: "Alarma de destino",
-          promptTitle: "¿A dónde vas?",
-          langMenuTitle: "Seleccionar idioma",
-          startWatch: "Iniciar seguimiento",
-          stopWatch: "Detener seguimiento",
-          previewSound: "Probar sonido",
-          loudMode: "Subir volumen (con música)",
-          pickAudio: "Cargar audio",
-          noCustomAudio: "Sin audio personalizado.",
-          customAudioLoaded: "Audio personalizado: ",
-          choosePlace: "Elige uno de los 10 destinos.",
-          tapToWatch: "Toca un lugar o pulsa ✏️ para editar.",
-          editModeOn: "Modo edición activo.",
-          noCoordsYet: "Sin ubicación configurada.",
-          watchingActive: "Seguimiento GPS activo.",
-          coordsReady: "Destino listo.",
-          beforeSuffix: "antes",
-          fixedPlace: "Fijo",
-          freePlace: "Libre",
-          setPlaceHint: "Definir lugar",
-          coordsSet: "Lugar definido",
-          themeDrawerTitle: "Estilo",
-          pickWallpaper: "Cargar fondo",
-          flipGlass: "Claro / Oscuro",
-          simPrefix: "Distancia prueba:",
-          triggerSim: "Probar alarma",
-          adBanner: "Espacio publicitario",
-          editModalTitle: "Editar destino",
-          editNameLabel: "Nombre del lugar",
-          addressSearchLabel: "Buscar dirección o lugar",
-          addressSearchPlaceholder: "Escribe la dirección...",
-          searchBtn: "Buscar",
-          useCurrentGps: "GPS actual",
-          savePlace: "Guardar",
-          cancelEdit: "Cancelar",
-          alarmPrefix: "ALARMA:",
-          dismissForever: "Detener del todo",
-          snoozeMain: "POSPONER (20 S)",
-          snoozeTap: "Silenciar 20 s",
-          snoozeLeft: "s",
-          alarmFooter: "Posponer 20 s • Detener arriba a la derecha.",
-          voiceListening: "Escuchando...",
-          voiceSelected: "Seleccionado:",
-          voiceNotFound: "No reconocido:",
-          voiceUnavailable: "Voz no disponible.",
-          defaultPlaces: ["Casa", "Trabajo", "Lugar 3", "Lugar 4", "Lugar 5", "Lugar 6", "Lugar 7", "Lugar 8", "Lugar 9", "Lugar 10"],
-          themes: { classic: "Clásico", glass: "Cristal", cartoon: "Cómic", gothic: "Gótico", renaissance: "Renacimiento", punk: "Punk" },
-          sounds: {
-            roman_horn: "Cuerno romano", clock_bell: "Campana despertador", ship_horn: "Bocina de barco",
-            train_whistle: "Silbato de tren", sonar_ping: "Sonar", fire_alarm: "Alarma",
-            bronze_gong: "Gong", bugle_call: "Clarín", church_bell: "Campana de iglesia",
-            morse_sos: "Morse", digital_pulse: "Pulso digital"
-          }
-        },
-        de: {
-          brandTitle: "Zielwecker",
-          promptTitle: "Wohin geht es?",
-          langMenuTitle: "Sprache wählen",
-          startWatch: "Überwachung starten",
-          stopWatch: "Überwachung stoppen",
-          previewSound: "Ton testen",
-          loudMode: "Lautstärke erhöhen (mit Musik)",
-          pickAudio: "Eigenen Ton laden",
-          noCustomAudio: "Kein eigener Ton geladen.",
-          customAudioLoaded: "Eigener Ton: ",
-          choosePlace: "Wähle eines der 10 Ziele.",
-          tapToWatch: "Ort antippen oder ✏️ zum Bearbeiten drücken.",
-          editModeOn: "Bearbeitungsmodus aktiv.",
-          noCoordsYet: "Noch kein Ort festgelegt.",
-          watchingActive: "GPS-Überwachung aktiv.",
-          coordsReady: "Ziel bereit.",
-          beforeSuffix: "vorher",
-          fixedPlace: "Fest",
-          freePlace: "Frei",
-          setPlaceHint: "Ort festlegen",
-          coordsSet: "Ort festgelegt",
-          themeDrawerTitle: "Design",
-          pickWallpaper: "Hintergrund laden",
-          flipGlass: "Hell / Dunkel",
-          simPrefix: "Testdistanz:",
-          triggerSim: "Alarm testen",
-          adBanner: "Werbebereich",
-          editModalTitle: "Ziel bearbeiten",
-          editNameLabel: "Ortsname",
-          addressSearchLabel: "Adresse oder Ort suchen",
-          addressSearchPlaceholder: "Adresse eingeben...",
-          searchBtn: "Suchen",
-          useCurrentGps: "Aktuelles GPS",
-          savePlace: "Speichern",
-          cancelEdit: "Abbrechen",
-          alarmPrefix: "ALARM:",
-          dismissForever: "Endgültig stoppen",
-          snoozeMain: "SCHLUMMERN (20 S)",
-          snoozeTap: "20 s stumm",
-          snoozeLeft: "s",
-          alarmFooter: "20 s Schlummern • Endgültig oben rechts stoppen.",
-          voiceListening: "Höre zu...",
-          voiceSelected: "Ausgewählt:",
-          voiceNotFound: "Nicht erkannt:",
-          voiceUnavailable: "Spracherkennung nicht verfügbar.",
-          defaultPlaces: ["Zuhause", "Arbeit", "Ort 3", "Ort 4", "Ort 5", "Ort 6", "Ort 7", "Ort 8", "Ort 9", "Ort 10"],
-          themes: { classic: "Klassisch", glass: "Glas", cartoon: "Comic", gothic: "Gotik", renaissance: "Renaissance", punk: "Punk" },
-          sounds: {
-            roman_horn: "Römisches Horn", clock_bell: "Weckerglocke", ship_horn: "Schiffshorn",
-            train_whistle: "Zugpfiff", sonar_ping: "Sonar", fire_alarm: "Alarm",
-            bronze_gong: "Bronzegong", bugle_call: "Signalhorn", church_bell: "Kirchenglocke",
-            morse_sos: "Morse", digital_pulse: "Digitalpuls"
-          }
-        },
-        zh: {
-          brandTitle: "到站闹钟",
-          promptTitle: "你要去哪里？",
-          langMenuTitle: "选择语言",
-          startWatch: "开始监控",
-          stopWatch: "停止监控",
-          previewSound: "试听铃声",
-          loudMode: "增强音量（播放音乐时）",
-          pickAudio: "加载自定义铃声",
-          noCustomAudio: "未加载自定义铃声。",
-          customAudioLoaded: "自定义铃声：",
-          choosePlace: "从10个地点中选择一个。",
-          tapToWatch: "点击地点开始监控，或按 ✏️ 编辑。",
-          editModeOn: "编辑模式已开启。",
-          noCoordsYet: "尚未设置位置。",
-          watchingActive: "GPS 监控中。",
-          coordsReady: "目标已设置。",
-          beforeSuffix: "前",
-          fixedPlace: "固定",
-          freePlace: "自选",
-          setPlaceHint: "设置位置",
-          coordsSet: "已设位置",
-          themeDrawerTitle: "外观主题",
-          pickWallpaper: "加载背景",
-          flipGlass: "浅色 / 深色",
-          simPrefix: "测试距离：",
-          triggerSim: "测试闹钟",
-          adBanner: "广告位",
-          editModalTitle: "编辑目的地",
-          editNameLabel: "地点名称",
-          addressSearchLabel: "搜索地址或地点",
-          addressSearchPlaceholder: "输入地址...",
-          searchBtn: "搜索",
-          useCurrentGps: "当前 GPS",
-          savePlace: "保存",
-          cancelEdit: "取消",
-          alarmPrefix: "闹钟：",
-          dismissForever: "彻底停止",
-          snoozeMain: "稍后提醒 (20秒)",
-          snoozeTap: "静音 20 秒",
-          snoozeLeft: "秒",
-          alarmFooter: "20秒贪睡 • 右上角彻底停止。",
-          voiceListening: "正在聆听...",
-          voiceSelected: "已选择：",
-          voiceNotFound: "未识别：",
-          voiceUnavailable: "语音识别不可用。",
-          defaultPlaces: ["家", "公司", "地点 3", "地点 4", "地点 5", "地点 6", "地点 7", "地点 8", "地点 9", "地点 10"],
-          themes: { classic: "经典", glass: "毛玻璃", cartoon: "卡通", gothic: "哥特", renaissance: "文艺复兴", punk: "朋克" },
-          sounds: {
-            roman_horn: "罗马号角", clock_bell: "闹钟铃声", ship_horn: "轮船汽笛",
-            train_whistle: "火车汽笛", sonar_ping: "声呐", fire_alarm: "警报",
-            bronze_gong: "铜锣", bugle_call: "军号", church_bell: "教堂钟声",
-            morse_sos: "莫尔斯", digital_pulse: "数字脉冲"
-          }
-        },
-        ja: {
-          brandTitle: "到着アラーム",
-          promptTitle: "どこへ向かいますか？",
-          langMenuTitle: "言語を選択",
-          startWatch: "監視を開始",
-          stopWatch: "監視を停止",
-          previewSound: "音を試す",
-          loudMode: "音量を上げる（音楽再生中）",
-          pickAudio: "カスタム音声を読み込む",
-          noCustomAudio: "カスタム音声はありません。",
-          customAudioLoaded: "カスタム音声：",
-          choosePlace: "10件の目的地から選択してください。",
-          tapToWatch: "場所をタップして監視、または ✏️ で編集。",
-          editModeOn: "編集モード中。",
-          noCoordsYet: "位置が未設定です。",
-          watchingActive: "GPS監視中。",
-          coordsReady: "目的地が設定されました。",
-          beforeSuffix: "手前",
-          fixedPlace: "固定",
-          freePlace: "自由",
-          setPlaceHint: "場所を設定",
-          coordsSet: "場所設定済み",
-          themeDrawerTitle: "テーマ",
-          pickWallpaper: "背景を読み込む",
-          flipGlass: "ライト / ダーク",
-          simPrefix: "テスト距離：",
-          triggerSim: "アラームテスト",
-          adBanner: "広告枠",
-          editModalTitle: "目的地の編集",
-          editNameLabel: "場所の名前",
-          addressSearchLabel: "住所や場所を検索",
-          addressSearchPlaceholder: "住所を入力...",
-          searchBtn: "検索",
-          useCurrentGps: "現在地GPS",
-          savePlace: "保存",
-          cancelEdit: "キャンセル",
-          alarmPrefix: "アラーム：",
-          dismissForever: "完全停止",
-          snoozeMain: "スヌーズ (20秒)",
-          snoozeTap: "20秒消音",
-          snoozeLeft: "秒",
-          alarmFooter: "20秒スヌーズ • 右上で完全停止。",
-          voiceListening: "聞いています...",
-          voiceSelected: "選択済み：",
-          voiceNotFound: "認識できませんでした：",
-          voiceUnavailable: "音声認識は利用できません。",
-          defaultPlaces: ["自宅", "職場", "場所 3", "場所 4", "場所 5", "場所 6", "場所 7", "場所 8", "場所 9", "場所 10"],
-          themes: { classic: "クラシック", glass: "グラス", cartoon: "カートゥーン", gothic: "ゴシック", renaissance: "ルネサンス", punk: "パンク" },
-          sounds: {
-            roman_horn: "ローマの角笛", clock_bell: "目覚ましベル", ship_horn: "船の汽笛",
-            train_whistle: "汽車の汽笛", sonar_ping: "ソナー", fire_alarm: "警報",
-            bronze_gong: "銅鑼", bugle_call: "ラッパ", church_bell: "教会の鐘",
-            morse_sos: "モールス", digital_pulse: "デジタル"
-          }
-        },
-        ko: {
-          brandTitle: "목적지 알람",
-          promptTitle: "어디로 가시나요?",
-          langMenuTitle: "언어 선택",
-          startWatch: "감시 시작",
-          stopWatch: "감시 중지",
-          previewSound: "소리 미리듣기",
-          loudMode: "볼륨 강화(음악 재생 시)",
-          pickAudio: "사용자 오디오 불러오기",
-          noCustomAudio: "불러온 사용자 오디오가 없습니다.",
-          customAudioLoaded: "사용자 오디오: ",
-          choosePlace: "10개 장소 중 하나를 선택하세요.",
-          tapToWatch: "장소를 탭해 감시하거나 ✏️로 편집하세요.",
-          editModeOn: "편집 모드 활성.",
-          noCoordsYet: "위치가 설정되지 않았습니다.",
-          watchingActive: "GPS 감시 중.",
-          coordsReady: "목표 설정됨.",
-          beforeSuffix: "전",
-          fixedPlace: "고정",
-          freePlace: "사용자",
-          setPlaceHint: "위치 설정",
-          coordsSet: "위치 설정됨",
-          themeDrawerTitle: "테마",
-          pickWallpaper: "배경 불러오기",
-          flipGlass: "밝게 / 어둡게",
-          simPrefix: "테스트 거리:",
-          triggerSim: "알람 테스트",
-          adBanner: "광고 영역",
-          editModalTitle: "목적지 편집",
-          editNameLabel: "장소 이름",
-          addressSearchLabel: "주소 또는 장소 검색",
-          addressSearchPlaceholder: "주소 입력...",
-          searchBtn: "검색",
-          useCurrentGps: "현재 GPS",
-          savePlace: "저장",
-          cancelEdit: "취소",
-          alarmPrefix: "알람:",
-          dismissForever: "완전 끄기",
-          snoozeMain: "스누즈 (20초)",
-          snoozeTap: "20초 음소거",
-          snoozeLeft: "초",
-          alarmFooter: "20초 스누즈 • 우측 상단에서 완전 끄기.",
-          voiceListening: "듣는 중...",
-          voiceSelected: "선택됨:",
-          voiceNotFound: "인식 못함:",
-          voiceUnavailable: "음성 인식을 사용할 수 없습니다.",
-          defaultPlaces: ["집", "직장", "장소 3", "장소 4", "장소 5", "장소 6", "장소 7", "장소 8", "장소 9", "장소 10"],
-          themes: { classic: "기본", glass: "투명", cartoon: "만화", gothic: "고딕", renaissance: "르네상스", punk: "펑크" },
-          sounds: {
-            roman_horn: "로마 뿔나팔", clock_bell: "자명종", ship_horn: "뱃고동",
-            train_whistle: "기차 경적", sonar_ping: "소나", fire_alarm: "경보",
-            bronze_gong: "청동 징", bugle_call: "나팔 신호", church_bell: "교회 종소리",
-            morse_sos: "모스 부호", digital_pulse: "디지털 펄스"
-          }
-        },
-        it: {
-          brandTitle: "Sveglia destinazione",
-          promptTitle: "Dove stai andando?",
-          langMenuTitle: "Seleziona lingua",
-          startWatch: "Avvia controllo",
-          stopWatch: "Ferma controllo",
-          previewSound: "Prova suono",
-          loudMode: "Volume alto (con musica)",
-          pickAudio: "Carica audio",
-          noCustomAudio: "Nessun audio personalizzato.",
-          customAudioLoaded: "Audio personalizzato: ",
-          choosePlace: "Scegli una delle 10 destinazioni.",
-          tapToWatch: "Tocca un luogo o premi ✏️ per modificare.",
-          editModeOn: "Modalità modifica attiva.",
-          noCoordsYet: "Nessuna posizione impostata.",
-          watchingActive: "Controllo GPS attivo.",
-          coordsReady: "Destinazione pronta.",
-          beforeSuffix: "prima",
-          fixedPlace: "Fisso",
-          freePlace: "Libero",
-          setPlaceHint: "Imposta luogo",
-          coordsSet: "Luogo impostato",
-          themeDrawerTitle: "Stile",
-          pickWallpaper: "Carica sfondo",
-          flipGlass: "Chiaro / Scuro",
-          simPrefix: "Distanza test:",
-          triggerSim: "Prova sveglia",
-          adBanner: "Spazio pubblicitario",
-          editModalTitle: "Modifica destinazione",
-          editNameLabel: "Nome luogo",
-          addressSearchLabel: "Cerca indirizzo o luogo",
-          addressSearchPlaceholder: "Scrivi indirizzo...",
-          searchBtn: "Cerca",
-          useCurrentGps: "GPS attuale",
-          savePlace: "Salva",
-          cancelEdit: "Annulla",
-          alarmPrefix: "SVEGLIA:",
-          dismissForever: "Ferma del tutto",
-          snoozeMain: "POSTICIPA (20 S)",
-          snoozeTap: "Muto 20 s",
-          snoozeLeft: "s",
-          alarmFooter: "Posticipa 20 s • Stop definitivo in alto a destra.",
-          voiceListening: "In ascolto...",
-          voiceSelected: "Selezionato:",
-          voiceNotFound: "Non riconosciuto:",
-          voiceUnavailable: "Riconoscimento vocale non disponibile.",
-          defaultPlaces: ["Casa", "Lavoro", "Luogo 3", "Luogo 4", "Luogo 5", "Luogo 6", "Luogo 7", "Luogo 8", "Luogo 9", "Luogo 10"],
-          themes: { classic: "Classico", glass: "Vetro", cartoon: "Fumetto", gothic: "Gotico", renaissance: "Rinascimento", punk: "Punk" },
-          sounds: {
-            roman_horn: "Corno romano", clock_bell: "Campana sveglia", ship_horn: "Sirena nave",
-            train_whistle: "Fischio treno", sonar_ping: "Sonar", fire_alarm: "Allarme",
-            bronze_gong: "Gong", bugle_call: "Clarino", church_bell: "Campana chiesa",
-            morse_sos: "Morse", digital_pulse: "Impulso digitale"
-          }
-        },
-        pt: {
-          brandTitle: "Alarme de destino",
-          promptTitle: "Para onde vai?",
-          langMenuTitle: "Selecionar idioma",
-          startWatch: "Iniciar vigilância",
-          stopWatch: "Parar vigilância",
-          previewSound: "Testar som",
-          loudMode: "Aumentar volume (com música)",
-          pickAudio: "Carregar áudio",
-          noCustomAudio: "Sem áudio personalizado.",
-          customAudioLoaded: "Áudio personalizado: ",
-          choosePlace: "Escolha um dos 10 destinos.",
-          tapToWatch: "Toque num local ou em ✏️ para editar.",
-          editModeOn: "Modo de edição ativo.",
-          noCoordsYet: "Sem localização definida.",
-          watchingActive: "Vigilância GPS ativa.",
-          coordsReady: "Destino pronto.",
-          beforeSuffix: "antes",
-          fixedPlace: "Fixo",
-          freePlace: "Livre",
-          setPlaceHint: "Definir local",
-          coordsSet: "Local definido",
-          themeDrawerTitle: "Aparência",
-          pickWallpaper: "Carregar fundo",
-          flipGlass: "Claro / Escuro",
-          simPrefix: "Distância teste:",
-          triggerSim: "Testar alarme",
-          adBanner: "Espaço de anúncio",
-          editModalTitle: "Editar destino",
-          editNameLabel: "Nome do local",
-          addressSearchLabel: "Pesquisar morada ou local",
-          addressSearchPlaceholder: "Digite a morada...",
-          searchBtn: "Pesquisar",
-          useCurrentGps: "GPS atual",
-          savePlace: "Guardar",
-          cancelEdit: "Cancelar",
-          alarmPrefix: "ALARME:",
-          dismissForever: "Parar de vez",
-          snoozeMain: "SONECA (20 S)",
-          snoozeTap: "Silenciar 20 s",
-          snoozeLeft: "s",
-          alarmFooter: "Soneca 20 s • Parar em cima à direita.",
-          voiceListening: "A ouvir...",
-          voiceSelected: "Selecionado:",
-          voiceNotFound: "Não reconhecido:",
-          voiceUnavailable: "Reconhecimento de voz indisponível.",
-          defaultPlaces: ["Casa", "Trabalho", "Local 3", "Local 4", "Local 5", "Local 6", "Local 7", "Local 8", "Local 9", "Local 10"],
-          themes: { classic: "Clássico", glass: "Vidro", cartoon: "Banda desenhada", gothic: "Gótico", renaissance: "Renascentista", punk: "Punk" },
-          sounds: {
-            roman_horn: "Corno romano", clock_bell: "Sino despertador", ship_horn: "Buzina navio",
-            train_whistle: "Apito comboio", sonar_ping: "Sonar", fire_alarm: "Alarme",
-            bronze_gong: "Gongo", bugle_call: "Cornetim", church_bell: "Sino igreja",
-            morse_sos: "Morse", digital_pulse: "Pulso digital"
-          }
-        },
-        uk: {
-          brandTitle: "Будильник мети",
-          promptTitle: "Куди їдемо?",
-          langMenuTitle: "Вибір мови",
-          startWatch: "Почати стеження",
-          stopWatch: "Зупинити стеження",
-          previewSound: "Перевірити звук",
-          loudMode: "Посилити звук (з музикою)",
-          pickAudio: "Завантажити свій звук",
-          noCustomAudio: "Свій звук не завантажено.",
-          customAudioLoaded: "Свій звук: ",
-          choosePlace: "Оберіть місце з 10 варіантів.",
-          tapToWatch: "Натисніть на місце або ✏️ для редагування.",
-          editModeOn: "Режим редагування увімкнено.",
-          noCoordsYet: "Місце не вказано.",
-          watchingActive: "GPS-стеження активне.",
-          coordsReady: "Мету задано.",
-          beforeSuffix: "до мети",
-          fixedPlace: "Фікс.",
-          freePlace: "Свій",
-          setPlaceHint: "Вказати місце",
-          coordsSet: "Місце задано",
-          themeDrawerTitle: "Оформлення",
-          pickWallpaper: "Завантажити фон",
-          flipGlass: "Світла / Темна",
-          simPrefix: "Тест дистанції:",
-          triggerSim: "Тест сигналу",
-          adBanner: "Рекламний блок",
-          editModalTitle: "Редагувати місце",
-          editNameLabel: "Назва місця",
-          addressSearchLabel: "Пошук адреси або місця",
-          addressSearchPlaceholder: "Введіть адресу...",
-          searchBtn: "Знайти",
-          useCurrentGps: "Поточний GPS",
-          savePlace: "Зберегти",
-          cancelEdit: "Скасувати",
-          alarmPrefix: "СИГНАЛ:",
-          dismissForever: "Вимкнути зовсім",
-          snoozeMain: "ВІДКЛАСТИ (20 С)",
-          snoozeTap: "Тиша на 20 с",
-          snoozeLeft: "с",
-          alarmFooter: "Відкласти на 20 с • Повне вимкнення у верхньому куті.",
-          voiceListening: "Слухаю...",
-          voiceSelected: "Обрано:",
-          voiceNotFound: "Не розпізнано:",
-          voiceUnavailable: "Голосове введення недоступне.",
-          defaultPlaces: ["Дім", "Робота", "Місце 3", "Місце 4", "Місце 5", "Місце 6", "Місце 7", "Місце 8", "Місце 9", "Місце 10"],
-          themes: { classic: "Класика", glass: "Прозорий", cartoon: "Комікс", gothic: "Готика", renaissance: "Ренесанс", punk: "Панк" },
-          sounds: {
-            roman_horn: "Римський горн", clock_bell: "Дзвінок будильника", ship_horn: "Гудок корабля",
-            train_whistle: "Гудок поїзда", sonar_ping: "Сонар", fire_alarm: "Тривога",
-            bronze_gong: "Бронзовий гонг", bugle_call: "Сигнал горна", church_bell: "Дзвін",
-            morse_sos: "Морзе", digital_pulse: "Імпульс"
-          }
-        },
-        pl: {
-          brandTitle: "Budzik celu",
-          promptTitle: "Dokąd jedziesz?",
-          langMenuTitle: "Wybierz język",
-          startWatch: "Rozpocznij śledzenie",
-          stopWatch: "Zatrzymaj śledzenie",
-          previewSound: "Test dźwięku",
-          loudMode: "Większa głośność (z muzyką)",
-          pickAudio: "Wczytaj własny dźwięk",
-          noCustomAudio: "Brak własnego dźwięku.",
-          customAudioLoaded: "Własny dźwięk: ",
-          choosePlace: "Wybierz jedno z 10 miejsc.",
-          tapToWatch: "Stuknij miejsce lub ✏️, aby edytować.",
-          editModeOn: "Tryb edycji aktywny.",
-          noCoordsYet: "Nie ustawiono lokalizacji.",
-          watchingActive: "Śledzenie GPS aktywne.",
-          coordsReady: "Cel ustawiony.",
-          beforeSuffix: "przed",
-          fixedPlace: "Stałe",
-          freePlace: "Własne",
-          setPlaceHint: "Ustaw miejsce",
-          coordsSet: "Miejsce ustawione",
-          themeDrawerTitle: "Wygląd",
-          pickWallpaper: "Wczytaj tło",
-          flipGlass: "Jasny / Ciemny",
-          simPrefix: "Dystans testowy:",
-          triggerSim: "Testuj alarm",
-          adBanner: "Miejsce na reklamę",
-          editModalTitle: "Edytuj cel",
-          editNameLabel: "Nazwa miejsca",
-          addressSearchLabel: "Szukaj adresu lub miejsca",
-          addressSearchPlaceholder: "Wpisz adres...",
-          searchBtn: "Szukaj",
-          useCurrentGps: "Bieżący GPS",
-          savePlace: "Zapisz",
-          cancelEdit: "Anuluj",
-          alarmPrefix: "ALARM:",
-          dismissForever: "Wyłącz na stałe",
-          snoozeMain: "DRZEMKA (20 S)",
-          snoozeTap: "Wycisz na 20 s",
-          snoozeLeft: "s",
-          alarmFooter: "Drzemka 20 s • Wyłącz w prawym górnym rogu.",
-          voiceListening: "Słucham...",
-          voiceSelected: "Wybrano:",
-          voiceNotFound: "Nie rozpoznano:",
-          voiceUnavailable: "Rozpoznawanie mowy niedostępne.",
-          defaultPlaces: ["Dom", "Praca", "Miejsce 3", "Miejsce 4", "Miejsce 5", "Miejsce 6", "Miejsce 7", "Miejsce 8", "Miejsce 9", "Miejsce 10"],
-          themes: { classic: "Klasyczny", glass: "Szkło", cartoon: "Komiks", gothic: "Gotyk", renaissance: "Renesans", punk: "Punk" },
-          sounds: {
-            roman_horn: "Rzymski róg", clock_bell: "Dzwonek budzika", ship_horn: "Sygnał statku",
-            train_whistle: "Gwizdek pociągu", sonar_ping: "Sonar", fire_alarm: "Alarm",
-            bronze_gong: "Gong", bugle_call: "Pobudka", church_bell: "Dzwon kościelny",
-            morse_sos: "Morse", digital_pulse: "Puls cyfrowy"
-          }
-        },
-        tr: {
-          brandTitle: "Hedef Alarmı",
-          promptTitle: "Nereye gidiyorsun?",
-          langMenuTitle: "Dil seçin",
-          startWatch: "Takibi başlat",
-          stopWatch: "Takibi durdur",
-          previewSound: "Sesi dene",
-          loudMode: "Yüksek ses (müzikle)",
-          pickAudio: "Özel ses yükle",
-          noCustomAudio: "Özel ses yüklenmedi.",
-          customAudioLoaded: "Özel ses: ",
-          choosePlace: "10 yerden birini seçin.",
-          tapToWatch: "Takip için yere dokunun veya ✏️ ile düzenleyin.",
-          editModeOn: "Düzenleme modu aktif.",
-          noCoordsYet: "Henüz konum ayarlanmadı.",
-          watchingActive: "GPS takibi aktif.",
-          coordsReady: "Hedef hazır.",
-          beforeSuffix: "önce",
-          fixedPlace: "Sabit",
-          freePlace: "Özel",
-          setPlaceHint: "Konum ayarla",
-          coordsSet: "Konum ayarlandı",
-          themeDrawerTitle: "Görünüm",
-          pickWallpaper: "Arka plan yükle",
-          flipGlass: "Açık / Koyu",
-          simPrefix: "Test mesafesi:",
-          triggerSim: "Alarmı test et",
-          adBanner: "Reklam alanı",
-          editModalTitle: "Hedefi düzenle",
-          editNameLabel: "Yer adı",
-          addressSearchLabel: "Adres veya yer ara",
-          addressSearchPlaceholder: "Adres yazın...",
-          searchBtn: "Ara",
-          useCurrentGps: "Mevcut GPS",
-          savePlace: "Kaydet",
-          cancelEdit: "İptal",
-          alarmPrefix: "ALARM:",
-          dismissForever: "Tamamen kapat",
-          snoozeMain: "ERTELE (20 SN)",
-          snoozeTap: "20 sn sessiz",
-          snoozeLeft: "sn",
-          alarmFooter: "20 sn erteleme • Sağ üstten tamamen kapat.",
-          voiceListening: "Dinliyorum...",
-          voiceSelected: "Seçildi:",
-          voiceNotFound: "Tanınmadı:",
-          voiceUnavailable: "Ses tanıma kullanılamıyor.",
-          defaultPlaces: ["Ev", "İş", "Yer 3", "Yer 4", "Yer 5", "Yer 6", "Yer 7", "Yer 8", "Yer 9", "Yer 10"],
-          themes: { classic: "Klasik", glass: "Cam", cartoon: "Çizgi", gothic: "Gotik", renaissance: "Rönesans", punk: "Punk" },
-          sounds: {
-            roman_horn: "Roma kornası", clock_bell: "Çalar saat", ship_horn: "Gemi kornası",
-            train_whistle: "Tren düdüğü", sonar_ping: "Sonar", fire_alarm: "Alarm",
-            bronze_gong: "Gong", bugle_call: "Boru sesi", church_bell: "Kilise çanı",
-            morse_sos: "Mors", digital_pulse: "Dijital nabız"
-          }
-        },
-        hi: {
-          brandTitle: "गंतव्य अलार्म",
-          promptTitle: "आप कहाँ जा रहे हैं?",
-          langMenuTitle: "भाषा चुनें",
-          startWatch: "निगरानी शुरू करें",
-          stopWatch: "निगरानी रोकें",
-          previewSound: "ध्वनि जांचें",
-          loudMode: "तेज़ आवाज़ (संगीत के साथ)",
-          pickAudio: "कस्टम ध्वनि लोड करें",
-          noCustomAudio: "कोई कस्टम ध्वनि लोड नहीं है।",
-          customAudioLoaded: "कस्टम ध्वनि: ",
-          choosePlace: "10 स्थानों में से चुनें।",
-          tapToWatch: "निगरानी के लिए स्थान टैप करें या ✏️ दबाएं।",
-          editModeOn: "संपादन मोड सक्रिय।",
-          noCoordsYet: "कोई स्थान सेट नहीं है।",
-          watchingActive: "GPS निगरानी सक्रिय।",
-          coordsReady: "लक्ष्य तैयार है।",
-          beforeSuffix: "पहले",
-          fixedPlace: "निश्चित",
-          freePlace: "कस्टम",
-          setPlaceHint: "स्थान सेट करें",
-          coordsSet: "स्थान सेट है",
-          themeDrawerTitle: "रूप-रंग",
-          pickWallpaper: "पृष्ठभूमि लोड करें",
-          flipGlass: "हल्का / गहरा",
-          simPrefix: "परीक्षण दूरी:",
-          triggerSim: "अलार्म जांचें",
-          adBanner: "विज्ञापन स्थान",
-          editModalTitle: "गंतव्य संपादित करें",
-          editNameLabel: "स्थान का नाम",
-          addressSearchLabel: "पता या स्थान खोजें",
-          addressSearchPlaceholder: "पता लिखें...",
-          searchBtn: "खोजें",
-          useCurrentGps: "वर्तमान GPS",
-          savePlace: "सहेजें",
-          cancelEdit: "रद्द करें",
-          alarmPrefix: "अलार्म:",
-          dismissForever: "पूरी तरह बंद करें",
-          snoozeMain: "स्नूज़ (20 सेकंड)",
-          snoozeTap: "20 सेकंड शांत",
-          snoozeLeft: "से",
-          alarmFooter: "20 सेकंड स्नूज़ • ऊपर दाएं से पूरी तरह बंद करें।",
-          voiceListening: "सुन रहा हूँ...",
-          voiceSelected: "चयनित:",
-          voiceNotFound: "पहचाना नहीं गया:",
-          voiceUnavailable: "आवाज़ पहचान उपलब्ध नहीं है।",
-          defaultPlaces: ["घर", "काम", "स्थान 3", "स्थान 4", "स्थान 5", "स्थान 6", "स्थान 7", "स्थान 8", "स्थान 9", "स्थान 10"],
-          themes: { classic: "क्लासिक", glass: "ग्लास", cartoon: "कार्टून", gothic: "गॉथिक", renaissance: "पुनर्जागरण", punk: "पंक" },
-          sounds: {
-            roman_horn: "रोमन हॉर्न", clock_bell: "अलार्म घंटी", ship_horn: "जहाज़ हॉर्न",
-            train_whistle: "ट्रेन सीटी", sonar_ping: "सोनार", fire_alarm: "अलार्म",
-            bronze_gong: "कांस्य गोंग", bugle_call: "बिगुल", church_bell: "चर्च की घंटी",
-            morse_sos: "मोर्स", digital_pulse: "डिजिटल पल्स"
-          }
-        },
-        sw: {
-          brandTitle: "Kengele ya lengo",
-          promptTitle: "Unaenda wapi?",
-          langMenuTitle: "Chagua lugha",
-          startWatch: "Anza kufuatilia",
-          stopWatch: "Simamisha ufuatiliaji",
-          previewSound: "Jaribu sauti",
-          loudMode: "Sauti kubwa (na muziki)",
-          pickAudio: "Pakia sauti yako",
-          noCustomAudio: "Hakuna sauti maalum iliyopakiwa.",
-          customAudioLoaded: "Sauti maalum: ",
-          choosePlace: "Chagua mojawapo ya maeneo 10.",
-          tapToWatch: "Gusa mahali kufuatilia au ✏️ kuhariri.",
-          editModeOn: "Hali ya kuhariri imewashwa.",
-          noCoordsYet: "Hakuna eneo lililowekwa.",
-          watchingActive: "Ufuatiliaji wa GPS unafanya kazi.",
-          coordsReady: "Lengo liko tayari.",
-          beforeSuffix: "kabla",
-          fixedPlace: "Maalum",
-          freePlace: "Huru",
-          setPlaceHint: "Weka eneo",
-          coordsSet: "Eneo limewekwa",
-          themeDrawerTitle: "Muonekano",
-          pickWallpaper: "Pakia mandharinyuma",
-          flipGlass: "Mwanga / Giza",
-          simPrefix: "Umbali wa jaribio:",
-          triggerSim: "Jaribu kengele",
-          adBanner: "Nafasi ya tangazo",
-          editModalTitle: "Hariri lengo",
-          editNameLabel: "Jina la mahali",
-          addressSearchLabel: "Tafuta anwani au mahali",
-          addressSearchPlaceholder: "Andika anwani...",
-          searchBtn: "Tafuta",
-          useCurrentGps: "GPS ya sasa",
-          savePlace: "Hifadhi",
-          cancelEdit: "Ghairi",
-          alarmPrefix: "KENGELE:",
-          dismissForever: "Zima kabisa",
-          snoozeMain: "AHIRISHA (SEKUNDE 20)",
-          snoozeTap: "Nyamaza sekunde 20",
-          snoozeLeft: "s",
-          alarmFooter: "Ahirisha 20s • Zima kabisa juu kulia.",
-          voiceListening: "Ninasikiliza...",
-          voiceSelected: "Imechaguliwa:",
-          voiceNotFound: "Haikutambuliwa:",
-          voiceUnavailable: "Utambuzi wa sauti haupatikani.",
-          defaultPlaces: ["Nyumbani", "Kazini", "Mahali 3", "Mahali 4", "Mahali 5", "Mahali 6", "Mahali 7", "Mahali 8", "Mahali 9", "Mahali 10"],
-          themes: { classic: "Kawaida", glass: "Kioo", cartoon: "Katuni", gothic: "Gothiki", renaissance: "Ufufuo", punk: "Panki" },
-          sounds: {
-            roman_horn: "Pembe ya Kirumi", clock_bell: "Kengele ya saa", ship_horn: "Pembe ya meli",
-            train_whistle: "Firimbi ya treni", sonar_ping: "Sona", fire_alarm: "Tahadhari",
-            bronze_gong: "Gongi", bugle_call: "Tarumbeta", church_bell: "Kengele ya kanisa",
-            morse_sos: "Mosi", digital_pulse: "Mapigo ya kidijitali"
-          }
+          gpsOffTitle: "GPS выключен",
+          gpsOffBody: "Для оповещения перед остановкой включите геолокацию (GPS) в настройках устройства и повторите попытку.",
+          fgPermTitle: "Доступ к геопозиции при использовании",
+          fgPermBody: "Разрешение на определение местоположения во время работы приложения нужно для расчёта расстояния до цели.",
+          bgPermTitle: "Фоновый доступ к GPS",
+          bgPermBody: "Если вы уснёте или переключитесь на другое приложение в пути, фоновый GPS поможет разбудить вас вовремя.",
+          allowBtn: "Разрешить", cancelBtn: "Отмена",
+          cancelWarnTitle: "Вы уверены, что хотите отменить?",
+          cancelWarnBody: "Без фонового GPS слежение может остановиться при блокировке экрана или переходе в другое приложение.",
+          yesSureBtn: "Да, уверен", noNotSureBtn: "Не уверен",
+          readyBlinkHint: "Разрешения готовы. Нажмите мигающую кнопку «Начать слежение»!",
+          stopConfirmTitle: "Вы уверены, что хотите остановить?",
+          stopConfirmBody: "Остановка отключит будильник перед остановкой.",
+          confirmStopYes: "Да, остановить", confirmStopNo: "Отмена",
+          stallWatchTitle: "Контроль остановки",
+          stallWatchBody: "Похоже, транспорт долго стоит на месте. Проверьте ситуацию или продолжите слежение.",
+          stallContinueBtn: "Продолжить слежение", stallStopBtn: "Остановить слежение",
+          arrivedTitle: "Вы прибыли!", arrivedBody: "Вы достигли выбранного места.",
+          arrivedOkBtn: "ОК", arrivedChoiceBody: "Что сделать дальше?",
+          disableTrackingBtn: "Отключить слежение", newTripBtn: "Выбрать новую поездку",
+          restartRequiredTitle: "Требуется перезапуск",
+          restartRequiredBody: "Слежение запускалось без фонового GPS и остановилось из-за блокировки экрана или другого приложения. Пройдите шаги разрешений заново.",
+          restartFlowBtn: "Начать заново"
         }
       };
 
+      const EXTRA_LANG_KEYS = {
+        am: {
+          gpsOffTitle: "GPS ጠፍቷል", gpsOffBody: "ከመድረሻ በፊት ለማንቂያ GPS ያብሩ እና እንደገና ይሞክሩ።",
+          fgPermTitle: "በሚጠቀሙበት ጊዜ የአካባቢ ፈቃድ", fgPermBody: "ወደ መድረሻ ያለውን ርቀት ለመከታተል የአካባቢ ፈቃድ ያስፈልጋል።",
+          bgPermTitle: "የጀርባ GPS መዳረሻ", bgPermBody: "በጉዞ ላይ ቢተኙ ወይም ሌላ መተግበሪያ ቢከፍቱ የጀርባ GPS በጊዜ ያነቃዎታል።",
+          allowBtn: "ፍቀድ", cancelBtn: "ሰርዝ", cancelWarnTitle: "እርግጠኛ ነዎት መሰረዝ ይፈልጋሉ?",
+          cancelWarnBody: "ያለ የጀርባ GPS ፈቃድ ማያ ሲቆለፍ ወይም ሌላ መተግበሪያ ሲከፈት ክትትል ሊቋረጥ ይችላል።",
+          yesSureBtn: "አዎ እርግጠኛ ነኝ", noNotSureBtn: "እርግጠኛ አይደለሁም",
+          readyBlinkHint: "ፈቃዶች ተዘጋጅተዋል። የሚብረቀረቀውን 'ክትትል ጀምር' ይጫኑ!",
+          stopConfirmTitle: "እርግጠኛ ነዎት ማቆም ይፈልጋሉ?", stopConfirmBody: "አሁን ማቆም የመድረሻ ማንቂያውን ያጠፋል።",
+          confirmStopYes: "አዎ አቁም", confirmStopNo: "ሰርዝ",
+          stallWatchTitle: "የመቆም ክትትል", stallWatchBody: "ተሽከርካሪው ለረጅም ጊዜ የቆመ ይመስላል። ሁኔታውን ያረጋግጡ ወይም ይቀጥሉ።",
+          stallContinueBtn: "ክትትል ቀጥል", stallStopBtn: "ክትትል አቁም",
+          arrivedTitle: "ደርሰዋል!", arrivedBody: "የተመረጠውን መድረሻ ደርሰዋል።", arrivedOkBtn: "እሺ",
+          arrivedChoiceBody: "ቀጥሎ ምን ማድረግ ይፈልጋሉ?", disableTrackingBtn: "ክትትል አጥፋ", newTripBtn: "አዲስ ጉዞ ምረጥ",
+          restartRequiredTitle: "እንደገና መጀመር ያስፈልጋል",
+          restartRequiredBody: "ክትትሉ ያለ የጀርባ GPS ፈቃድ ተጀምሮ ተቋርጧል። እባክዎ የፈቃድ ደረጃዎችን እንደገና ይለፉ።",
+          restartFlowBtn: "እንደገና ጀምር"
+        },
+        ti: {
+          gpsOffTitle: "GPS ጠፊኡ ኣሎ", gpsOffBody: "ቅድሚ መዓርፎ ንምጥንቃቕ GPS ኣብርሕ እሞ እንደገና ፈትን።",
+          fgPermTitle: "ፍቓድ ቦታ ኣብ እዋን ምጥቃም", fgPermBody: "ርሕቀት መዓርፎ ንምክትታል ፍቓድ ቦታ የድሊ።",
+          bgPermTitle: "ናይ ድሕረ-ባይታ GPS", bgPermBody: "ኣብ መንገዲ እንተደቀስካ ወይ ካልእ ኣፕ እንተኸፈትካ ናይ ድሕረ-ባይታ GPS ኣብ ግዜኡ የበራብረካ።",
+          allowBtn: "ፍቐድ", cancelBtn: "ሰርዝ", cancelWarnTitle: "ርግጸኛ ዲኻ ክትሰርዝ ትደሊ?",
+          cancelWarnBody: "ብዘይ ናይ ድሕረ-ባይታ GPS ፍቓድ ስክሪን ክዕጸፍ ከሎ ወይ ካልእ ኣፕ ክኽፈት ከሎ ክትትል ደው ክብል ይኽእል።",
+          yesSureBtn: "እወ ርግጸኛ እየ", noNotSureBtn: "ርግጸኛ ኣይኮንኩን",
+          readyBlinkHint: "ፍቓዳት ተዳልዮም ኣለዉ። ነቲ ዝ blink ዝብል 'ክትትል ጀምር' ጸቕጥ!",
+          stopConfirmTitle: "ርግጸኛ ዲኻ ደው ከተብል ትደሊ?", stopConfirmBody: "ሕጂ ደው ምባል መጠንቀቒ መዓርፎ የጥፍእ።",
+          confirmStopYes: "እወ ደው ኣብል", confirmStopNo: "ሰርዝ",
+          stallWatchTitle: "ክትትል ደው ምባል", stallWatchBody: "መጓዓዝያ ንነዊሕ እዋን ደው ዝበለ ይመስል። ኣረጋግጽ ወይ ክትትል ቀጽል።",
+          stallContinueBtn: "ክትትል ቀጽል", stallStopBtn: "ክትትል ደው ኣብል",
+          arrivedTitle: "በጺሕካ!", arrivedBody: "ዝተመረጸ መዓርፎ በጺሕካ።", arrivedOkBtn: "ሕራይ",
+          arrivedChoiceBody: "ሕጂ እንታይ ክትገብር ትደሊ?", disableTrackingBtn: "ክትትል ኣጥፍእ", newTripBtn: "ሓድሽ ጉዕዞ ምረጽ",
+          restartRequiredTitle: "እንደገና ምጅማር የድሊ",
+          restartRequiredBody: "ክትትል ብዘይ ናይ ድሕረ-ባይታ GPS ፍቓድ ተጀሚሩ ተቋሪጹ። በጃኻ ደረጃታት ፍቓድ እንደገና ሕለፍ።",
+          restartFlowBtn: "እንደገና ጀምር"
+        },
+        vi: {
+          gpsOffTitle: "GPS đang tắt", gpsOffBody: "Hãy bật định vị (GPS) trong cài đặt thiết bị để cảnh báo trước điểm đến.",
+          fgPermTitle: "Quyền vị trí khi dùng ứng dụng", fgPermBody: "Cần quyền vị trí khi mở ứng dụng để theo dõi khoảng cách tới đích.",
+          bgPermTitle: "Quyền GPS chạy nền", bgPermBody: "Nếu bạn ngủ quên hoặc mở ứng dụng khác trên đường, GPS nền giúp báo thức kịp lúc.",
+          allowBtn: "Cho phép", cancelBtn: "Hủy", cancelWarnTitle: "Bạn có chắc muốn hủy?",
+          cancelWarnBody: "Không có GPS nền, theo dõi có thể dừng khi khóa màn hình hoặc chuyển ứng dụng và làm lỡ trạm.",
+          yesSureBtn: "Có, chắc chắn", noNotSureBtn: "Không chắc",
+          readyBlinkHint: "Đã đủ quyền. Hãy bấm nút 'Bắt đầu theo dõi' đang nhấp nháy!",
+          stopConfirmTitle: "Bạn có chắc muốn dừng?", stopConfirmBody: "Dừng ngay bây giờ sẽ tắt báo thức trước điểm đến.",
+          confirmStopYes: "Có, dừng lại", confirmStopNo: "Hủy",
+          stallWatchTitle: "Giám sát dừng xe", stallWatchBody: "Xe có vẻ đang dừng lâu tại chỗ. Hãy kiểm tra hoặc tiếp tục theo dõi.",
+          stallContinueBtn: "Tiếp tục theo dõi", stallStopBtn: "Dừng theo dõi",
+          arrivedTitle: "Bạn đã tới nơi!", arrivedBody: "Bạn đã đến điểm đến đã đặt.", arrivedOkBtn: "OK",
+          arrivedChoiceBody: "Bạn muốn làm gì tiếp theo?", disableTrackingBtn: "Tắt theo dõi", newTripBtn: "Chọn chuyến mới",
+          restartRequiredTitle: "Cần khởi động lại",
+          restartRequiredBody: "Theo dõi bắt đầu không có GPS nền và đã dừng do khóa màn hình hoặc ứng dụng khác. Hãy làm lại các bước cấp quyền.",
+          restartFlowBtn: "Bắt đầu lại"
+        },
+        fr: {
+          gpsOffTitle: "GPS désactivé", gpsOffBody: "Activez la localisation (GPS) dans les paramètres de l'appareil pour les alertes avant l'arrêt.",
+          fgPermTitle: "Accès à la position pendant l'utilisation", fgPermBody: "L'autorisation de localisation pendant l'utilisation est requise pour suivre la distance.",
+          bgPermTitle: "Accès GPS en arrière-plan", bgPermBody: "Si vous vous endormez ou changez d'application, le GPS en arrière-plan aide à vous réveiller à temps.",
+          allowBtn: "Autoriser", cancelBtn: "Annuler", cancelWarnTitle: "Voulez-vous vraiment annuler ?",
+          cancelWarnBody: "Sans GPS en arrière-plan, le suivi peut s'arrêter au verrouillage ou en changeant d'app et faire rater l'arrêt.",
+          yesSureBtn: "Oui, sûr", noNotSureBtn: "Pas sûr",
+          readyBlinkHint: "Autorisations prêtes. Appuyez sur « Démarrer le suivi » qui clignote !",
+          stopConfirmTitle: "Voulez-vous vraiment arrêter ?", stopConfirmBody: "Arrêter maintenant désactive l'alarme avant l'arrêt.",
+          confirmStopYes: "Oui, arrêter", confirmStopNo: "Annuler",
+          stallWatchTitle: "Surveillance d'arrêt prolongé", stallWatchBody: "Le véhicule semble immobile depuis un moment. Vérifiez ou poursuivez le suivi.",
+          stallContinueBtn: "Continuer le suivi", stallStopBtn: "Arrêter le suivi",
+          arrivedTitle: "Vous êtes arrivé !", arrivedBody: "Vous avez atteint votre destination.", arrivedOkBtn: "OK",
+          arrivedChoiceBody: "Que souhaitez-vous faire maintenant ?", disableTrackingBtn: "Désactiver le suivi", newTripBtn: "Nouveau trajet",
+          restartRequiredTitle: "Redémarrage requis",
+          restartRequiredBody: "Le suivi a démarré sans GPS en arrière-plan et s'est arrêté suite au verrouillage ou à une autre app. Refaites les étapes d'autorisation.",
+          restartFlowBtn: "Recommencer"
+        },
+        es: {
+          gpsOffTitle: "El GPS está desactivado", gpsOffBody: "Activa la ubicación (GPS) en los ajustes del dispositivo para recibir avisos antes de la parada.",
+          fgPermTitle: "Ubicación en uso de la app", fgPermBody: "Se necesita permiso de ubicación mientras usas la app para calcular la distancia al destino.",
+          bgPermTitle: "Acceso GPS en segundo plano", bgPermBody: "Si te duermes o cambias de app en el trayecto, el GPS en segundo plano ayuda a avisarte a tiempo.",
+          allowBtn: "Permitir", cancelBtn: "Cancelar", cancelWarnTitle: "¿Seguro que quieres cancelar?",
+          cancelWarnBody: "Sin GPS en segundo plano, el seguimiento puede detenerse al bloquear la pantalla o cambiar de app.",
+          yesSureBtn: "Sí, seguro", noNotSureBtn: "No estoy seguro",
+          readyBlinkHint: "Permisos listos. ¡Pulsa el botón parpadeante «Iniciar seguimiento»!",
+          stopConfirmTitle: "¿Seguro que quieres detenerlo?", stopConfirmBody: "Detener ahora desactiva la alarma antes de la parada.",
+          confirmStopYes: "Sí, detener", confirmStopNo: "Cancelar",
+          stallWatchTitle: "Control de parada prolongada", stallWatchBody: "Parece que el vehículo lleva un rato detenido. Comprueba o continúa el seguimiento.",
+          stallContinueBtn: "Continuar seguimiento", stallStopBtn: "Detener seguimiento",
+          arrivedTitle: "¡Has llegado!", arrivedBody: "Llegaste a tu destino configurado.", arrivedOkBtn: "Aceptar",
+          arrivedChoiceBody: "¿Qué quieres hacer ahora?", disableTrackingBtn: "Desactivar seguimiento", newTripBtn: "Elegir nuevo viaje",
+          restartRequiredTitle: "Reinicio necesario",
+          restartRequiredBody: "El seguimiento inició sin GPS en segundo plano y se detuvo por bloqueo de pantalla u otra app. Repite los pasos de permisos.",
+          restartFlowBtn: "Reiniciar"
+        },
+        de: {
+          gpsOffTitle: "GPS ist deaktiviert", gpsOffBody: "Aktiviere den Standort (GPS) in den Geräteeinstellungen für Warnungen vor dem Halt.",
+          fgPermTitle: "Standortzugriff bei Nutzung", fgPermBody: "Standortberechtigung während der App-Nutzung wird für die Entfernungsprüfung benötigt.",
+          bgPermTitle: "GPS-Zugriff im Hintergrund", bgPermBody: "Falls du einschläfst oder die App wechselst, weckt dich Hintergrund-GPS rechtzeitig.",
+          allowBtn: "Erlauben", cancelBtn: "Abbrechen", cancelWarnTitle: "Wirklich abbrechen?",
+          cancelWarnBody: "Ohne Hintergrund-GPS kann die Überwachung beim Sperren oder App-Wechsel stoppen und du verpasst den Halt.",
+          yesSureBtn: "Ja, sicher", noNotSureBtn: "Nicht sicher",
+          readyBlinkHint: "Berechtigungen bereit. Tippe auf den blinkenden Button „Überwachung starten“!",
+          stopConfirmTitle: "Wirklich stoppen?", stopConfirmBody: "Beim Stoppen wird der Wecker vor dem Halt deaktiviert.",
+          confirmStopYes: "Ja, stoppen", confirmStopNo: "Abbrechen",
+          stallWatchTitle: "Halt-Überwachung", stallWatchBody: "Das Fahrzeug scheint länger zu stehen. Prüfe die Lage oder setze die Überwachung fort.",
+          stallContinueBtn: "Überwachung fortsetzen", stallStopBtn: "Überwachung stoppen",
+          arrivedTitle: "Angekommen!", arrivedBody: "Du hast dein Ziel erreicht.", arrivedOkBtn: "OK",
+          arrivedChoiceBody: "Was möchtest du als Nächstes tun?", disableTrackingBtn: "Tracking deaktivieren", newTripBtn: "Neue Fahrt wählen",
+          restartRequiredTitle: "Neustart erforderlich",
+          restartRequiredBody: "Überwachung startete ohne Hintergrund-GPS und stoppte durch Displaysperre oder andere App. Bitte Berechtigungen erneut durchlaufen.",
+          restartFlowBtn: "Neu starten"
+        },
+        zh: {
+          gpsOffTitle: "GPS 已关闭", gpsOffBody: "请在设备设置中开启定位（GPS），以便在到站前提醒。",
+          fgPermTitle: "使用应用时获取位置", fgPermBody: "需要应用使用期间的位置权限来追踪到目的地的距离。",
+          bgPermTitle: "后台 GPS 访问", bgPermBody: "如果旅途中睡着或切换应用，后台 GPS 有助于及时提醒你。",
+          allowBtn: "允许", cancelBtn: "取消", cancelWarnTitle: "确定要取消吗？",
+          cancelWarnBody: "没有后台 GPS 权限，锁屏或切换应用时监控可能停止，导致错过站点。",
+          yesSureBtn: "是的，确定", noNotSureBtn: "不确定",
+          readyBlinkHint: "权限已就绪。请点击闪烁的“开始监控”按钮！",
+          stopConfirmTitle: "确定要停止吗？", stopConfirmBody: "现在停止将关闭到站前闹钟。",
+          confirmStopYes: "是的，停止", confirmStopNo: "取消",
+          stallWatchTitle: "停车监控", stallWatchBody: "车辆似乎已长时间停留。请检查情况或继续监控。",
+          stallContinueBtn: "继续监控", stallStopBtn: "停止监控",
+          arrivedTitle: "已到达！", arrivedBody: "你已到达设定的目的地。", arrivedOkBtn: "确定",
+          arrivedChoiceBody: "接下来想怎么做？", disableTrackingBtn: "关闭追踪", newTripBtn: "选择新行程",
+          restartRequiredTitle: "需要重新开始",
+          restartRequiredBody: "监控在无后台 GPS 权限下启动，并因锁屏或其他应用而停止。请重新完成权限步骤。",
+          restartFlowBtn: "重新开始"
+        },
+        ja: {
+          gpsOffTitle: "GPSがオフです", gpsOffBody: "降車前アラームのために端末の設定で位置情報（GPS）をオンにしてください。",
+          fgPermTitle: "アプリ使用中の位置情報", fgPermBody: "目的地までの距離を追跡するには、使用中の位置情報許可が必要です。",
+          bgPermTitle: "バックグラウンドGPS", bgPermBody: "移動中に眠ったり別アプリへ切り替えても、バックグラウンドGPSで時間通りにお知らせします。",
+          allowBtn: "許可", cancelBtn: "キャンセル", cancelWarnTitle: "本当にキャンセルしますか？",
+          cancelWarnBody: "バックグラウンドGPSがないと、画面ロックやアプリ切替で監視が止まり乗り過ごす恐れがあります。",
+          yesSureBtn: "はい、確かです", noNotSureBtn: "自信がありません",
+          readyBlinkHint: "許可が完了しました。点滅している「監視を開始」を押してください！",
+          stopConfirmTitle: "本当に停止しますか？", stopConfirmBody: "停止すると降車前アラームがオフになります。",
+          confirmStopYes: "はい、停止", confirmStopNo: "キャンセル",
+          stallWatchTitle: "停車モニター", stallWatchBody: "車両がしばらく停止しているようです。確認するか監視を続けてください。",
+          stallContinueBtn: "監視を続ける", stallStopBtn: "監視を停止",
+          arrivedTitle: "到着しました！", arrivedBody: "設定した目的地に到着しました。", arrivedOkBtn: "OK",
+          arrivedChoiceBody: "次はどうしますか？", disableTrackingBtn: "追跡をオフ", newTripBtn: "新しい移動を選ぶ",
+          restartRequiredTitle: "やり直しが必要です",
+          restartRequiredBody: "バックグラウンドGPSなしで開始した監視が画面ロックや他アプリで停止しました。許可手順をやり直してください。",
+          restartFlowBtn: "やり直す"
+        },
+        ko: {
+          gpsOffTitle: "GPS가 꺼져 있습니다", gpsOffBody: "정류장 전 알림을 위해 기기 설정에서 위치(GPS)를 켜고 다시 시도하세요.",
+          fgPermTitle: "앱 사용 중 위치 접근", fgPermBody: "목적지까지의 거리를 추적하려면 앱 사용 중 위치 권한이 필요합니다.",
+          bgPermTitle: "백그라운드 GPS 접근", bgPermBody: "이동 중 잠들거나 다른 앱으로 전환해도 백그라운드 GPS가 제때 알려줍니다.",
+          allowBtn: "허용", cancelBtn: "취소", cancelWarnTitle: "정말 취소하시겠습니까?",
+          cancelWarnBody: "백그라운드 GPS 권한이 없으면 화면 잠금이나 앱 전환 시 감시가 멈춰 내릴 곳을 놓칠 수 있습니다.",
+          yesSureBtn: "네, 확실합니다", noNotSureBtn: "잘 모르겠습니다",
+          readyBlinkHint: "권한이 준비되었습니다. 깜빡이는 '감시 시작' 버튼을 누르세요!",
+          stopConfirmTitle: "정말 중지하시겠습니까?", stopConfirmBody: "지금 중지하면 정류장 전 알람이 꺼집니다.",
+          confirmStopYes: "네, 중지", confirmStopNo: "취소",
+          stallWatchTitle: "정차 모니터링", stallWatchBody: "차량이 한동안 멈춰 있는 것 같습니다. 확인하거나 감시를 계속하세요.",
+          stallContinueBtn: "감시 계속", stallStopBtn: "감시 중지",
+          arrivedTitle: "도착했습니다!", arrivedBody: "설정한 목적지에 도착했습니다.", arrivedOkBtn: "확인",
+          arrivedChoiceBody: "다음에 무엇을 하시겠습니까?", disableTrackingBtn: "추적 끄기", newTripBtn: "새 이동 선택",
+          restartRequiredTitle: "다시 시작해야 합니다",
+          restartRequiredBody: "백그라운드 GPS 권한 없이 시작한 감시가 화면 잠금이나 다른 앱 때문에 중지되었습니다. 권한 단계를 다시 진행하세요.",
+          restartFlowBtn: "다시 시작"
+        },
+        it: {
+          gpsOffTitle: "GPS disattivato", gpsOffBody: "Attiva la posizione (GPS) nelle impostazioni del dispositivo per l'avviso prima della fermata.",
+          fgPermTitle: "Posizione durante l'uso", fgPermBody: "Serve il permesso di posizione durante l'uso dell'app per monitorare la distanza.",
+          bgPermTitle: "GPS in background", bgPermBody: "Se ti addormenti o cambi app durante il viaggio, il GPS in background ti avvisa in tempo.",
+          allowBtn: "Consenti", cancelBtn: "Annulla", cancelWarnTitle: "Sei sicuro di voler annullare?",
+          cancelWarnBody: "Senza GPS in background il controllo può fermarsi al blocco schermo o cambiando app e far saltare la fermata.",
+          yesSureBtn: "Sì, sicuro", noNotSureBtn: "Non sicuro",
+          readyBlinkHint: "Permessi pronti. Tocca il pulsante lampeggiante 'Avvia controllo'!",
+          stopConfirmTitle: "Sei sicuro di voler fermare?", stopConfirmBody: "Fermando ora disattivi la sveglia prima della fermata.",
+          confirmStopYes: "Sì, ferma", confirmStopNo: "Annulla",
+          stallWatchTitle: "Monitoraggio sosta", stallWatchBody: "Il veicolo sembra fermo da un po'. Controlla o continua il monitoraggio.",
+          stallContinueBtn: "Continua controllo", stallStopBtn: "Ferma controllo",
+          arrivedTitle: "Sei arrivato!", arrivedBody: "Hai raggiunto la destinazione impostata.", arrivedOkBtn: "OK",
+          arrivedChoiceBody: "Cosa vuoi fare ora?", disableTrackingBtn: "Disattiva tracciamento", newTripBtn: "Nuovo viaggio",
+          restartRequiredTitle: "Riavvio necessario",
+          restartRequiredBody: "Il controllo è partito senza GPS in background ed è stato fermato da blocco schermo o altra app. Ripeti i passaggi dei permessi.",
+          restartFlowBtn: "Ricomincia"
+        },
+        pt: {
+          gpsOffTitle: "GPS desligado", gpsOffBody: "Ative a localização (GPS) nas definições do dispositivo para alertas antes da paragem.",
+          fgPermTitle: "Localização durante a utilização", fgPermBody: "É necessária permissão de localização durante o uso para acompanhar a distância.",
+          bgPermTitle: "GPS em segundo plano", bgPermBody: "Se adormecer ou mudar de app na viagem, o GPS em segundo plano ajuda a avisar a tempo.",
+          allowBtn: "Permitir", cancelBtn: "Cancelar", cancelWarnTitle: "Tem a certeza de que quer cancelar?",
+          cancelWarnBody: "Sem GPS em segundo plano, a vigilância pode parar ao bloquear o ecrã ou mudar de app.",
+          yesSureBtn: "Sim, tenho certeza", noNotSureBtn: "Não tenho certeza",
+          readyBlinkHint: "Permissões prontas. Toque no botão intermitente 'Iniciar vigilância'!",
+          stopConfirmTitle: "Tem a certeza de que quer parar?", stopConfirmBody: "Parar agora desativa o alarme antes da paragem.",
+          confirmStopYes: "Sim, parar", confirmStopNo: "Cancelar",
+          stallWatchTitle: "Monitor de paragem", stallWatchBody: "O veículo parece parado há algum tempo. Verifique ou continue a vigilância.",
+          stallContinueBtn: "Continuar vigilância", stallStopBtn: "Parar vigilância",
+          arrivedTitle: "Chegou!", arrivedBody: "Chegou ao destino definido.", arrivedOkBtn: "OK",
+          arrivedChoiceBody: "O que pretende fazer agora?", disableTrackingBtn: "Desativar seguimento", newTripBtn: "Nova viagem",
+          restartRequiredTitle: "Reinício necessário",
+          restartRequiredBody: "A vigilância iniciou sem GPS em segundo plano e parou por bloqueio de ecrã ou outra app. Repita os passos de permissão.",
+          restartFlowBtn: "Recomeçar"
+        },
+        uk: {
+          gpsOffTitle: "GPS вимкнено", gpsOffBody: "Увімкніть геолокацію (GPS) у налаштуваннях пристрою для сповіщення перед зупинкою.",
+          fgPermTitle: "Доступ до геопозиції під час використання", fgPermBody: "Дозвіл на місцезнаходження під час роботи додатка потрібен для відстеження відстані.",
+          bgPermTitle: "Фоновий доступ до GPS", bgPermBody: "Якщо ви заснете або перемкнетеся на інший додаток у дорозі, фоновий GPS розбудить вчасно.",
+          allowBtn: "Дозволити", cancelBtn: "Скасувати", cancelWarnTitle: "Ви впевнені, що хочете скасувати?",
+          cancelWarnBody: "Без фонового GPS стеження може зупинитися при блокуванні екрана або зміні додатка.",
+          yesSureBtn: "Так, упевнений", noNotSureBtn: "Не впевнений",
+          readyBlinkHint: "Дозволи готові. Натисніть миготливу кнопку «Почати стеження»!",
+          stopConfirmTitle: "Ви впевнені, що хочете зупинити?", stopConfirmBody: "Зупинка вимкне будильник перед зупинкою.",
+          confirmStopYes: "Так, зупинити", confirmStopNo: "Скасувати",
+          stallWatchTitle: "Контроль зупинки", stallWatchBody: "Схоже, транспорт довго стоїть на місці. Перевірте або продовжте стеження.",
+          stallContinueBtn: "Продовжити стеження", stallStopBtn: "Зупинити стеження",
+          arrivedTitle: "Ви прибули!", arrivedBody: "Ви досягли обраного місця.", arrivedOkBtn: "ОК",
+          arrivedChoiceBody: "Що робити далі?", disableTrackingBtn: "Вимкнути стеження", newTripBtn: "Обрати нову поїздку",
+          restartRequiredTitle: "Потрібен перезапуск",
+          restartRequiredBody: "Стеження запускалося без фонового GPS і зупинилося через блокування екрана або інший додаток. Пройдіть кроки дозволів заново.",
+          restartFlowBtn: "Почати заново"
+        },
+        pl: {
+          gpsOffTitle: "GPS jest wyłączony", gpsOffBody: "Włącz lokalizację (GPS) w ustawieniach urządzenia, aby otrzymywać alerty przed przystankiem.",
+          fgPermTitle: "Lokalizacja podczas korzystania", fgPermBody: "Uprawnienie do lokalizacji podczas używania aplikacji jest potrzebne do śledzenia dystansu.",
+          bgPermTitle: "Dostęp GPS w tle", bgPermBody: "Jeśli zaśniesz lub przełączysz aplikację w trasie, GPS w tle obudzi Cię na czas.",
+          allowBtn: "Zezwól", cancelBtn: "Anuluj", cancelWarnTitle: "Na pewno chcesz anulować?",
+          cancelWarnBody: "Bez GPS w tle śledzenie może zatrzymać się po zablokowaniu ekranu lub zmianie aplikacji.",
+          yesSureBtn: "Tak, na pewno", noNotSureBtn: "Nie jestem pewien",
+          readyBlinkHint: "Uprawnienia gotowe. Naciśnij migający przycisk „Rozpocznij śledzenie”!",
+          stopConfirmTitle: "Na pewno chcesz zatrzymać?", stopConfirmBody: "Zatrzymanie teraz wyłączy alarm przed przystankiem.",
+          confirmStopYes: "Tak, zatrzymaj", confirmStopNo: "Anuluj",
+          stallWatchTitle: "Monitor postoju", stallWatchBody: "Pojazd wygląda na zatrzymany dłużej w jednym miejscu. Sprawdź lub kontynuuj śledzenie.",
+          stallContinueBtn: "Kontynuuj śledzenie", stallStopBtn: "Zatrzymaj śledzenie",
+          arrivedTitle: "Dotarłeś!", arrivedBody: "Osiągnięto ustawiony cel.", arrivedOkBtn: "OK",
+          arrivedChoiceBody: "Co chcesz teraz zrobić?", disableTrackingBtn: "Wyłącz śledzenie", newTripBtn: "Wybierz nową podróż",
+          restartRequiredTitle: "Wymagany ponowny start",
+          restartRequiredBody: "Śledzenie ruszyło bez GPS w tle i zatrzymało się przez blokadę ekranu lub inną aplikację. Przejdź kroki uprawnień ponownie.",
+          restartFlowBtn: "Zacznij od nowa"
+        },
+        tr: {
+          gpsOffTitle: "GPS kapalı", gpsOffBody: "Durak öncesi uyarılar için cihaz ayarlarından konumu (GPS) açıp tekrar deneyin.",
+          fgPermTitle: "Uygulama kullanılırken konum erişimi", fgPermBody: "Hedefe olan mesafeyi izlemek için kullanım sırasında konum izni gerekir.",
+          bgPermTitle: "Arka planda GPS erişimi", bgPermBody: "Yolda uyursanız veya başka uygulamaya geçerseniz arka plan GPS zamanında uyarır.",
+          allowBtn: "İzin ver", cancelBtn: "İptal", cancelWarnTitle: "İptal etmek istediğinizden emin misiniz?",
+          cancelWarnBody: "Arka plan GPS olmadan ekran kilitlendiğinde veya uygulama değiştiğinde takip durabilir.",
+          yesSureBtn: "Evet, eminim", noNotSureBtn: "Emin değilim",
+          readyBlinkHint: "İzinler hazır. Yanıp sönen 'Takibi başlat' düğmesine basın!",
+          stopConfirmTitle: "Durdurmak istediğinizden emin misiniz?", stopConfirmBody: "Şimdi durdurmak durak öncesi alarmı kapatır.",
+          confirmStopYes: "Evet, durdur", confirmStopNo: "İptal",
+          stallWatchTitle: "Duraklama izleme", stallWatchBody: "Araç bir süredir aynı yerde duruyor gibi görünüyor. Kontrol edin veya takibe devam edin.",
+          stallContinueBtn: "Takibe devam et", stallStopBtn: "Takibi durdur",
+          arrivedTitle: "Vardınız!", arrivedBody: "Ayarlanan hedefe ulaştınız.", arrivedOkBtn: "Tamam",
+          arrivedChoiceBody: "Şimdi ne yapmak istersiniz?", disableTrackingBtn: "Takibi kapat", newTripBtn: "Yeni yolculuk seç",
+          restartRequiredTitle: "Yeniden başlatma gerekli",
+          restartRequiredBody: "Takip arka plan GPS izni olmadan başladı ve ekran kilidi veya başka uygulama yüzünden durdu. İzin adımlarını yeniden yapın.",
+          restartFlowBtn: "Yeniden başla"
+        },
+        hi: {
+          gpsOffTitle: "GPS बंद है", gpsOffBody: "स्टॉप से पहले अलर्ट के लिए डिवाइस सेटिंग में लोकेशन (GPS) चालू करें और पुनः प्रयास करें।",
+          fgPermTitle: "ऐप उपयोग करते समय लोकेशन", fgPermBody: "गंतव्य की दूरी ट्रैक करने के लिए ऐप उपयोग के दौरान लोकेशन अनुमति आवश्यक है।",
+          bgPermTitle: "बैकग्राउंड GPS एक्सेस", bgPermBody: "यात्रा में नींद आ जाए या ऐप बदलें, तो बैकग्राउंड GPS समय पर जगाने में मदद करता है।",
+          allowBtn: "अनुमति दें", cancelBtn: "रद्द करें", cancelWarnTitle: "क्या आप वाकई रद्द करना चाहते हैं?",
+          cancelWarnBody: "बैकग्राउंड GPS के बिना स्क्रीन लॉक या ऐप बदलने पर निगरानी रुक सकती है।",
+          yesSureBtn: "हाँ, पक्का", noNotSureBtn: "पक्का नहीं",
+          readyBlinkHint: "अनुमतियां तैयार हैं। चमकते हुए 'निगरानी शुरू करें' बटन को दबाएं!",
+          stopConfirmTitle: "क्या आप वाकई रोकना चाहते हैं?", stopConfirmBody: "अभी रोकने से स्टॉप से पहले का अलार्म बंद हो जाएगा।",
+          confirmStopYes: "हाँ, रोकें", confirmStopNo: "रद्द करें",
+          stallWatchTitle: "रुकावट निगरानी", stallWatchBody: "वाहन काफी देर से एक जगह रुका लग रहा है। जांचें या निगरानी जारी रखें।",
+          stallContinueBtn: "निगरानी जारी रखें", stallStopBtn: "निगरानी रोकें",
+          arrivedTitle: "आप पहुँच गए!", arrivedBody: "आप अपने निर्धारित गंतव्य पर पहुँच गए हैं।", arrivedOkBtn: "ठीक है",
+          arrivedChoiceBody: "आगे क्या करना चाहते हैं?", disableTrackingBtn: "ट्रैकिंग बंद करें", newTripBtn: "नई यात्रा चुनें",
+          restartRequiredTitle: "फिर से शुरू करना आवश्यक है",
+          restartRequiredBody: "निगरानी बैकग्राउंड GPS अनुमति के बिना शुरू हुई और स्क्रीन लॉक या अन्य ऐप से रुक गई। कृपया अनुमति चरण दोबारा करें।",
+          restartFlowBtn: "फिर शुरू करें"
+        },
+        sw: {
+          gpsOffTitle: "GPS imezimwa", gpsOffBody: "Washa mahali (GPS) kwenye mipangilio ya kifaa kwa arifa kabla ya kituo.",
+          fgPermTitle: "Ufikiaji mahali unapotumia app", fgPermBody: "Ruhusa ya mahali unapotumia app inahitajika kufuatilia umbali wa lengo.",
+          bgPermTitle: "GPS chinichini", bgPermBody: "Ukilala au kubadili app safarini, GPS ya chinichini husaidia kukuamsha kwa wakati.",
+          allowBtn: "Ruhusu", cancelBtn: "Ghairi", cancelWarnTitle: "Una uhakika unataka kughairi?",
+          cancelWarnBody: "Bila GPS ya chinichini, ufuatiliaji unaweza kusimama skrini ikifungwa au ukibadili app.",
+          yesSureBtn: "Ndiyo, nina uhakika", noNotSureBtn: "Sina uhakika",
+          readyBlinkHint: "Ruhusa ziko tayari. Bonyeza kitufe kinachomulika 'Anza kufuatilia'!",
+          stopConfirmTitle: "Una uhakika unataka kusimamisha?", stopConfirmBody: "Kusimamisha sasa huzima kengele kabla ya kituo.",
+          confirmStopYes: "Ndiyo, simamisha", confirmStopNo: "Ghairi",
+          stallWatchTitle: "Ufuatiliaji wa kusimama", stallWatchBody: "Inaonekana chombo kimesimama kwa muda. Angalia au endelea kufuatilia.",
+          stallContinueBtn: "Endelea kufuatilia", stallStopBtn: "Simamisha ufuatiliaji",
+          arrivedTitle: "Umefika!", arrivedBody: "Umefika kwenye lengo uliloweka.", arrivedOkBtn: "Sawa",
+          arrivedChoiceBody: "Ungependa kufanya nini sasa?", disableTrackingBtn: "Zima ufuatiliaji", newTripBtn: "Chagua safari mpya",
+          restartRequiredTitle: "Kuanza upya kunahitajika",
+          restartRequiredBody: "Ufuatiliaji ulianza bila GPS ya chinichini na ukasimama kwa kufunga skrini au app nyingine. Rudia hatua za ruhusa.",
+          restartFlowBtn: "Anza upya"
+        }
+      };
+
+      Object.keys(EXTRA_LANG_KEYS).forEach(code => {
+        if (TRANSLATIONS[code]) {
+          TRANSLATIONS[code] = { ...TRANSLATIONS[code], ...EXTRA_LANG_KEYS[code] };
+        }
+      });
+
       const SOUNDS = [
-        { id: "roman_horn" },
-        { id: "clock_bell" },
-        { id: "ship_horn" },
-        { id: "train_whistle" },
-        { id: "sonar_ping" },
-        { id: "fire_alarm" },
-        { id: "bronze_gong" },
-        { id: "bugle_call" },
-        { id: "church_bell" },
-        { id: "morse_sos" },
-        { id: "digital_pulse" }
+        { id: "roman_horn" }, { id: "clock_bell" }, { id: "ship_horn" },
+        { id: "train_whistle" }, { id: "sonar_ping" }, { id: "fire_alarm" },
+        { id: "bronze_gong" }, { id: "bugle_call" }, { id: "church_bell" },
+        { id: "morse_sos" }, { id: "digital_pulse" }
       ];
 
       let currentLang = "hu";
@@ -2231,18 +1047,8 @@
         const fbList = (TRANSLATIONS.en && TRANSLATIONS.en.defaultPlaces) || [];
         return curList[idx] || fbList[idx] || `${idx + 1}`;
       }
-
-      function makeDefaultPlaces() {
-        return Array.from({ length: 10 }, (_, idx) => ({
-          name: getDefaultPlaceName(idx),
-          isDefaultName: true,
-          lat: null,
-          lng: null
-        }));
-      }
-
       let state = {
-        places: makeDefaultPlaces(),
+        places: [],
         selectedIndex: 0,
         thresholdMeters: 1000,
         soundId: "roman_horn",
@@ -2267,6 +1073,13 @@
 
       let leafletMap = null;
       let leafletMarker = null;
+
+      let bgPermissionGranted = false;
+      let pendingStartAfterPermissions = false;
+      let stopConfirmResolver = null;
+      let stallCheckTimer = null;
+      let lastMotionCheck = null;
+      let arrivedShown = false;
 
       const destinationsGrid = document.getElementById("destinationsGrid");
       const thresholdSelect = document.getElementById("thresholdSelect");
@@ -2315,6 +1128,12 @@
       const savePlaceBtn = document.getElementById("savePlaceBtn");
       const cancelEditBtn = document.getElementById("cancelEditBtn");
 
+      const flowModal = document.getElementById("flowModal");
+      const flowBadge = document.getElementById("flowBadge");
+      const flowModalTitle = document.getElementById("flowModalTitle");
+      const flowModalBody = document.getElementById("flowModalBody");
+      const flowActions = document.getElementById("flowActions");
+
       const alarmOverlay = document.getElementById("alarmOverlay");
       const alarmHeading = document.getElementById("alarmHeading");
       const alarmSub = document.getElementById("alarmSub");
@@ -2324,7 +1143,17 @@
       const dismissForeverBtn = document.getElementById("dismissForeverBtn");
       const alarmFooterNote = document.getElementById("alarmFooterNote");
 
+      function makeDefaultPlaces() {
+        return Array.from({ length: 10 }, (_, idx) => ({
+          name: getDefaultPlaceName(idx),
+          isDefaultName: true,
+          lat: null,
+          lng: null
+        }));
+      }
+
       function loadState() {
+        state.places = makeDefaultPlaces();
         try {
           const savedLang = localStorage.getItem(LANG_STORAGE_KEY);
           if (savedLang && LANGUAGES.some(l => l.code === savedLang)) {
@@ -2361,6 +1190,33 @@
         } catch (err) {
           console.warn("State save error:", err);
         }
+      }
+
+      function setReadyBlink(enabled) {
+        toggleWatchBtn.classList.toggle("ready-blink", Boolean(enabled));
+      }
+
+      function openFlowPanel({ badge = "📍", title = "", body = "", buttons = [] }) {
+        flowBadge.innerHTML = badge;
+        flowModalTitle.textContent = title;
+        flowModalBody.textContent = body;
+        flowActions.innerHTML = "";
+        buttons.forEach(b => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "action-btn " + (b.className || "");
+          btn.textContent = b.label;
+          btn.addEventListener("click", () => {
+            if (b.close !== false) closeFlowPanel();
+            if (typeof b.onClick === "function") b.onClick();
+          });
+          flowActions.appendChild(btn);
+        });
+        flowModal.classList.add("open");
+      }
+
+      function closeFlowPanel() {
+        flowModal.classList.remove("open");
       }
 
       function syncGlassPolarityLabel() {
@@ -2693,7 +1549,51 @@
         }
       }
 
-      function startAlarm(messageSub = "") {
+      function showArrivedBanner(distMeters = null) {
+        if (arrivedShown) return;
+        arrivedShown = true;
+        const place = state.places[state.selectedIndex] || state.places[0];
+        const detailDist = typeof distMeters === "number" ? ` (${Math.round(distMeters)} m)` : "";
+        openFlowPanel({
+          badge: `<span class="flag-wave">🏁</span>`,
+          title: t("arrivedTitle"),
+          body: `${place.name}${detailDist} • ${t("arrivedBody")}`,
+          buttons: [
+            {
+              label: t("arrivedOkBtn"),
+              className: "primary",
+              onClick: () => {
+                openFlowPanel({
+                  badge: "🧭",
+                  title: t("arrivedTitle"),
+                  body: t("arrivedChoiceBody"),
+                  buttons: [
+                    {
+                      label: t("disableTrackingBtn"),
+                      className: "danger",
+                      onClick: () => {
+                        arrivedShown = false;
+                        stopWatching(true);
+                      }
+                    },
+                    {
+                      label: t("newTripBtn"),
+                      className: "primary",
+                      onClick: () => {
+                        arrivedShown = false;
+                        stopWatching(true);
+                        openEditModal(state.selectedIndex);
+                      }
+                    }
+                  ]
+                });
+              }
+            }
+          ]
+        });
+      }
+
+      function startAlarm(messageSub = "", isArrival = false) {
         alarmActive = true;
         snoozeRemaining = 0;
         if (snoozeInterval) {
@@ -2706,6 +1606,7 @@
         snoozeGiantBtn.disabled = false;
         snoozeCountdownText.textContent = t("snoozeTap");
         alarmOverlay.classList.add("active");
+        alarmOverlay.dataset.isArrival = isArrival ? "1" : "0";
 
         if (navigator.vibrate) {
           navigator.vibrate([500, 250, 500, 250, 800]);
@@ -2751,6 +1652,7 @@
       }
 
       function dismissAlarmForever() {
+        const wasArrival = alarmOverlay.dataset.isArrival === "1";
         alarmActive = false;
         snoozeRemaining = 0;
         if (snoozeInterval) {
@@ -2759,11 +1661,49 @@
         }
         stopAllSounds();
         alarmOverlay.classList.remove("active");
-        stopWatching();
-        updateStatus();
+        stopWatching(true);
+        if (wasArrival) {
+          showArrivedBanner();
+        }
       }
 
-      function startWatching() {
+      function startStallMonitor() {
+        if (stallCheckTimer) clearInterval(stallCheckTimer);
+        lastMotionCheck = { lat: null, lng: null, stationaryMs: 0 };
+        stallCheckTimer = setInterval(() => {
+          if (!watching || alarmActive || !lastMotionCheck) return;
+          if (lastMotionCheck.stationaryMs >= 180000) {
+            lastMotionCheck.stationaryMs = 0;
+            openFlowPanel({
+              badge: "🛑",
+              title: t("stallWatchTitle"),
+              body: t("stallWatchBody"),
+              buttons: [
+                {
+                  label: t("stallContinueBtn"),
+                  className: "primary",
+                  onClick: () => updateStatus(t("watchingActive"))
+                },
+                {
+                  label: t("stallStopBtn"),
+                  className: "danger",
+                  onClick: () => stopWatching(true)
+                }
+              ]
+            });
+          }
+        }, 15000);
+      }
+
+      function stopStallMonitor() {
+        if (stallCheckTimer) {
+          clearInterval(stallCheckTimer);
+          stallCheckTimer = null;
+        }
+        lastMotionCheck = null;
+      }
+
+      function beginGpsWatchNow() {
         const place = state.places[state.selectedIndex];
         if (!place || typeof place.lat !== "number" || typeof place.lng !== "number") {
           updateStatus(t("noCoordsYet"));
@@ -2772,18 +1712,39 @@
         if (!navigator.geolocation) return;
 
         ensureAudioContext();
+        setReadyBlink(false);
+        arrivedShown = false;
         watching = true;
         toggleWatchBtn.style.display = "none";
         stopWatchBtn.style.display = "inline-flex";
         updateStatus(t("watchingActive"));
+        startStallMonitor();
 
         watchId = navigator.geolocation.watchPosition(
           pos => {
             if (!watching || alarmActive) return;
-            const dist = haversineMeters(pos.coords.latitude, pos.coords.longitude, place.lat, place.lng);
+            const curLat = pos.coords.latitude;
+            const curLng = pos.coords.longitude;
+
+            if (lastMotionCheck) {
+              if (typeof lastMotionCheck.lat === "number" && typeof lastMotionCheck.lng === "number") {
+                const moved = haversineMeters(lastMotionCheck.lat, lastMotionCheck.lng, curLat, curLng);
+                if (moved < 25) {
+                  lastMotionCheck.stationaryMs += 3000;
+                } else {
+                  lastMotionCheck.stationaryMs = 0;
+                }
+              }
+              lastMotionCheck.lat = curLat;
+              lastMotionCheck.lng = curLng;
+            }
+
+            const dist = haversineMeters(curLat, curLng, place.lat, place.lng);
             updateStatus(`${place.name}: ${Math.round(dist)} m`);
-            if (dist <= state.thresholdMeters) {
-              startAlarm(`${place.name}: ${Math.round(dist)} m`);
+            if (dist <= 35) {
+              startAlarm(`${place.name}: ${Math.round(dist)} m`, true);
+            } else if (dist <= state.thresholdMeters) {
+              startAlarm(`${place.name}: ${Math.round(dist)} m`, false);
             }
           },
           err => {
@@ -2793,16 +1754,178 @@
         );
       }
 
-      function stopWatching() {
-        watching = false;
-        if (watchId !== null && navigator.geolocation) {
-          navigator.geolocation.clearWatch(watchId);
-          watchId = null;
-        }
-        toggleWatchBtn.style.display = "inline-flex";
-        stopWatchBtn.style.display = "none";
-        updateStatus();
+      function showCancelWarningPanel(onSureCancel, onNotSure) {
+        openFlowPanel({
+          badge: "⚠️",
+          title: t("cancelWarnTitle"),
+          body: t("cancelWarnBody"),
+          buttons: [
+            { label: t("yesSureBtn"), className: "danger", onClick: onSureCancel },
+            { label: t("noNotSureBtn"), className: "primary", onClick: onNotSure }
+          ]
+        });
       }
+
+      function promptBackgroundPermission() {
+        openFlowPanel({
+          badge: "🌙",
+          title: t("bgPermTitle"),
+          body: t("bgPermBody"),
+          buttons: [
+            {
+              label: t("allowBtn"),
+              className: "primary",
+              onClick: () => {
+                bgPermissionGranted = true;
+                pendingStartAfterPermissions = false;
+                setReadyBlink(true);
+                updateStatus(t("readyBlinkHint"));
+              }
+            },
+            {
+              label: t("cancelBtn"),
+              onClick: () => {
+                showCancelWarningPanel(
+                  () => {
+                    bgPermissionGranted = false;
+                    pendingStartAfterPermissions = false;
+                    setReadyBlink(true);
+                    updateStatus(t("readyBlinkHint"));
+                  },
+                  () => promptBackgroundPermission()
+                );
+              }
+            }
+          ]
+        });
+      }
+
+      function promptForegroundPermission() {
+        openFlowPanel({
+          badge: "🛰️",
+          title: t("fgPermTitle"),
+          body: t("fgPermBody"),
+          buttons: [
+            {
+              label: t("allowBtn"),
+              className: "primary",
+              onClick: () => {
+                if (!navigator.geolocation) {
+                  setReadyBlink(true);
+                  updateStatus(t("readyBlinkHint"));
+                  return;
+                }
+                navigator.geolocation.getCurrentPosition(
+                  () => promptBackgroundPermission(),
+                  err => {
+                    if (err && err.code === 2) {
+                      openFlowPanel({
+                        badge: "📡",
+                        title: t("gpsOffTitle"),
+                        body: t("gpsOffBody"),
+                        buttons: [{ label: t("arrivedOkBtn"), className: "primary" }]
+                      });
+                    } else {
+                      promptBackgroundPermission();
+                    }
+                  },
+                  { enableHighAccuracy: true, timeout: 8000 }
+                );
+              }
+            },
+            {
+              label: t("cancelBtn"),
+              onClick: () => {
+                showCancelWarningPanel(
+                  () => {
+                    bgPermissionGranted = false;
+                    pendingStartAfterPermissions = false;
+                    setReadyBlink(true);
+                    updateStatus(t("readyBlinkHint"));
+                  },
+                  () => promptForegroundPermission()
+                );
+              }
+            }
+          ]
+        });
+      }
+
+      function requestStartWatchingFlow() {
+        const place = state.places[state.selectedIndex];
+        if (!place || typeof place.lat !== "number" || typeof place.lng !== "number") {
+          updateStatus(t("noCoordsYet"));
+          return;
+        }
+        if (toggleWatchBtn.classList.contains("ready-blink")) {
+          beginGpsWatchNow();
+          return;
+        }
+        pendingStartAfterPermissions = true;
+        promptForegroundPermission();
+      }
+
+      function stopWatching(skipConfirm = false) {
+        const performStop = () => {
+          watching = false;
+          stopStallMonitor();
+          setReadyBlink(false);
+          if (watchId !== null && navigator.geolocation) {
+            navigator.geolocation.clearWatch(watchId);
+            watchId = null;
+          }
+          toggleWatchBtn.style.display = "inline-flex";
+          stopWatchBtn.style.display = "none";
+          updateStatus();
+        };
+
+        if (skipConfirm || !watching) {
+          performStop();
+          return;
+        }
+
+        openFlowPanel({
+          badge: "⏹️",
+          title: t("stopConfirmTitle"),
+          body: t("stopConfirmBody"),
+          buttons: [
+            { label: t("confirmStopYes"), className: "danger", onClick: performStop },
+            { label: t("confirmStopNo"), className: "primary" }
+          ]
+        });
+      }
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden && watching && !bgPermissionGranted) {
+          watching = false;
+          stopStallMonitor();
+          setReadyBlink(false);
+          if (watchId !== null && navigator.geolocation) {
+            navigator.geolocation.clearWatch(watchId);
+            watchId = null;
+          }
+          toggleWatchBtn.style.display = "inline-flex";
+          stopWatchBtn.style.display = "none";
+          localStorage.setItem("stopway_bg_interrupted", "1");
+        } else if (!document.hidden && localStorage.getItem("stopway_bg_interrupted") === "1") {
+          localStorage.removeItem("stopway_bg_interrupted");
+          openFlowPanel({
+            badge: "🔄",
+            title: t("restartRequiredTitle"),
+            body: t("restartRequiredBody"),
+            buttons: [
+              {
+                label: t("restartFlowBtn"),
+                className: "primary",
+                onClick: () => {
+                  bgPermissionGranted = false;
+                  promptForegroundPermission();
+                }
+              }
+            ]
+          });
+        }
+      });
 
       function ensureLeafletMap(lat, lng) {
         if (typeof window.L === "undefined") return;
@@ -2984,11 +2107,11 @@
 
       triggerSimAlarmBtn.addEventListener("click", () => {
         ensureAudioContext();
-        startAlarm(`${simDistanceRange.value} m`);
+        startAlarm(`${simDistanceRange.value} m`, Number(simDistanceRange.value) <= 35);
       });
 
-      toggleWatchBtn.addEventListener("click", startWatching);
-      stopWatchBtn.addEventListener("click", stopWatching);
+      toggleWatchBtn.addEventListener("click", requestStartWatchingFlow);
+      stopWatchBtn.addEventListener("click", () => stopWatching(false));
       snoozeGiantBtn.addEventListener("click", snoozeFor20Seconds);
       dismissForeverBtn.addEventListener("click", dismissAlarmForever);
 
