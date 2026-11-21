@@ -4,2229 +4,1206 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>StopWay</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <style>
     :root {
-      --bg: #0f172a;
-      --surface: #1e293b;
-      --surface-2: #334155;
+      --bg-1: #0f172a;
+      --bg-2: #1e293b;
+      --surface: rgba(30, 41, 59, 0.78);
+      --surface-strong: rgba(15, 23, 42, 0.92);
       --text: #f8fafc;
       --muted: #94a3b8;
       --accent: #38bdf8;
-      --accent-text: #04131d;
+      --accent-2: #22c55e;
       --danger: #ef4444;
-      --snooze: #22c55e;
-      --snooze-text: #052e16;
-      --border: #475569;
-      --shadow: 0 10px 24px rgba(0,0,0,0.35);
-      --radius: 16px;
-      --font-main: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-      --font-display: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-      --btn-transform: none;
-      --btn-border-width: 1.5px;
-      --backdrop-blur: 0px;
-      --wallpaper-img: none;
-    }
-
-    body[data-theme="cartoon"] {
-      --bg: #fef08a; --surface: #ffffff; --surface-2: #fde047; --text: #111827; --muted: #374151;
-      --accent: #2563eb; --accent-text: #ffffff; --danger: #dc2626; --snooze: #16a34a; --snooze-text: #ffffff;
-      --border: #111827; --shadow: 5px 5px 0px #111827; --radius: 22px 10px 20px 12px;
-      --font-main: 'Trebuchet MS', 'Comic Sans MS', system-ui, sans-serif;
-      --font-display: 'Arial Black', Impact, 'Trebuchet MS', sans-serif;
-      --btn-transform: rotate(-0.8deg); --btn-border-width: 3.5px; --backdrop-blur: 0px;
-      background-image: radial-gradient(#111827 1.1px, transparent 1.1px); background-size: 18px 18px;
-    }
-    body[data-theme="cartoon"] .dest-btn:nth-child(even) { transform: rotate(0.8deg); }
-    body[data-theme="cartoon"] .dest-btn:active, body[data-theme="cartoon"] .action-btn:active, body[data-theme="cartoon"] .icon-btn:active {
-      transform: translate(3px, 3px); box-shadow: 2px 2px 0px #111827;
-    }
-
-    body[data-theme="gothic"] {
-      --bg: #09070a; --surface: #161118; --surface-2: #241926; --text: #f3ece8; --muted: #b79ea8;
-      --accent: #b91c1c; --accent-text: #fff5f5; --danger: #991b1b; --snooze: #7f1d1d; --snooze-text: #fef2f2;
-      --border: #6b5b6e; --shadow: inset 0 0 0 1px rgba(226, 212, 218, 0.16), 0 12px 26px rgba(0, 0, 0, 0.78);
-      --radius: 4px 18px 4px 18px; --font-main: Georgia, 'Times New Roman', serif; --font-display: Palatino, 'Book Antiqua', Georgia, serif;
-      --btn-transform: none; --btn-border-width: 2px; --backdrop-blur: 0px;
-      background-image: linear-gradient(180deg, rgba(127,29,29,0.16) 0%, rgba(9,7,10,0.96) 55%);
-    }
-    body[data-theme="gothic"] .dest-btn::before, body[data-theme="gothic"] .panel::before {
-      content: "✦"; position: absolute; top: 6px; left: 8px; font-size: 0.72rem; color: var(--muted); opacity: 0.7;
-    }
-
-    body[data-theme="renaissance"] {
-      --bg: #241911; --surface: #f4ead5; --surface-2: #e6d5b2; --text: #2a1b10; --muted: #6b4e34;
-      --accent: #9a3412; --accent-text: #fffbeb; --danger: #881337; --snooze: #1e4620; --snooze-text: #f0fdf4;
-      --border: #b48a3c; --shadow: inset 0 0 0 2px #d4af37, 0 8px 20px rgba(0, 0, 0, 0.45);
-      --radius: 10px; --font-main: Georgia, 'Times New Roman', serif; --font-display: Georgia, 'Times New Roman', serif;
-      --btn-transform: none; --btn-border-width: 2.5px; --backdrop-blur: 0px;
-      background-image: radial-gradient(circle at top, rgba(212,175,55,0.16), transparent 60%), linear-gradient(180deg, #2b1d13 0%, #19100a 100%);
-    }
-    body[data-theme="renaissance"] .topbar, body[data-theme="renaissance"] .prompt-title,
-    body[data-theme="renaissance"] .modal-title, body[data-theme="renaissance"] .drawer-title { color: var(--text); }
-    body[data-theme="renaissance"] .topbar { background: #f4ead5; }
-
-    body[data-theme="punk"] {
-      --bg: #111111; --surface: #1b1b1b; --surface-2: #2a2a2a; --text: #fafafa; --muted: #d4d4d8;
-      --accent: #f43f5e; --accent-text: #ffffff; --danger: #e11d48; --snooze: #a3e635; --snooze-text: #111111;
-      --border: #f43f5e; --shadow: 4px 4px 0px #a3e635; --radius: 2px 12px 3px 9px;
-      --font-main: system-ui, -apple-system, sans-serif; --font-display: Impact, 'Arial Black', sans-serif;
-      --btn-transform: skewX(-4deg); --btn-border-width: 2px; --backdrop-blur: 0px;
-      background-image: repeating-linear-gradient(-45deg, rgba(244,63,94,0.06) 0, rgba(244,63,94,0.06) 8px, transparent 8px, transparent 16px);
+      --warn: #f59e0b;
+      --border: rgba(255, 255, 255, 0.14);
+      --radius: 18px;
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
     }
 
     body[data-theme="glass"] {
-      --backdrop-blur: 14px; --btn-transform: none; --btn-border-width: 1.5px;
-      background-size: cover; background-position: center; background-attachment: fixed;
+      --bg-1: #0ea5e9;
+      --bg-2: #312e81;
+      --surface: rgba(255, 255, 255, 0.16);
+      --surface-strong: rgba(15, 23, 42, 0.72);
+      --border: rgba(255, 255, 255, 0.28);
     }
-    body[data-theme="glass"]:not([data-has-wallpaper="true"]) {
-      background-image:
-        radial-gradient(circle at 18% 22%, rgba(56, 189, 248, 0.55), transparent 45%),
-        radial-gradient(circle at 82% 28%, rgba(250, 204, 21, 0.55), transparent 45%),
-        radial-gradient(circle at 50% 82%, rgba(244, 63, 94, 0.45), transparent 50%),
-        linear-gradient(135deg, #e2e8f0 0%, #64748b 50%, #0f172a 100%);
+    body[data-theme="glass"].flipped .card {
+      background: rgba(15, 23, 42, 0.65);
     }
-    body[data-theme="glass"][data-has-wallpaper="true"] { background-image: var(--wallpaper-img); }
-    body[data-theme="glass"][data-glass-polarity="dark-ui"] {
-      --bg: #1e293b; --surface: rgba(15, 23, 42, 0.62); --surface-2: rgba(30, 41, 59, 0.68);
-      --text: #f8fafc; --muted: #e2e8f0; --accent: #38bdf8; --accent-text: #04131d;
-      --danger: #ef4444; --snooze: #22c55e; --snooze-text: #052e16;
-      --border: rgba(255, 255, 255, 0.34); --shadow: 0 10px 26px rgba(0, 0, 0, 0.32);
+
+    body[data-theme="cartoon"] {
+      --bg-1: #fde047;
+      --bg-2: #fb7185;
+      --surface: #fffbeb;
+      --surface-strong: #fef08a;
+      --text: #1e1b4b;
+      --muted: #4c1d95;
+      --accent: #2563eb;
+      --accent-2: #16a34a;
+      --border: #1e1b4b;
+      --shadow: 5px 5px 0 #1e1b4b;
     }
-    body[data-theme="glass"][data-glass-polarity="light-ui"] {
-      --bg: #cbd5e1; --surface: rgba(255, 255, 255, 0.68); --surface-2: rgba(241, 245, 249, 0.74);
-      --text: #0f172a; --muted: #1e293b; --accent: #0284c7; --accent-text: #ffffff;
-      --danger: #dc2626; --snooze: #16a34a; --snooze-text: #ffffff;
-      --border: rgba(15, 23, 42, 0.28); --shadow: 0 10px 26px rgba(15, 23, 42, 0.18);
+
+    body[data-theme="gothic"] {
+      --bg-1: #09090b;
+      --bg-2: #270914;
+      --surface: rgba(24, 14, 19, 0.9);
+      --surface-strong: #12090d;
+      --text: #f4f4f5;
+      --muted: #a1a1aa;
+      --accent: #e11d48;
+      --accent-2: #a855f7;
+      --border: rgba(225, 29, 72, 0.38);
     }
-    body[data-theme="glass"] .topbar, body[data-theme="glass"] .dest-btn, body[data-theme="glass"] .panel,
-    body[data-theme="glass"] .drawer, body[data-theme="glass"] .modal-card, body[data-theme="glass"] .icon-btn,
-    body[data-theme="glass"] .action-btn, body[data-theme="glass"] .ad-slot {
-      backdrop-filter: blur(var(--backdrop-blur)); -webkit-backdrop-filter: blur(var(--backdrop-blur));
+
+    body[data-theme="renaissance"] {
+      --bg-1: #2c1810;
+      --bg-2: #5c3a21;
+      --surface: rgba(69, 42, 22, 0.88);
+      --surface-strong: #382010;
+      --text: #fef3c7;
+      --muted: #fde68a;
+      --accent: #eab308;
+      --accent-2: #10b981;
+      --border: rgba(234, 179, 8, 0.4);
+    }
+
+    body[data-theme="punk"] {
+      --bg-1: #111827;
+      --bg-2: #064e3b;
+      --surface: rgba(17, 24, 39, 0.92);
+      --surface-strong: #030712;
+      --text: #ecfdf5;
+      --muted: #6ee7b7;
+      --accent: #ec4899;
+      --accent-2: #a3e635;
+      --border: #ec4899;
+      --shadow: 4px 4px 0 #ec4899;
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
     body {
-      margin: 0; min-height: 100dvh; font-family: var(--font-main);
-      background-color: var(--bg); color: var(--text);
-      display: flex; flex-direction: column; transition: background-color 0.25s ease, color 0.25s ease;
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+      background-attachment: fixed;
+      padding: 16px;
+      transition: background 0.3s ease, color 0.2s ease;
     }
-    .app-shell { width: 100%; max-width: 640px; margin: 0 auto; padding: 12px 14px 20px; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+
+    .app {
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
     .topbar {
-      position: relative; display: flex; align-items: center; justify-content: space-between; gap: 8px;
-      background: var(--surface); border: var(--btn-border-width) solid var(--border);
-      border-radius: var(--radius); padding: 10px 12px; box-shadow: var(--shadow);
-    }
-    .brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
-    .brand-icon { width: 28px; height: 28px; flex: 0 0 28px; }
-    .brand-title { font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .top-controls { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
-    .threshold-select, .icon-btn, .action-btn, .dest-btn {
-      font-family: inherit; color: var(--text); background: var(--surface-2);
-      border: var(--btn-border-width) solid var(--border); border-radius: var(--radius); cursor: pointer;
-      transition: transform 0.12s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    .threshold-select { padding: 7px 9px; font-size: 0.82rem; font-weight: 700; }
-    .icon-btn { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700; box-shadow: var(--shadow); }
-    .icon-btn.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
-    .prompt-title { margin: 2px 0 0; text-align: center; font-family: var(--font-display); font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em; }
-    .destinations-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-    .dest-btn {
-      position: relative; min-height: 76px; padding: 10px 12px; background: var(--surface);
-      display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 3px;
-      box-shadow: var(--shadow); transform: var(--btn-transform);
-    }
-    .dest-btn:active, .action-btn:active, .icon-btn:active { transform: scale(0.98); }
-    .dest-btn.selected { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
-    .dest-index { font-size: 0.72rem; font-weight: 800; opacity: 0.72; }
-    .dest-name { font-family: var(--font-display); font-size: 1.05rem; font-weight: 800; line-height: 1.2; word-break: break-word; }
-    .dest-sub { font-size: 0.73rem; opacity: 0.85; }
-    .panel {
-      position: relative; background: var(--surface); border: var(--btn-border-width) solid var(--border);
-      border-radius: var(--radius); padding: 12px 14px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px;
-    }
-    .status-line { font-size: 0.9rem; font-weight: 700; line-height: 1.4; }
-    .status-detail { font-size: 0.8rem; color: var(--muted); line-height: 1.35; }
-    .action-row { display: flex; gap: 8px; flex-wrap: wrap; }
-    .action-btn { padding: 10px 14px; font-size: 0.88rem; font-weight: 800; box-shadow: var(--shadow); }
-    .action-btn.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
-    .action-btn.danger { background: var(--danger); color: #ffffff; border-color: var(--danger); }
-
-    @keyframes blinkReady {
-      0%, 100% { filter: brightness(1); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
-      50% { filter: brightness(1.22); box-shadow: 0 0 0 8px rgba(56, 189, 248, 0); }
-    }
-    .action-btn.ready-blink {
-      animation: blinkReady 1.2s infinite;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
-    .sound-controls { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
-    .sound-select, .text-input, .num-input {
-      width: 100%; padding: 9px 10px; border-radius: 10px; border: 1.5px solid var(--border);
-      background: var(--surface-2); color: var(--text); font-family: inherit; font-size: 0.88rem; font-weight: 600;
+    .brand {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: 0.4px;
     }
-    .extra-audio-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between; font-size: 0.82rem; }
-    .toggle-pill { display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 999px; background: var(--surface-2); border: 1.5px solid var(--border); font-weight: 700; cursor: pointer; }
-    .custom-file-badge { color: var(--muted); font-size: 0.78rem; word-break: break-all; }
-    .drawer { display: none; background: var(--surface); border: var(--btn-border-width) solid var(--border); border-radius: var(--radius); padding: 12px 14px; box-shadow: var(--shadow); gap: 10px; }
-    .drawer.open { display: flex; flex-direction: column; }
-    .drawer-title { font-family: var(--font-display); font-size: 0.96rem; font-weight: 800; margin: 0; }
-    .theme-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-    .theme-chip { padding: 9px 10px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface-2); color: var(--text); font-weight: 700; font-size: 0.84rem; cursor: pointer; text-align: left; }
-    .theme-chip.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
-    .glass-box { display: none; flex-direction: column; gap: 8px; padding-top: 6px; border-top: 1px dashed var(--border); }
-    .glass-box.visible { display: flex; }
-    .sim-box { display: flex; flex-direction: column; gap: 6px; padding-top: 4px; border-top: 1px dashed var(--border); }
-    .ad-slot { background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius); padding: 9px 12px; text-align: center; font-size: 0.75rem; color: var(--muted); }
+
+    .controls-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    select, button, input {
+      font: inherit;
+      color: inherit;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-strong);
+      padding: 10px 12px;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.12s ease, opacity 0.15s ease;
+    }
+
+    button:active { transform: scale(0.97); }
+
+    .card {
+      background: var(--surface);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .status-box {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-top: 8px;
+      min-height: 1.4em;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn-start {
+      flex: 1;
+      min-width: 180px;
+      background: var(--accent-2);
+      color: #062814;
+      border: none;
+      padding: 14px 18px;
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .btn-start.blinking {
+      animation: pulseBlink 1s infinite alternate;
+    }
+
+    @keyframes pulseBlink {
+      from { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.75); }
+      to { opacity: 0.65; box-shadow: 0 0 0 12px rgba(34, 197, 94, 0); }
+    }
+
+    .btn-stop {
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      padding: 14px 18px;
+    }
+
+    .places-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .place-item {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      background: var(--surface-strong);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .place-item.selected {
+      outline: 2px solid var(--accent);
+      border-color: var(--accent);
+    }
+
+    .place-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
 
     .modal-backdrop {
-      position: fixed; inset: 0; background: rgba(2, 6, 23, 0.76); display: none;
-      align-items: center; justify-content: center; padding: 14px; z-index: 60; overflow-y: auto;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 50;
     }
-    .modal-backdrop.open { display: flex; }
-    .modal-card {
-      width: 100%; max-width: 480px; background: var(--surface); color: var(--text);
-      border: var(--btn-border-width) solid var(--border); border-radius: var(--radius);
-      padding: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; max-height: 92dvh; overflow-y: auto;
-    }
-    .modal-title { margin: 0; font-family: var(--font-display); font-size: 1.1rem; font-weight: 800; }
-    .panel-badge-art { font-size: 2rem; text-align: center; line-height: 1.2; }
-    @keyframes flagWave {
-      0%, 100% { transform: rotate(-6deg) scale(1); }
-      50% { transform: rotate(6deg) scale(1.08); }
-    }
-    .flag-wave { display: inline-block; animation: flagWave 1s ease-in-out infinite; }
-    .field-group { display: flex; flex-direction: column; gap: 5px; }
-    .field-label { font-size: 0.82rem; font-weight: 700; color: var(--muted); line-height: 1.4; }
-    .search-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
-    .search-results { display: flex; flex-direction: column; gap: 6px; max-height: 150px; overflow-y: auto; }
-    .search-item-btn { width: 100%; text-align: left; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 0.8rem; font-weight: 600; cursor: pointer; }
-    html[dir="rtl"] .search-item-btn, html[dir="rtl"] .theme-chip { text-align: right; }
-    #mapContainer { width: 100%; height: 210px; border-radius: 12px; border: 1.5px solid var(--border); overflow: hidden; z-index: 1; }
-    .coord-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
-    .alarm-overlay {
-      position: fixed; inset: 0; background: #090d16; color: #ffffff; z-index: 100;
-      display: none; flex-direction: column; justify-content: space-between; padding: 20px 18px 24px;
+    .modal-backdrop.open { display: flex; }
+
+    .modal {
+      width: 100%;
+      max-width: 460px;
+      background: var(--surface-strong);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
     }
-    .alarm-overlay.active { display: flex; }
-    .alarm-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-    .alarm-heading { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; margin: 0 0 6px; }
-    .alarm-sub { font-size: 0.95rem; color: #cbd5e1; }
-    .dismiss-tiny-btn { padding: 6px 9px; font-size: 0.7rem; font-weight: 700; border-radius: 8px; border: 1px solid rgba(255,255,255,0.25); background: rgba(127, 29, 29, 0.55); color: #fecaca; cursor: pointer; flex-shrink: 0; }
-    .snooze-giant-btn {
-      width: 100%; min-height: 220px; border-radius: 28px; border: 4px solid #86efac;
-      background: var(--snooze); color: var(--snooze-text); font-family: var(--font-display);
-      font-size: 2.3rem; font-weight: 900; letter-spacing: 0.02em; cursor: pointer;
-      box-shadow: 0 0 40px rgba(34, 197, 94, 0.35); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+
+    .arrived-banner {
+      border: 2px solid var(--accent-2);
     }
-    .snooze-sub { font-family: var(--font-main); font-size: 1rem; font-weight: 700; opacity: 0.92; }
-    .alarm-footer-note { text-align: center; font-size: 0.78rem; color: #94a3b8; }
+
+    .flag {
+      font-size: 2rem;
+      display: inline-block;
+      margin-inline-end: 8px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .hint {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
   </style>
 </head>
-<body data-theme="classic" data-glass-polarity="dark-ui">
-  <div class="app-shell">
+<body data-theme="default">
+  <div class="app">
     <header class="topbar">
-      <div class="brand">
-        <svg class="brand-icon" viewBox="0 0 64 64" aria-hidden="true">
-          <path d="M32 4C20.4 4 11 13.4 11 25c0 15.8 21 35 21 35s21-19.2 21-35C53 13.4 43.6 4 32 4z" fill="#ef4444" stroke="#ffffff" stroke-width="3"/>
-          <circle cx="32" cy="25" r="13" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/>
-          <path d="M18 13l5-5M46 13l-5-5" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
-          <path d="M32 18v7l5 3" stroke="#0f172a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        </svg>
-        <span class="brand-title">StopWay</span>
-      </div>
-
-      <div class="top-controls">
-        <select id="thresholdSelect" class="threshold-select" aria-label="Riasztási távolság">
-          <option value="300">300 m</option>
-          <option value="500">500 m</option>
-          <option value="1000" selected>1 km</option>
-          <option value="1500">1,5 km</option>
-          <option value="2000">2 km</option>
-          <option value="3000">3 km</option>
-          <option value="5000">5 km</option>
-        </select>
-        <button id="langBtn" class="icon-btn" type="button" title="Nyelv / Language">🌐</button>
-        <button id="voiceBtn" class="icon-btn" type="button" title="Hangvezérlés">🎤</button>
-        <button id="themeBtn" class="icon-btn" type="button" title="Dizájn és szimuláció">🎨</button>
-        <button id="editModeBtn" class="icon-btn" type="button" title="Helyek szerkesztése">✏️</button>
+      <div class="brand" id="brandTitle">StopWay</div>
+      <div class="controls-row">
+        <select id="langSelect" aria-label="Language"></select>
+        <select id="themeSelect" aria-label="Theme"></select>
+        <select id="soundSelect" aria-label="Sound"></select>
       </div>
     </header>
 
-    <div id="langMenu" class="panel" style="display:none; gap:8px;">
-      <div id="langMenuTitle" class="drawer-title">Nyelv kiválasztása</div>
-      <div id="langList" class="theme-grid"></div>
-    </div>
-
-    <h1 class="prompt-title">Hova tartasz?</h1>
-
-    <main id="destinationsGrid" class="destinations-grid" aria-label="Mentett célpontok"></main>
-
-    <section class="panel" aria-live="polite">
-      <div id="statusLine" class="status-line">Válassz egy célpontot a 10 hely közül.</div>
-      <div id="statusDetail" class="status-detail">Koppints egy helyre a figyeléshez, vagy nyomd meg a ✏️ gombot a szerkesztéshez.</div>
-
+    <section class="card">
+      <div id="promptTitle">Válassz úti célt, és indítsd el a figyelést!</div>
       <div class="action-row">
-        <button id="toggleWatchBtn" class="action-btn primary" type="button">Figyelés indítása</button>
-        <button id="stopWatchBtn" class="action-btn danger" type="button" style="display:none;">Figyelés leállítása</button>
+        <button class="btn-start blinking" id="startBtn">Indítás</button>
+        <button class="btn-stop" id="stopBtn" disabled>Leállítás</button>
+        <button id="previewSoundBtn">Hangpróba</button>
       </div>
-
-      <div class="sound-controls">
-        <select id="soundSelect" class="sound-select" aria-label="Ébresztőhang"></select>
-        <button id="previewSoundBtn" class="action-btn" type="button">Próbahang</button>
+      <div class="controls-row" style="margin-top:12px;">
+        <label><input type="checkbox" id="loudModeToggle" /> <span id="loudModeLabel">Hangerős mód</span></label>
+        <label><input type="checkbox" id="editModeToggle" /> <span id="editModeLabel">Szerkesztő mód</span></label>
+        <select id="thresholdSelect">
+          <option value="200">200 m</option>
+          <option value="500" selected>500 m</option>
+          <option value="1000">1000 m</option>
+        </select>
       </div>
-
-      <div class="extra-audio-row">
-        <label class="toggle-pill">
-          <input id="loudModeToggle" type="checkbox" checked />
-          <span>Erős hangerő (zene mellett)</span>
-        </label>
-        <button id="pickAudioBtn" class="action-btn" type="button">Saját hang betöltése</button>
-        <input id="customAudioInput" type="file" accept="audio/*" style="display:none;" />
-      </div>
-      <div id="customAudioInfo" class="custom-file-badge">Nincs külön betöltött hangfájl (beépített hangok aktívak).</div>
+      <div class="status-box" id="statusBox"></div>
     </section>
 
-    <section id="themeDrawer" class="drawer" aria-label="Dizájn és szimuláció">
-      <h2 id="themeDrawerTitle" class="drawer-title">Megjelenési stílus</h2>
-      <div class="theme-grid">
-        <button class="theme-chip active" data-theme-choice="classic" type="button">Letisztult alap</button>
-        <button class="theme-chip" data-theme-choice="glass" type="button">Átlátszó (háttérhez igazodó)</button>
-        <button class="theme-chip" data-theme-choice="cartoon" type="button">Rajzfilmes / képregény</button>
-        <button class="theme-chip" data-theme-choice="gothic" type="button">Gótikus</button>
-        <button class="theme-chip" data-theme-choice="renaissance" type="button">Reneszánsz / Michelangelo</button>
-        <button class="theme-chip" data-theme-choice="punk" type="button">Punk</button>
-      </div>
-
-      <div id="glassBox" class="glass-box">
-        <div id="glassPolarityInfo" class="field-label">Automatikus kontraszt: világos háttérhez sötét, sötét háttérhez világos.</div>
+    <section class="card" id="arrivedCard" style="display:none;">
+      <div class="arrived-banner card">
+        <div><span class="flag">🏁</span><strong id="arrivedTitle">Megérkeztél!</strong></div>
+        <p id="arrivedDesc">Elérted a kiválasztott megállót.</p>
         <div class="action-row">
-          <button id="pickWallpaperBtn" class="action-btn" type="button">Háttér / képernyőfotó betöltése</button>
-          <button id="flipGlassPolarityBtn" class="action-btn" type="button">Világos / Sötét felület váltása</button>
-          <input id="wallpaperInput" type="file" accept="image/*" style="display:none;" />
-        </div>
-      </div>
-
-      <div class="sim-box">
-        <label id="simDistanceLabelWrap" for="simDistanceRange" class="field-label">
-          Közeledés tesztelése a célhoz: <strong id="simDistanceLabel">2500 m</strong>
-        </label>
-        <input id="simDistanceRange" type="range" min="100" max="5000" step="100" value="2500" />
-        <div class="action-row">
-          <button id="triggerSimAlarmBtn" class="action-btn primary" type="button">Riasztás tesztelése most</button>
+          <button id="restartBtn" class="btn-start">Újrakezdés</button>
         </div>
       </div>
     </section>
 
-    <div id="adBannerSlot" class="ad-slot" data-ad-slot="bottom-banner">
-      Ingyenes kiadás • Diszkrét reklámhely (riasztás és szundi közben rejtve)
-    </div>
+    <section class="card">
+      <div id="choosePlaceTitle">Megállók / Úti célok</div>
+      <div class="hint" id="tapHint">Koppints egy helyre a kiválasztáshoz, vagy szerkeszd bekapcsolt szerkesztő móddal.</div>
+      <div class="places-grid" id="placesGrid"></div>
+    </section>
   </div>
 
-  <!-- Hely szerkesztő modális ablak -->
-  <div id="editModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
-    <div class="modal-card">
-      <h2 id="editModalTitle" class="modal-title">Célpont szerkesztése</h2>
-
-      <div class="field-group">
-        <label id="editNameLabel" for="editNameInput" class="field-label">Hely neve</label>
-        <input id="editNameInput" class="text-input" type="text" maxlength="32" placeholder="Pl. Munka" />
-      </div>
-
-      <div class="field-group">
-        <label id="addressSearchLabel" for="addressSearchInput" class="field-label">Cím vagy hely keresése</label>
-        <div class="search-row">
-          <input id="addressSearchInput" class="text-input" type="text" placeholder="Írd be a címet vagy a hely nevét..." />
-          <button id="searchAddressBtn" class="action-btn primary" type="button">Keresés</button>
-        </div>
-        <div id="searchResults" class="search-results"></div>
-      </div>
-
-      <div id="mapContainer" aria-label="Térkép"></div>
-
-      <div class="coord-row">
-        <div class="field-group">
-          <label for="editLatInput" class="field-label">Lat</label>
-          <input id="editLatInput" class="num-input" type="number" step="any" placeholder="32.0853" />
-        </div>
-        <div class="field-group">
-          <label for="editLngInput" class="field-label">Lng</label>
-          <input id="editLngInput" class="num-input" type="number" step="any" placeholder="34.7729" />
-        </div>
-      </div>
-
+  <!-- Általános megerősítő / figyelmeztető modál -->
+  <div class="modal-backdrop" id="confirmModal">
+    <div class="modal">
+      <h3 id="modalTitle" style="margin-top:0;">Megerősítés</h3>
+      <p id="modalText"></p>
       <div class="action-row">
-        <button id="useCurrentGpsBtn" class="action-btn" type="button">Jelenlegi GPS</button>
-        <button id="savePlaceBtn" class="action-btn primary" type="button">Mentés / OK</button>
-        <button id="cancelEditBtn" class="action-btn" type="button">Mégse</button>
+        <button id="modalConfirmBtn" class="btn-start">Rendben</button>
+        <button id="modalCancelBtn">Mégsem</button>
       </div>
     </div>
   </div>
 
-  <!-- Közös flow/állapot panel (GPS, engedélyek, "Mégsem" figyelmeztetés, leállítás-megerősítés, megállásfigyelő, érkezés, újrakezdés) -->
-  <div id="flowModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="flowModalTitle">
-    <div class="modal-card">
-      <div id="flowBadge" class="panel-badge-art">📍</div>
-      <h2 id="flowModalTitle" class="modal-title"></h2>
-      <div id="flowModalBody" class="field-label"></div>
-      <div id="flowActions" class="action-row"></div>
-    </div>
-  </div>
-
-  <!-- Ébresztő képernyő -->
-  <div id="alarmOverlay" class="alarm-overlay" role="alertdialog" aria-modal="true" aria-live="assertive">
-    <div class="alarm-top">
-      <div>
-        <h2 id="alarmHeading" class="alarm-heading">ÉBRESZTŐ!</h2>
-        <div id="alarmSub" class="alarm-sub">Közel a cél.</div>
+  <!-- Hely szerkesztő modál -->
+  <div class="modal-backdrop" id="editModal">
+    <div class="modal">
+      <h3 id="editModalTitle" style="margin-top:0;">Hely beállítása</h3>
+      <div class="field">
+        <label id="editNameLabel" for="placeNameInput">Megálló neve</label>
+        <input id="placeNameInput" type="text" />
       </div>
-      <button id="dismissForeverBtn" class="dismiss-tiny-btn" type="button">Végleges leállítás</button>
-    </div>
-
-    <button id="snoozeGiantBtn" class="snooze-giant-btn" type="button">
-      <span id="snoozeMainLabel">SZUNDI (20 MP)</span>
-      <span id="snoozeCountdownText" class="snooze-sub">20 mp</span>
-    </button>
-
-    <div id="alarmFooterNote" class="alarm-footer-note">
-      20 mp szundi • Végleges leállítás a jobb felső gombbal.
+      <div class="field">
+        <label id="coordsLabel">Koordináták (szélesség, hosszúság)</label>
+        <div class="controls-row">
+          <input id="latInput" type="number" step="any" placeholder="47.4979" style="flex:1;" />
+          <input id="lngInput" type="number" step="any" placeholder="19.0402" style="flex:1;" />
+        </div>
+      </div>
+      <div class="action-row">
+        <button id="useGpsBtn">Jelenlegi GPS</button>
+        <button id="savePlaceBtn" class="btn-start">Mentés</button>
+        <button id="cancelEditBtn">Mégsem</button>
+      </div>
     </div>
   </div>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
   <script>
-    try {
-      const STORAGE_KEY = "stopway_v7";
-      const LANG_STORAGE_KEY = "stopway_lang";
+    const LANGUAGES = [
+      { code: "hu", label: "Magyar", dir: "ltr" },
+      { code: "en", label: "English", dir: "ltr" },
+      { code: "he", label: "עברית", dir: "rtl" },
+      { code: "ar", label: "العربية", dir: "rtl" },
+      { code: "ru", label: "Русский", dir: "ltr" },
+      { code: "de", label: "Deutsch", dir: "ltr" },
+      { code: "fr", label: "Français", dir: "ltr" },
+      { code: "es", label: "Español", dir: "ltr" },
+      { code: "it", label: "Italiano", dir: "ltr" },
+      { code: "pt", label: "Português", dir: "ltr" },
+      { code: "nl", label: "Nederlands", dir: "ltr" },
+      { code: "pl", label: "Polski", dir: "ltr" },
+      { code: "tr", label: "Türkçe", dir: "ltr" },
+      { code: "uk", label: "Українська", dir: "ltr" },
+      { code: "cs", label: "Čeština", dir: "ltr" },
+      { code: "ro", label: "Română", dir: "ltr" },
+      { code: "ja", label: "日本語", dir: "ltr" },
+      { code: "ko", label: "한국어", dir: "ltr" },
+      { code: "zh", label: "中文", dir: "ltr" },
+      { code: "hi", label: "हिन्दी", dir: "ltr" },
+      { code: "vi", label: "Tiếng Việt", dir: "ltr" }
+    ];
 
-      const LANGUAGES = [
-        { code: "hu", speech: "hu-HU", dir: "ltr", label: "Magyar" },
-        { code: "en", speech: "en-US", dir: "ltr", label: "English" },
-        { code: "he", speech: "he-IL", dir: "rtl", label: "עברית" },
-        { code: "ar", speech: "ar-SA", dir: "rtl", label: "العربية" },
-        { code: "ru", speech: "ru-RU", dir: "ltr", label: "Русский" },
-        { code: "am", speech: "am-ET", dir: "ltr", label: "አማርኛ" },
-        { code: "ti", speech: "ti-ET", dir: "ltr", label: "ትግርኛ" },
-        { code: "vi", speech: "vi-VN", dir: "ltr", label: "Tiếng Việt" },
-        { code: "fr", speech: "fr-FR", dir: "ltr", label: "Français" },
-        { code: "es", speech: "es-ES", dir: "ltr", label: "Español" },
-        { code: "de", speech: "de-DE", dir: "ltr", label: "Deutsch" },
-        { code: "zh", speech: "zh-CN", dir: "ltr", label: "中文" },
-        { code: "ja", speech: "ja-JP", dir: "ltr", label: "日本語" },
-        { code: "ko", speech: "ko-KR", dir: "ltr", label: "한국어" },
-        { code: "it", speech: "it-IT", dir: "ltr", label: "Italiano" },
-        { code: "pt", speech: "pt-PT", dir: "ltr", label: "Português" },
-        { code: "uk", speech: "uk-UA", dir: "ltr", label: "Українська" },
-        { code: "pl", speech: "pl-PL", dir: "ltr", label: "Polski" },
-        { code: "tr", speech: "tr-TR", dir: "ltr", label: "Türkçe" },
-        { code: "hi", speech: "hi-IN", dir: "ltr", label: "हिन्दी" },
-        { code: "sw", speech: "sw-KE", dir: "ltr", label: "Kiswahili" }
-      ];
-
-      const BASE_NEW_STRINGS_HU = {
-        gpsOffTitle: "A GPS ki van kapcsolva",
-        gpsOffBody: "A megállóelőtti figyeléshez be kell kapcsolni a helymeghatározást (GPS). Kapcsold be a készülék beállításaiban, majd próbáld újra.",
-        fgPermTitle: "Alkalmazásbeli helyhozzáférés",
-        fgPermBody: "A célpont távolságának követéséhez engedélyezni kell a helymeghatározást az alkalmazás használata közben.",
-        bgPermTitle: "Háttérbeli GPS-hozzáférés",
-        bgPermBody: "Ha elalszol vagy más alkalmazásra váltasz az úton, a háttérbeli GPS segít, hogy időben szóljon az ébresztő.",
-        allowBtn: "Engedélyezés",
-        cancelBtn: "Mégsem",
-        cancelWarnTitle: "Biztosan megszakítod?",
-        cancelWarnBody: "Háttérbeli GPS-engedély nélkül a képernyő lezárásakor vagy más appra váltáskor leállhat a figyelés, és lemaradhatsz a megállóról.",
-        yesSureBtn: "Igen biztos",
-        noNotSureBtn: "Nem biztos",
-        readyBlinkHint: "Engedélyek rendben. Nyomd meg a villogó „Figyelés indítása” gombot!",
-        stopConfirmTitle: "Biztos, hogy leállítja?",
-        stopConfirmBody: "Ha most leállítod a figyelést, a megállóelőtti ébresztés kikapcsol.",
-        confirmStopYes: "Igen, leállítom",
-        confirmStopNo: "Mégsem",
-        stallWatchTitle: "Megállásfigyelő",
-        stallWatchBody: "Úgy tűnik, a jármű hosszabb ideje egy helyben áll. Ellenőrizd, hogy minden rendben van-e, vagy folytasd a figyelést.",
-        stallContinueBtn: "Figyelés folytatása",
-        stallStopBtn: "Figyelés leállítása",
+    const BASE_DICT = {
+      hu: {
+        brandTitle: "StopWay",
+        promptTitle: "Válassz úti célt, és indítsd el a figyelést!",
+        startWatch: "Indítás",
+        stopWatch: "Leállítás",
+        previewSound: "Hangpróba",
+        loudMode: "Hangerős mód",
+        editMode: "Szerkesztő mód",
+        choosePlace: "Megállók / Úti célok",
+        tapHint: "Koppints egy helyre a kiválasztáshoz, vagy szerkeszd bekapcsolt szerkesztő móddal.",
+        noCoords: "Nincs még GPS-koordináta",
+        coordsSet: "GPS beállítva",
+        watchingActive: "Figyelés aktív — közeledés a célhoz...",
+        gpsOffTitle: "GPS kikapcsolva vagy nem elérhető",
+        gpsOffText: "A megállásfigyeléshez bekapcsolt helymeghatározásra van szükség. Folytatod szimulált / alap módban?",
+        cancelWarnTitle: "Mégsem lett kiválasztva",
+        cancelWarnText: "Ha megszakítod a műveletet, a folyamat nem indul el. Biztosan megszakítod?",
+        stopConfirmTitle: "Figyelés leállítása",
+        stopConfirmText: "Biztosan leállítod a megállásfigyelést?",
+        stallWarning: "Úgy tűnik, hosszabb ideje egy helyben állsz.",
         arrivedTitle: "Megérkeztél!",
-        arrivedBody: "Elérted a beállított célpontot.",
-        arrivedOkBtn: "Rendben (OK)",
-        arrivedChoiceBody: "Mit szeretnél most tenni?",
-        disableTrackingBtn: "Követés kikapcsolása",
-        newTripBtn: "Új utazás választása",
-        restartRequiredTitle: "Újrakezdés szükséges",
-        restartRequiredBody: "A figyelés háttérbeli GPS-engedély nélkül indult, és a képernyőzár vagy egy másik alkalmazás miatt leállt. Újra végig kell menni az engedélykérő paneleken.",
-        restartFlowBtn: "Újrakezdés"
+        arrivedDesc: "Elérted a kiválasztott célpontot.",
+        restartBtn: "Újrakezdés",
+        editModalTitle: "Hely beállítása",
+        editNameLabel: "Megálló neve",
+        coordsLabel: "Koordináták (szélesség, hosszúság)",
+        useGpsBtn: "Jelenlegi GPS",
+        savePlaceBtn: "Mentés",
+        cancelBtn: "Mégsem",
+        okBtn: "Rendben",
+        themes: {
+          default: "Alap",
+          glass: "Üveg (Glass)",
+          cartoon: "Rajzfilm (Cartoon)",
+          gothic: "Gótikus",
+          renaissance: "Reneszánsz",
+          punk: "Punk"
+        },
+        sounds: {
+          chime: "Harangjáték",
+          pulse: "Pulzusjelzés",
+          siren: "Erős riasztás"
+        },
+        defaultPlaces: [
+          "1. megálló", "2. megálló", "3. megálló", "4. megálló", "5. megálló",
+          "6. megálló", "7. megálló", "8. megálló", "9. megálló", "10. megálló"
+        ]
+      },
+      en: {
+        brandTitle: "StopWay",
+        promptTitle: "Choose a destination and start watching!",
+        startWatch: "Start",
+        stopWatch: "Stop",
+        previewSound: "Sound Test",
+        loudMode: "Loud mode",
+        editMode: "Edit mode",
+        choosePlace: "Stops / Destinations",
+        tapHint: "Tap a place to select it, or edit when edit mode is on.",
+        noCoords: "No GPS coordinates yet",
+        coordsSet: "GPS set",
+        watchingActive: "Watching active — approaching destination...",
+        gpsOffTitle: "GPS off or unavailable",
+        gpsOffText: "Location services are recommended for stop monitoring. Continue anyway?",
+        cancelWarnTitle: "Cancelled",
+        cancelWarnText: "Cancelling stops this step. Are you sure?",
+        stopConfirmTitle: "Stop monitoring",
+        stopConfirmText: "Are you sure you want to stop monitoring?",
+        stallWarning: "You appear to have been stationary for a while.",
+        arrivedTitle: "You have arrived!",
+        arrivedDesc: "You reached your selected destination.",
+        restartBtn: "Restart",
+        editModalTitle: "Edit Place",
+        editNameLabel: "Stop name",
+        coordsLabel: "Coordinates (latitude, longitude)",
+        useGpsBtn: "Current GPS",
+        savePlaceBtn: "Save",
+        cancelBtn: "Cancel",
+        okBtn: "OK",
+        themes: {
+          default: "Default",
+          glass: "Glass",
+          cartoon: "Cartoon",
+          gothic: "Gothic",
+          renaissance: "Renaissance",
+          punk: "Punk"
+        },
+        sounds: {
+          chime: "Chime",
+          pulse: "Pulse",
+          siren: "Loud Alarm"
+        },
+        defaultPlaces: Array.from({ length: 10 }, (_, i) => `Stop ${i + 1}`)
+      },
+      he: {
+        brandTitle: "StopWay",
+        promptTitle: "בחר יעד והתחל מעקב עצירה!",
+        startWatch: "התחל",
+        stopWatch: "עצור",
+        previewSound: "בדיקת צליל",
+        loudMode: "מצב חזק",
+        editMode: "מצב עריכה",
+        choosePlace: "תחנות / יעדים",
+        tapHint: "הקש על מקום לבחירה, או ערוך כשהמצב פעיל.",
+        noCoords: "אין עדיין קואורדינטות GPS",
+        coordsSet: "GPS מוגדר",
+        watchingActive: "המעקב פעיל — מתקרב ליעד...",
+        gpsOffTitle: "ה-GPS כבוי או לא זמין",
+        gpsOffText: "מומלץ להפעיל מיקום למעקב עצירה. להמשיך בכל זאת?",
+        cancelWarnTitle: "בוטל",
+        cancelWarnText: "ביטול עוצר את הפעולה. בטוח שברצונך לבטל?",
+        stopConfirmTitle: "עצירת מעקב",
+        stopConfirmText: "להפסיק את מעקב העצירה?",
+        stallWarning: "נראה שאתה עומד במקום זמן מה.",
+        arrivedTitle: "הגעת ליעד!",
+        arrivedDesc: "הגעת לתחנה או ליעד שבחרת.",
+        restartBtn: "התחל מחדש",
+        editModalTitle: "עריכת מקום",
+        editNameLabel: "שם התחנה",
+        coordsLabel: "קואורדינטות (קו רוחב, קו אורך)",
+        useGpsBtn: "GPS נוכחי",
+        savePlaceBtn: "שמור",
+        cancelBtn: "ביטול",
+        okBtn: "אישור",
+        themes: {
+          default: "ברירת מחדל",
+          glass: "זכוכית (Glass)",
+          cartoon: "קומיקס (Cartoon)",
+          gothic: "גותי",
+          renaissance: "רנסנס",
+          punk: "פאנק"
+        },
+        sounds: {
+          chime: "פעמון",
+          pulse: "פעימה",
+          siren: "אזעקה חזקה"
+        },
+        defaultPlaces: Array.from({ length: 10 }, (_, i) => `תחנה ${i + 1}`)
+      }
+    };
+
+    const EXTRA_LANGS = {
+      ar: {
+        promptTitle: "اختر وجهة وابدأ المراقبة!",
+        startWatch: "ابدأ",
+        stopWatch: "إيقاف",
+        previewSound: "تجربة الصوت",
+        loudMode: "وضع مرتفع الصوت",
+        editMode: "وضع التعديل",
+        choosePlace: "المحطات / الوجهات",
+        tapHint: "اضغط على مكان للاختيار أو عدّله في وضع التعديل.",
+        noCoords: "لا توجد إحداثيات GPS بعد",
+        coordsSet: "تم ضبط GPS",
+        watchingActive: "المراقبة نشطة — بالاقتراب من الوجهة...",
+        arrivedTitle: "لقد وصلت!",
+        arrivedDesc: "وصلت إلى وجهتك المختارة.",
+        restartBtn: "إعادة البدء",
+        stopLabel: "محطة"
+      },
+      ru: {
+        promptTitle: "Выберите пункт назначения и начните слежение!",
+        startWatch: "Старт",
+        stopWatch: "Стоп",
+        previewSound: "Тест звука",
+        loudMode: "Громкий режим",
+        editMode: "Режим правки",
+        choosePlace: "Остановки / Цели",
+        tapHint: "Нажмите на место для выбора или измените его в режиме правки.",
+        noCoords: "Координаты GPS ещё не заданы",
+        coordsSet: "GPS задан",
+        watchingActive: "Слежение активно — приближение к цели...",
+        arrivedTitle: "Вы прибыли!",
+        arrivedDesc: "Вы достигли выбранного места.",
+        restartBtn: "Начать заново",
+        stopLabel: "Остановка"
+      },
+      de: {
+        promptTitle: "Wähle ein Ziel und starte die Überwachung!",
+        startWatch: "Starten",
+        stopWatch: "Stoppen",
+        previewSound: "Klangtest",
+        loudMode: "Laut-Modus",
+        editMode: "Bearbeitungsmodus",
+        choosePlace: "Haltestellen / Ziele",
+        tapHint: "Tippe auf einen Ort zum Auswählen oder Bearbeiten.",
+        noCoords: "Noch keine GPS-Koordinaten",
+        coordsSet: "GPS gesetzt",
+        watchingActive: "Überwachung aktiv — Nähere mich dem Ziel...",
+        arrivedTitle: "Angekommen!",
+        arrivedDesc: "Du hast dein Ziel erreicht.",
+        restartBtn: "Neu starten",
+        stopLabel: "Halt"
+      },
+      fr: {
+        promptTitle: "Choisis une destination et démarre la surveillance !",
+        startWatch: "Démarrer",
+        stopWatch: "Arrêter",
+        previewSound: "Tester le son",
+        loudMode: "Mode fort",
+        editMode: "Mode édition",
+        choosePlace: "Arrêts / Destinations",
+        tapHint: "Touchez un lieu pour le sélectionner ou le modifier.",
+        noCoords: "Pas encore de coordonnées GPS",
+        coordsSet: "GPS défini",
+        watchingActive: "Surveillance active — approche de la destination...",
+        arrivedTitle: "Vous êtes arrivé !",
+        arrivedDesc: "Vous avez atteint votre destination.",
+        restartBtn: "Recommencer",
+        stopLabel: "Arrêt"
+      },
+      es: {
+        promptTitle: "¡Elige un destino y empieza a vigilar!",
+        startWatch: "Iniciar",
+        stopWatch: "Detener",
+        previewSound: "Probar sonido",
+        loudMode: "Modo alto",
+        editMode: "Modo edición",
+        choosePlace: "Paradas / Destinos",
+        tapHint: "Toca un lugar para seleccionarlo o editarlo.",
+        noCoords: "Aún no hay coordenadas GPS",
+        coordsSet: "GPS configurado",
+        watchingActive: "Vigilancia activa — acercándose al destino...",
+        arrivedTitle: "¡Has llegado!",
+        arrivedDesc: "Llegaste a tu destino seleccionado.",
+        restartBtn: "Reiniciar",
+        stopLabel: "Parada"
+      },
+      it: {
+        promptTitle: "Scegli una destinazione e avvia il controllo!",
+        startWatch: "Avvia",
+        stopWatch: "Ferma",
+        previewSound: "Prova suono",
+        loudMode: "Modalità forte",
+        editMode: "Modalità modifica",
+        choosePlace: "Fermate / Destinazioni",
+        tapHint: "Tocca un luogo per selezionarlo o modificarlo.",
+        noCoords: "Nessuna coordinata GPS",
+        coordsSet: "GPS impostato",
+        watchingActive: "Controllo attivo — avvicinamento alla meta...",
+        arrivedTitle: "Sei arrivato!",
+        arrivedDesc: "Hai raggiunto la destinazione scelta.",
+        restartBtn: "Ricomincia",
+        stopLabel: "Fermata"
+      },
+      pt: {
+        promptTitle: "Escolha um destino e inicie o monitoramento!",
+        startWatch: "Iniciar",
+        stopWatch: "Parar",
+        previewSound: "Testar som",
+        loudMode: "Modo alto",
+        editMode: "Modo edição",
+        choosePlace: "Paradas / Destinos",
+        tapHint: "Toque em um local para selecionar ou editar.",
+        noCoords: "Sem coordenadas GPS ainda",
+        coordsSet: "GPS definido",
+        watchingActive: "Monitoramento ativo — aproximando do destino...",
+        arrivedTitle: "Você chegou!",
+        arrivedDesc: "Você alcançou o destino selecionado.",
+        restartBtn: "Reiniciar",
+        stopLabel: "Parada"
+      },
+      nl: {
+        promptTitle: "Kies een bestemming en start het volgen!",
+        startWatch: "Starten",
+        stopWatch: "Stoppen",
+        previewSound: "Geluidstest",
+        loudMode: "Luide modus",
+        editMode: "Bewerkingsmodus",
+        choosePlace: "Haltes / Bestemmingen",
+        tapHint: "Tik op een plek om te kiezen of te bewerken.",
+        noCoords: "Nog geen GPS-coördinaten",
+        coordsSet: "GPS ingesteld",
+        watchingActive: "Volgen actief — nadert bestemming...",
+        arrivedTitle: "Je bent aangekomen!",
+        arrivedDesc: "Je hebt je bestemming bereikt.",
+        restartBtn: "Opnieuw beginnen",
+        stopLabel: "Halte"
+      },
+      pl: {
+        promptTitle: "Wybierz cel i uruchom śledzenie!",
+        startWatch: "Start",
+        stopWatch: "Stop",
+        previewSound: "Test dźwięku",
+        loudMode: "Tryb głośny",
+        editMode: "Tryb edycji",
+        choosePlace: "Przystanki / Cele",
+        tapHint: "Dotknij miejsca, aby wybrać lub edytować.",
+        noCoords: "Brak współrzędnych GPS",
+        coordsSet: "GPS ustawiony",
+        watchingActive: "Śledzenie aktywne — zbliżanie do celu...",
+        arrivedTitle: "Dotarłeś na miejsce!",
+        arrivedDesc: "Osiągnięto wybrany cel.",
+        restartBtn: "Zacznij od nowa",
+        stopLabel: "Przystanek"
+      },
+      tr: {
+        promptTitle: "Bir hedef seç ve takibi başlat!",
+        startWatch: "Başlat",
+        stopWatch: "Durdur",
+        previewSound: "Ses testi",
+        loudMode: "Yüksek ses modu",
+        editMode: "Düzenleme modu",
+        choosePlace: "Duraklar / Hedefler",
+        tapHint: "Seçmek veya düzenlemek için bir yere dokun.",
+        noCoords: "Henüz GPS konumu yok",
+        coordsSet: "GPS ayarlandı",
+        watchingActive: "Takip aktif — hedefe yaklaşılıyor...",
+        arrivedTitle: "Vardınız!",
+        arrivedDesc: "Seçtiğiniz hedefe ulaştınız.",
+        restartBtn: "Yeniden başlat",
+        stopLabel: "Durak"
+      },
+      uk: {
+        promptTitle: "Оберіть місце призначення та почніть стеження!",
+        startWatch: "Старт",
+        stopWatch: "Стоп",
+        previewSound: "Перевірка звуку",
+        loudMode: "Гучний режим",
+        editMode: "Режим редагування",
+        choosePlace: "Зупинки / Цілі",
+        tapHint: "Натисніть на місце для вибору або редагування.",
+        noCoords: "Координати GPS ще не вказано",
+        coordsSet: "GPS задано",
+        watchingActive: "Стеження активне — наближення до мети...",
+        arrivedTitle: "Ви прибули!",
+        arrivedDesc: "Ви досягли обраного пункту.",
+        restartBtn: "Почати знову",
+        stopLabel: "Зупинка"
+      },
+      cs: {
+        promptTitle: "Vyber cíl a spusť sledování!",
+        startWatch: "Start",
+        stopWatch: "Stop",
+        previewSound: "Test zvuku",
+        loudMode: "Hlasitý režim",
+        editMode: "Režim úprav",
+        choosePlace: "Zastávky / Cíle",
+        tapHint: "Klepnutím vyberete místo nebo ho upravíte.",
+        noCoords: "Zatím bez GPS souřadnic",
+        coordsSet: "GPS nastaveno",
+        watchingActive: "Sledování aktivní — blížím se k cíli...",
+        arrivedTitle: "Jste v cíli!",
+        arrivedDesc: "Dosáhli jste vybraného místa.",
+        restartBtn: "Začít znovu",
+        stopLabel: "Zastávka"
+      },
+      ro: {
+        promptTitle: "Alege o destinație și pornește monitorizarea!",
+        startWatch: "Start",
+        stopWatch: "Oprește",
+        previewSound: "Test sunet",
+        loudMode: "Mod puternic",
+        editMode: "Mod editare",
+        choosePlace: "Stații / Destinații",
+        tapHint: "Atinge un loc pentru a-l selecta sau edita.",
+        noCoords: "Încă nu există coordonate GPS",
+        coordsSet: "GPS setat",
+        watchingActive: "Monitorizare activă — apropiere de destinație...",
+        arrivedTitle: "Ai ajuns!",
+        arrivedDesc: "Ai ajuns la destinația aleasă.",
+        restartBtn: "Reîncepe",
+        stopLabel: "Stație"
+      },
+      ja: {
+        promptTitle: "目的地を選んで見守りを開始しましょう！",
+        startWatch: "開始",
+        stopWatch: "停止",
+        previewSound: "音テスト",
+        loudMode: "大音量モード",
+        editMode: "編集モード",
+        choosePlace: "停留所・目的地",
+        tapHint: "タップして選択、または編集モードで変更します。",
+        noCoords: "GPS座標が未設定です",
+        coordsSet: "GPS設定済み",
+        watchingActive: "見守り中 — 目的地に近づいています...",
+        arrivedTitle: "到着しました！",
+        arrivedDesc: "選択した目的地に到着しました。",
+        restartBtn: "やり直す",
+        stopLabel: "停留所"
+      },
+      ko: {
+        promptTitle: "목적지를 선택하고 알림을 시작하세요!",
+        startWatch: "시작",
+        stopWatch: "중지",
+        previewSound: "소리 테스트",
+        loudMode: "큰 소리 모드",
+        editMode: "편집 모드",
+        choosePlace: "정류장 / 목적지",
+        tapHint: "선택하려면 탭하거나 편집 모드에서 수정하세요.",
+        noCoords: "GPS 좌표가 없습니다",
+        coordsSet: "GPS 설정됨",
+        watchingActive: "감시 중 — 목적지에 접근 중...",
+        arrivedTitle: "도착했습니다!",
+        arrivedDesc: "선택한 목적지에 도착했습니다.",
+        restartBtn: "다시 시작",
+        stopLabel: "정류장"
+      },
+      zh: {
+        promptTitle: "选择目的地并开始提醒！",
+        startWatch: "开始",
+        stopWatch: "停止",
+        previewSound: "试听提示音",
+        loudMode: "大音量模式",
+        editMode: "编辑模式",
+        choosePlace: "站点 / 目的地",
+        tapHint: "点击选择地点，或在编辑模式下修改。",
+        noCoords: "尚未设置 GPS 坐标",
+        coordsSet: "已设置 GPS",
+        watchingActive: "正在监控 — 正在靠近目的地...",
+        arrivedTitle: "已到达！",
+        arrivedDesc: "您已到达所选目的地。",
+        restartBtn: "重新开始",
+        stopLabel: "站点"
+      },
+      hi: {
+        promptTitle: "गंतव्य चुनें और निगरानी शुरू करें!",
+        startWatch: "शुरू करें",
+        stopWatch: "रोकें",
+        previewSound: "ध्वनि परीक्षण",
+        loudMode: "तेज़ मोड",
+        editMode: "संपादन मोड",
+        choosePlace: "स्टॉप / गंतव्य",
+        tapHint: "चुनने के लिए टैप करें या संपादन मोड में बदलें।",
+        noCoords: "अभी तक GPS निर्देशांक नहीं हैं",
+        coordsSet: "GPS सेट है",
+        watchingActive: "निगरानी सक्रिय — गंतव्य के पास पहुँच रहे हैं...",
+        arrivedTitle: "आप पहुँच गए हैं!",
+        arrivedDesc: "आप अपने चुने हुए गंतव्य पर पहुँच गए हैं।",
+        restartBtn: "फिर से शुरू करें",
+        stopLabel: "स्टॉप"
+      },
+      vi: {
+        promptTitle: "Chọn điểm đến và bắt đầu theo dõi!",
+        startWatch: "Bắt đầu",
+        stopWatch: "Dừng",
+        previewSound: "Thử âm thanh",
+        loudMode: "Chế độ âm lớn",
+        editMode: "Chế độ sửa",
+        choosePlace: "Điểm dừng / Đích đến",
+        tapHint: "Chạm để chọn hoặc sửa khi bật chế độ sửa.",
+        noCoords: "Chưa có tọa độ GPS",
+        coordsSet: "Đã đặt GPS",
+        watchingActive: "Đang theo dõi — đang đến gần điểm đến...",
+        arrivedTitle: "Bạn đã đến nơi!",
+        arrivedDesc: "Bạn đã tới điểm đến đã chọn.",
+        restartBtn: "Bắt đầu lại",
+        stopLabel: "Điểm dừng"
+      }
+    };
+
+    const TRANSLATIONS = {};
+    LANGUAGES.forEach(lang => {
+      const base = BASE_DICT[lang.code] || BASE_DICT.en;
+      const extra = EXTRA_LANGS[lang.code] || {};
+      const stopPrefix = extra.stopLabel || base.stopLabel || "Stop";
+      TRANSLATIONS[lang.code] = {
+        ...BASE_DICT.en,
+        ...base,
+        ...extra,
+        themes: { ...BASE_DICT.en.themes, ...(base.themes || {}), ...(extra.themes || {}) },
+        sounds: { ...BASE_DICT.en.sounds, ...(base.sounds || {}), ...(extra.sounds || {}) },
+        defaultPlaces: base.defaultPlaces || Array.from({ length: 10 }, (_, idx) => `${stopPrefix} ${idx + 1}`)
       };
+    });
 
-      const TRANSLATIONS = {
-        hu: {
-          brandTitle: "StopWay",
-          promptTitle: "Hova tartasz?",
-          langMenuTitle: "Nyelv kiválasztása",
-          startWatch: "Figyelés indítása",
-          stopWatch: "Figyelés leállítása",
-          previewSound: "Próbahang",
-          loudMode: "Erős hangerő (zene mellett)",
-          pickAudio: "Saját hang betöltése",
-          noCustomAudio: "Nincs külön betöltött hangfájl (beépített hangok aktívak).",
-          customAudioLoaded: "Saját hang: ",
-          choosePlace: "Válassz egy célpontot a 10 hely közül.",
-          tapToWatch: "Koppints egy helyre a figyeléshez, vagy nyomd meg a ✏️ gombot.",
-          editModeOn: "Szerkesztő mód aktív.",
-          noCoordsYet: "Még nincs beállított hely. Koppints rá a térkép/cím megadásához.",
-          watchingActive: "GPS figyelés aktív.",
-          coordsReady: "GPS cél beállítva. Nyomd meg a „Figyelés indítása” gombot.",
-          beforeSuffix: "előtt",
-          fixedPlace: "Fix hely",
-          freePlace: "Szabad hely",
-          setPlaceHint: "Hely beállítása",
-          coordsSet: "Cél beállítva",
-          themeDrawerTitle: "Megjelenési stílus",
-          pickWallpaper: "Háttér betöltése",
-          flipGlass: "Világos / Sötét váltás",
-          simPrefix: "Teszt távolság:",
-          triggerSim: "Riasztás tesztelése",
-          adBanner: "Diszkrét reklámhely",
-          editModalTitle: "Célpont szerkesztése",
-          editNameLabel: "Hely neve",
-          addressSearchLabel: "Cím vagy hely keresése",
-          addressSearchPlaceholder: "Írd be a címet...",
-          searchBtn: "Keresés",
-          useCurrentGps: "Jelenlegi GPS",
-          savePlace: "Mentés / OK",
-          cancelEdit: "Mégse",
-          alarmPrefix: "ÉBRESZTŐ:",
-          dismissForever: "Végleges leállítás",
-          snoozeMain: "SZUNDI (20 MP)",
-          snoozeTap: "20 mp némítás",
-          snoozeLeft: "mp",
-          alarmFooter: "20 mp szundi • Végleges leállítás a jobb felső gombbal.",
-          voiceListening: "Hallgatlak...",
-          voiceSelected: "Kiválasztva:",
-          voiceNotFound: "Nem ismertem fel:",
-          voiceUnavailable: "Hangfelismerés nem elérhető.",
-          defaultPlaces: ["Otthon", "Munka", "3. Hely", "4. Hely", "5. Hely", "6. Hely", "7. Hely", "8. Hely", "9. Hely", "10. Hely"],
-          themes: {
-            classic: "Letisztult alap", glass: "Átlátszó", cartoon: "Rajzfilmes",
-            gothic: "Gótikus", renaissance: "Reneszánsz", punk: "Punk"
-          },
-          sounds: {
-            roman_horn: "Római kori hadi kürt", clock_bell: "Klasszikus vekkercsengő", ship_horn: "Hajókürt",
-            train_whistle: "Vonatkürt", sonar_ping: "Szonár jelzés", fire_alarm: "Sürgősségi riasztó",
-            bronze_gong: "Bronz gong", bugle_call: "Katonai kürtjel", church_bell: "Harangzúgás",
-            morse_sos: "Morze jelzés", digital_pulse: "Digitális lüktetés"
-          },
-          ...BASE_NEW_STRINGS_HU
-        },
-        en: {
-          brandTitle: "StopWay", promptTitle: "Where are you heading?", langMenuTitle: "Select language",
-          startWatch: "Start watching", stopWatch: "Stop watching", previewSound: "Test sound",
-          loudMode: "Boost volume (with music)", pickAudio: "Load custom sound",
-          noCustomAudio: "No custom audio loaded (built-in sounds active).", customAudioLoaded: "Custom sound: ",
-          choosePlace: "Choose one of the 10 destinations.", tapToWatch: "Tap a place to watch, or press ✏️ to edit.",
-          editModeOn: "Edit mode active.", noCoordsYet: "No location set yet. Tap to pick on map or search address.",
-          watchingActive: "GPS watching active.", coordsReady: "Target set. Press 'Start watching'.",
-          beforeSuffix: "before", fixedPlace: "Fixed", freePlace: "Custom", setPlaceHint: "Set location",
-          coordsSet: "Location set", themeDrawerTitle: "Appearance", pickWallpaper: "Load wallpaper",
-          flipGlass: "Light / Dark toggle", simPrefix: "Test distance:", triggerSim: "Test alarm",
-          adBanner: "Ad slot", editModalTitle: "Edit destination", editNameLabel: "Place name",
-          addressSearchLabel: "Search address or place", addressSearchPlaceholder: "Type address...",
-          searchBtn: "Search", useCurrentGps: "Current GPS", savePlace: "Save / OK", cancelEdit: "Cancel",
-          alarmPrefix: "ALARM:", dismissForever: "Stop permanently", snoozeMain: "SNOOZE (20S)",
-          snoozeTap: "Mute for 20s", snoozeLeft: "s", alarmFooter: "20s snooze • Permanent stop at top corner.",
-          voiceListening: "Listening...", voiceSelected: "Selected:", voiceNotFound: "Not recognized:",
-          voiceUnavailable: "Speech recognition unavailable.",
-          defaultPlaces: ["Home", "Work", "Place 3", "Place 4", "Place 5", "Place 6", "Place 7", "Place 8", "Place 9", "Place 10"],
-          themes: { classic: "Classic", glass: "Glass", cartoon: "Cartoon", gothic: "Gothic", renaissance: "Renaissance", punk: "Punk" },
-          sounds: {
-            roman_horn: "Roman war horn", clock_bell: "Classic alarm bell", ship_horn: "Ship horn",
-            train_whistle: "Train whistle", sonar_ping: "Sonar ping", fire_alarm: "Emergency alarm",
-            bronze_gong: "Bronze gong", bugle_call: "Bugle call", church_bell: "Church bell",
-            morse_sos: "Morse signal", digital_pulse: "Digital pulse"
-          },
-          gpsOffTitle: "GPS is turned off",
-          gpsOffBody: "Location (GPS) must be enabled for stop-ahead alerts. Turn it on in device settings and try again.",
-          fgPermTitle: "While-using location access",
-          fgPermBody: "Location permission while using the app is required to track distance to your destination.",
-          bgPermTitle: "Background GPS access",
-          bgPermBody: "If you fall asleep or switch apps during your trip, background GPS helps alert you in time.",
-          allowBtn: "Allow", cancelBtn: "Cancel",
-          cancelWarnTitle: "Are you sure you want to cancel?",
-          cancelWarnBody: "Without background GPS permission, watching may stop when locking the screen or switching apps, risking a missed stop.",
-          yesSureBtn: "Yes, sure", noNotSureBtn: "Not sure",
-          readyBlinkHint: "Permissions ready. Tap the blinking 'Start watching' button!",
-          stopConfirmTitle: "Are you sure you want to stop?",
-          stopConfirmBody: "Stopping now turns off your stop-ahead alarm.",
-          confirmStopYes: "Yes, stop it", confirmStopNo: "Cancel",
-          stallWatchTitle: "Stop-stall monitor",
-          stallWatchBody: "The vehicle appears stationary for a while. Check if everything is fine or continue watching.",
-          stallContinueBtn: "Continue watching", stallStopBtn: "Stop watching",
-          arrivedTitle: "You have arrived!", arrivedBody: "You reached your destination.",
-          arrivedOkBtn: "OK", arrivedChoiceBody: "What would you like to do next?",
-          disableTrackingBtn: "Turn off tracking", newTripBtn: "Choose new trip",
-          restartRequiredTitle: "Restart required",
-          restartRequiredBody: "Watching started without background GPS permission and stopped due to screen lock or another app. Please go through the permission steps again.",
-          restartFlowBtn: "Restart"
-        },
-        he: {
-          brandTitle: "StopWay", promptTitle: "לאן נוסעים?", langMenuTitle: "בחירת שפה",
-          startWatch: "התחל מעקב", stopWatch: "עצור מעקב", previewSound: "צליל בדיקה",
-          loudMode: "עוצמה מוגברת (עם מוזיקה)", pickAudio: "טען צליל מותאם",
-          noCustomAudio: "לא נטען קובץ שמע (צלילים מובנים פעילים).", customAudioLoaded: "צליל מותאם: ",
-          choosePlace: "בחר יעד מתוך 10 המקומות.", tapToWatch: "הקש על מקום למעקב, או על ✏️ לעריכה.",
-          editModeOn: "מצב עריכה פעיל.", noCoordsYet: "טרם הוגדר מיקום. הקש לבחירה במפה או חיפוש כתובת.",
-          watchingActive: "מעקב GPS פעיל.", coordsReady: "היעד מוכן. לחץ על 'התחל מעקב'.",
-          beforeSuffix: "לפני", fixedPlace: "קבוע", freePlace: "מותאם", setPlaceHint: "הגדר מיקום",
-          coordsSet: "מיקום מוגדר", themeDrawerTitle: "סגנון תצוגה", pickWallpaper: "טען רקע",
-          flipGlass: "בהיר / כהה", simPrefix: "מרחק לבדיקה:", triggerSim: "בדוק התראה",
-          adBanner: "שטח פרסום", editModalTitle: "עריכת יעד", editNameLabel: "שם המקום",
-          addressSearchLabel: "חיפוש כתובת או מקום", addressSearchPlaceholder: "הקלד כתובת...",
-          searchBtn: "חיפוש", useCurrentGps: "GPS נוכחי", savePlace: "שמור / אישור", cancelEdit: "ביטול",
-          alarmPrefix: "התראה:", dismissForever: "עצירה סופית", snoozeMain: "נודניק (20 שניות)",
-          snoozeTap: "השתקה ל-20 שניות", snoozeLeft: "שנ׳", alarmFooter: "נודניק 20 שניות • עצירה סופית בפינה העליונה.",
-          voiceListening: "מקשיב...", voiceSelected: "נבחר:", voiceNotFound: "לא זוהה:",
-          voiceUnavailable: "זיהוי קולי אינו זמין.",
-          defaultPlaces: ["בית", "עבודה", "מקום 3", "מקום 4", "מקום 5", "מקום 6", "מקום 7", "מקום 8", "מקום 9", "מקום 10"],
-          themes: { classic: "קלאסי", glass: "שקוף", cartoon: "קומיקס", gothic: "גותי", renaissance: "רנסאנס", punk: "פאנק" },
-          sounds: {
-            roman_horn: "קרן מלחמה רומית", clock_bell: "פעמון שעון קלאסי", ship_horn: "צופר אונייה",
-            train_whistle: "שריקת רכבת", sonar_ping: "סונאר", fire_alarm: "אזעקת חירום",
-            bronze_gong: "גונג ברונזה", bugle_call: "אות חצוצרה", church_bell: "פעמון כנסייה",
-            morse_sos: "אות מורס", digital_pulse: "פולס דיגיטלי"
-          },
-          gpsOffTitle: "ה-GPS כבוי",
-          gpsOffBody: "יש להפעיל מיקום (GPS) להתרעה לפני תחנה. הפעל בהגדרות המכשיר ונסה שוב.",
-          fgPermTitle: "גישת מיקום בזמן שימוש",
-          fgPermBody: "נדרשת הרשאת מיקום בזמן השימוש באפליקציה כדי לעקוב אחרי המרחק ליעד.",
-          bgPermTitle: "גישת GPS ברקע",
-          bgPermBody: "אם תירדם או תעבור לאפליקציה אחרת בדרך, GPS ברקע יעזור להעיר אותך בזמן.",
-          allowBtn: "אפשר", cancelBtn: "ביטול",
-          cancelWarnTitle: "בטוח שברצונך לבטל?",
-          cancelWarnBody: "ללא הרשאת GPS ברקע, המעקב עלול להיפסק בנעילת מסך או במעבר אפליקציה ועלול לפספס את התחנה.",
-          yesSureBtn: "כן, בטוח", noNotSureBtn: "לא בטוח",
-          readyBlinkHint: "ההרשאות מוכנות. לחץ על כפתור 'התחל מעקב' המהבהב!",
-          stopConfirmTitle: "בטוח שברצונך לעצור?",
-          stopConfirmBody: "עצירה כעת תכבה את ההתראה לפני התחנה.",
-          confirmStopYes: "כן, עצור", confirmStopNo: "ביטול",
-          stallWatchTitle: "ניטור עצירה ממושכת",
-          stallWatchBody: "נראה שהרכב עומד במקום זמן ממושך. בדוק שהכול תקין או המשך מעקב.",
-          stallContinueBtn: "המשך מעקב", stallStopBtn: "עצור מעקב",
-          arrivedTitle: "הגעת ליעד!", arrivedBody: "הגעת ליעד שהוגדר.",
-          arrivedOkBtn: "אישור", arrivedChoiceBody: "מה תרצה לעשות עכשיו?",
-          disableTrackingBtn: "כבה מעקב", newTripBtn: "בחר נסיעה חדשה",
-          restartRequiredTitle: "נדרשת התחלה מחדש",
-          restartRequiredBody: "המעקב התחיל ללא הרשאת GPS ברקע ונעצר עקב נעילת מסך או אפליקציה אחרת. יש לעבור שוב על שלבי ההרשאה.",
-          restartFlowBtn: "התחל מחדש"
-        },
-        ar: {
-          brandTitle: "StopWay", promptTitle: "إلى أين تتجه؟", langMenuTitle: "اختر اللغة",
-          startWatch: "بدء المتابعة", stopWatch: "إيقاف المتابعة", previewSound: "تجربة الصوت",
-          loudMode: "رفع الصوت (مع الموسيقى)", pickAudio: "تحميل صوت مخصص",
-          noCustomAudio: "لا يوجد ملف صوت مخصص.", customAudioLoaded: "صوت مخصص: ",
-          choosePlace: "اختر وجهة من بين 10 أماكن.", tapToWatch: "اضغط على مكان للمتابعة أو ✏️ للتعديل.",
-          editModeOn: "وضع التعديل نشط.", noCoordsYet: "لم يتم تحديد موقع بعد.",
-          watchingActive: "متابعة GPS نشطة.", coordsReady: "تم تحديد الوجهة.",
-          beforeSuffix: "قبل", fixedPlace: "ثابت", freePlace: "مخصص", setPlaceHint: "تحديد الموقع",
-          coordsSet: "الموقع محدد", themeDrawerTitle: "المظهر", pickWallpaper: "تحميل خلفية",
-          flipGlass: "فاتح / داكن", simPrefix: "مسافة الاختبار:", triggerSim: "اختبار التنبيه",
-          adBanner: "مساحة إعلانية", editModalTitle: "تعديل الوجهة", editNameLabel: "اسم المكان",
-          addressSearchLabel: "بحث عن عنوان أو مكان", addressSearchPlaceholder: "اكتب العنوان...",
-          searchBtn: "بحث", useCurrentGps: "GPS الحالي", savePlace: "حفظ / موافق", cancelEdit: "إلغاء",
-          alarmPrefix: "تنبيه:", dismissForever: "إيقاف نهائي", snoozeMain: "غفوة (20 ثانية)",
-          snoozeTap: "كتم لمدة 20 ثانية", snoozeLeft: "ث", alarmFooter: "غفوة 20 ثانية • إيقاف نهائي من الزاوية العلوية.",
-          voiceListening: "جارٍ الاستماع...", voiceSelected: "تم الاختيار:", voiceNotFound: "لم يتم التعرف:",
-          voiceUnavailable: "التعرف الصوتي غير متاح.",
-          defaultPlaces: ["المنزل", "العمل", "مكان 3", "مكان 4", "مكان 5", "مكان 6", "مكان 7", "مكان 8", "مكان 9", "مكان 10"],
-          themes: { classic: "كلاسيكي", glass: "شفاف", cartoon: "كرتوني", gothic: "قوطي", renaissance: "عصر النهضة", punk: "بانك" },
-          sounds: {
-            roman_horn: "بوق روماني", clock_bell: "جرس منبه كلاسيكي", ship_horn: "بوق سفينة",
-            train_whistle: "صافرة قطار", sonar_ping: "إشارة سونار", fire_alarm: "إنذار طوارئ",
-            bronze_gong: "جونغ برونزي", bugle_call: "نداء بوق", church_bell: "جرس كنيسة",
-            morse_sos: "إشارة مورس", digital_pulse: "نبض رقمي"
-          },
-          gpsOffTitle: "GPS متوقف",
-          gpsOffBody: "يجب تشغيل الموقع (GPS) للتنبيه قبل المحطة. فعّله من إعدادات الجهاز ثم أعد المحاولة.",
-          fgPermTitle: "الوصول للموقع أثناء الاستخدام",
-          fgPermBody: "يلزم إذن الموقع أثناء استخدام التطبيق لتتبع المسافة إلى الوجهة.",
-          bgPermTitle: "الوصول إلى GPS في الخلفية",
-          bgPermBody: "إذا نمت أو بدّلت إلى تطبيق آخر أثناء الرحلة، يساعد GPS في الخلفية على التنبيه في الوقت المناسب.",
-          allowBtn: "سماح", cancelBtn: "إلغاء",
-          cancelWarnTitle: "هل أنت متأكد من الإلغاء؟",
-          cancelWarnBody: "بدون إذن GPS في الخلفية قد تتوقف المتابعة عند قفل الشاشة أو فتح تطبيق آخر وقد تفوتك المحطة.",
-          yesSureBtn: "نعم، متأكد", noNotSureBtn: "غير متأكد",
-          readyBlinkHint: "الأذونات جاهزة. اضغط على زر «بدء المتابعة» الوامض!",
-          stopConfirmTitle: "هل أنت متأكد من الإيقاف؟",
-          stopConfirmBody: "إيقاف المتابعة الآن سيُعطّل تنبيه الوصول قبل المحطة.",
-          confirmStopYes: "نعم، أوقف", confirmStopNo: "إلغاء",
-          stallWatchTitle: "مراقبة التوقف",
-          stallWatchBody: "يبدو أن المركبة متوقفة لفترة. تحقق من الوضع أو تابع المتابعة.",
-          stallContinueBtn: "متابعة المراقبة", stallStopBtn: "إيقاف المتابعة",
-          arrivedTitle: "لقد وصلت!", arrivedBody: "وصلت إلى وجهتك المحددة.",
-          arrivedOkBtn: "حسنًا", arrivedChoiceBody: "ماذا تريد أن تفعل الآن؟",
-          disableTrackingBtn: "إيقاف التتبع", newTripBtn: "اختيار رحلة جديدة",
-          restartRequiredTitle: "إعادة البدء مطلوبة",
-          restartRequiredBody: "بدأت المتابعة دون إذن GPS في الخلفية وتوقفت بسبب قفل الشاشة أو تطبيق آخر. يُرجى إعادة خطوات الأذونات.",
-          restartFlowBtn: "إعادة البدء"
-        },
-        ru: {
-          brandTitle: "StopWay", promptTitle: "Куда едем?", langMenuTitle: "Выбор языка",
-          startWatch: "Начать слежение", stopWatch: "Остановить слежение", previewSound: "Проверка звука",
-          loudMode: "Усилить звук (с музыкой)", pickAudio: "Загрузить свой звук",
-          noCustomAudio: "Свой звук не загружен.", customAudioLoaded: "Свой звук: ",
-          choosePlace: "Выберите место из 10 вариантов.", tapToWatch: "Нажмите на место или ✏️ для редактирования.",
-          editModeOn: "Режим редактирования включён.", noCoordsYet: "Место не задано. Выберите на карте или найдите адрес.",
-          watchingActive: "GPS-слежение активно.", coordsReady: "Цель задана. Нажмите «Начать слежение».",
-          beforeSuffix: "до цели", fixedPlace: "Фикс.", freePlace: "Свой", setPlaceHint: "Задать место",
-          coordsSet: "Место задано", themeDrawerTitle: "Оформление", pickWallpaper: "Загрузить фон",
-          flipGlass: "Светлый / Тёмный", simPrefix: "Тест дистанции:", triggerSim: "Тест сигнала",
-          adBanner: "Рекламный блок", editModalTitle: "Редактировать место", editNameLabel: "Название места",
-          addressSearchLabel: "Поиск адреса или места", addressSearchPlaceholder: "Введите адрес...",
-          searchBtn: "Найти", useCurrentGps: "Текущий GPS", savePlace: "Сохранить / ОК", cancelEdit: "Отмена",
-          alarmPrefix: "СИГНАЛ:", dismissForever: "Выключить совсем", snoozeMain: "ОТЛОЖИТЬ (20 С)",
-          snoozeTap: "Тишина на 20 сек", snoozeLeft: "с", alarmFooter: "Отложить на 20 с • Полное отключение в верхнем углу.",
-          voiceListening: "Слушаю...", voiceSelected: "Выбрано:", voiceNotFound: "Не распознано:",
-          voiceUnavailable: "Голосовой ввод недоступен.",
-          defaultPlaces: ["Дом", "Работа", "Место 3", "Место 4", "Место 5", "Место 6", "Место 7", "Место 8", "Место 9", "Место 10"],
-          themes: { classic: "Классика", glass: "Прозрачный", cartoon: "Комикс", gothic: "Готика", renaissance: "Ренессанс", punk: "Панк" },
-          sounds: {
-            roman_horn: "Римский горн", clock_bell: "Звонок будильника", ship_horn: "Гудок корабля",
-            train_whistle: "Гудок поезда", sonar_ping: "Сигнал сонара", fire_alarm: "Тревога",
-            bronze_gong: "Бронзовый гонг", bugle_call: "Сигнал горна", church_bell: "Колокол",
-            morse_sos: "Сигнал Морзе", digital_pulse: "Импульс"
-          },
-          gpsOffTitle: "GPS выключен",
-          gpsOffBody: "Для оповещения перед остановкой включите геолокацию (GPS) в настройках устройства и повторите попытку.",
-          fgPermTitle: "Доступ к геопозиции при использовании",
-          fgPermBody: "Разрешение на определение местоположения во время работы приложения нужно для расчёта расстояния до цели.",
-          bgPermTitle: "Фоновый доступ к GPS",
-          bgPermBody: "Если вы уснёте или переключитесь на другое приложение в пути, фоновый GPS поможет разбудить вас вовремя.",
-          allowBtn: "Разрешить", cancelBtn: "Отмена",
-          cancelWarnTitle: "Вы уверены, что хотите отменить?",
-          cancelWarnBody: "Без фонового GPS слежение может остановиться при блокировке экрана или переходе в другое приложение.",
-          yesSureBtn: "Да, уверен", noNotSureBtn: "Не уверен",
-          readyBlinkHint: "Разрешения готовы. Нажмите мигающую кнопку «Начать слежение»!",
-          stopConfirmTitle: "Вы уверены, что хотите остановить?",
-          stopConfirmBody: "Остановка отключит будильник перед остановкой.",
-          confirmStopYes: "Да, остановить", confirmStopNo: "Отмена",
-          stallWatchTitle: "Контроль остановки",
-          stallWatchBody: "Похоже, транспорт долго стоит на месте. Проверьте ситуацию или продолжите слежение.",
-          stallContinueBtn: "Продолжить слежение", stallStopBtn: "Остановить слежение",
-          arrivedTitle: "Вы прибыли!", arrivedBody: "Вы достигли выбранного места.",
-          arrivedOkBtn: "ОК", arrivedChoiceBody: "Что сделать дальше?",
-          disableTrackingBtn: "Отключить слежение", newTripBtn: "Выбрать новую поездку",
-          restartRequiredTitle: "Требуется перезапуск",
-          restartRequiredBody: "Слежение запускалось без фонового GPS и остановилось из-за блокировки экрана или другого приложения. Пройдите шаги разрешений заново.",
-          restartFlowBtn: "Начать заново"
-        }
-      };
+    const state = {
+      lang: "hu",
+      theme: "default",
+      sound: "chime",
+      threshold: 500,
+      loudMode: false,
+      editMode: false,
+      watching: false,
+      selectedIndex: 0,
+      places: Array.from({ length: 10 }, (_, i) => ({
+        name: TRANSLATIONS.hu.defaultPlaces[i],
+        lat: null,
+        lng: null
+      })),
+      lastMoveTime: Date.now(),
+      lastPos: null
+    };
 
-      const EXTRA_LANG_KEYS = {
-        am: {
-          gpsOffTitle: "GPS ጠፍቷል", gpsOffBody: "ከመድረሻ በፊት ለማንቂያ GPS ያብሩ እና እንደገና ይሞክሩ።",
-          fgPermTitle: "በሚጠቀሙበት ጊዜ የአካባቢ ፈቃድ", fgPermBody: "ወደ መድረሻ ያለውን ርቀት ለመከታተል የአካባቢ ፈቃድ ያስፈልጋል።",
-          bgPermTitle: "የጀርባ GPS መዳረሻ", bgPermBody: "በጉዞ ላይ ቢተኙ ወይም ሌላ መተግበሪያ ቢከፍቱ የጀርባ GPS በጊዜ ያነቃዎታል።",
-          allowBtn: "ፍቀድ", cancelBtn: "ሰርዝ", cancelWarnTitle: "እርግጠኛ ነዎት መሰረዝ ይፈልጋሉ?",
-          cancelWarnBody: "ያለ የጀርባ GPS ፈቃድ ማያ ሲቆለፍ ወይም ሌላ መተግበሪያ ሲከፈት ክትትል ሊቋረጥ ይችላል።",
-          yesSureBtn: "አዎ እርግጠኛ ነኝ", noNotSureBtn: "እርግጠኛ አይደለሁም",
-          readyBlinkHint: "ፈቃዶች ተዘጋጅተዋል። የሚብረቀረቀውን 'ክትትል ጀምር' ይጫኑ!",
-          stopConfirmTitle: "እርግጠኛ ነዎት ማቆም ይፈልጋሉ?", stopConfirmBody: "አሁን ማቆም የመድረሻ ማንቂያውን ያጠፋል።",
-          confirmStopYes: "አዎ አቁም", confirmStopNo: "ሰርዝ",
-          stallWatchTitle: "የመቆም ክትትል", stallWatchBody: "ተሽከርካሪው ለረጅም ጊዜ የቆመ ይመስላል። ሁኔታውን ያረጋግጡ ወይም ይቀጥሉ።",
-          stallContinueBtn: "ክትትል ቀጥል", stallStopBtn: "ክትትል አቁም",
-          arrivedTitle: "ደርሰዋል!", arrivedBody: "የተመረጠውን መድረሻ ደርሰዋል።", arrivedOkBtn: "እሺ",
-          arrivedChoiceBody: "ቀጥሎ ምን ማድረግ ይፈልጋሉ?", disableTrackingBtn: "ክትትል አጥፋ", newTripBtn: "አዲስ ጉዞ ምረጥ",
-          restartRequiredTitle: "እንደገና መጀመር ያስፈልጋል",
-          restartRequiredBody: "ክትትሉ ያለ የጀርባ GPS ፈቃድ ተጀምሮ ተቋርጧል። እባክዎ የፈቃድ ደረጃዎችን እንደገና ይለፉ።",
-          restartFlowBtn: "እንደገና ጀምር"
-        },
-        ti: {
-          gpsOffTitle: "GPS ጠፊኡ ኣሎ", gpsOffBody: "ቅድሚ መዓርፎ ንምጥንቃቕ GPS ኣብርሕ እሞ እንደገና ፈትን።",
-          fgPermTitle: "ፍቓድ ቦታ ኣብ እዋን ምጥቃም", fgPermBody: "ርሕቀት መዓርፎ ንምክትታል ፍቓድ ቦታ የድሊ።",
-          bgPermTitle: "ናይ ድሕረ-ባይታ GPS", bgPermBody: "ኣብ መንገዲ እንተደቀስካ ወይ ካልእ ኣፕ እንተኸፈትካ ናይ ድሕረ-ባይታ GPS ኣብ ግዜኡ የበራብረካ።",
-          allowBtn: "ፍቐድ", cancelBtn: "ሰርዝ", cancelWarnTitle: "ርግጸኛ ዲኻ ክትሰርዝ ትደሊ?",
-          cancelWarnBody: "ብዘይ ናይ ድሕረ-ባይታ GPS ፍቓድ ስክሪን ክዕጸፍ ከሎ ወይ ካልእ ኣፕ ክኽፈት ከሎ ክትትል ደው ክብል ይኽእል።",
-          yesSureBtn: "እወ ርግጸኛ እየ", noNotSureBtn: "ርግጸኛ ኣይኮንኩን",
-          readyBlinkHint: "ፍቓዳት ተዳልዮም ኣለዉ። ነቲ ዝ blink ዝብል 'ክትትል ጀምር' ጸቕጥ!",
-          stopConfirmTitle: "ርግጸኛ ዲኻ ደው ከተብል ትደሊ?", stopConfirmBody: "ሕጂ ደው ምባል መጠንቀቒ መዓርፎ የጥፍእ።",
-          confirmStopYes: "እወ ደው ኣብል", confirmStopNo: "ሰርዝ",
-          stallWatchTitle: "ክትትል ደው ምባል", stallWatchBody: "መጓዓዝያ ንነዊሕ እዋን ደው ዝበለ ይመስል። ኣረጋግጽ ወይ ክትትል ቀጽል።",
-          stallContinueBtn: "ክትትል ቀጽል", stallStopBtn: "ክትትል ደው ኣብል",
-          arrivedTitle: "በጺሕካ!", arrivedBody: "ዝተመረጸ መዓርፎ በጺሕካ።", arrivedOkBtn: "ሕራይ",
-          arrivedChoiceBody: "ሕጂ እንታይ ክትገብር ትደሊ?", disableTrackingBtn: "ክትትል ኣጥፍእ", newTripBtn: "ሓድሽ ጉዕዞ ምረጽ",
-          restartRequiredTitle: "እንደገና ምጅማር የድሊ",
-          restartRequiredBody: "ክትትል ብዘይ ናይ ድሕረ-ባይታ GPS ፍቓድ ተጀሚሩ ተቋሪጹ። በጃኻ ደረጃታት ፍቓድ እንደገና ሕለፍ።",
-          restartFlowBtn: "እንደገና ጀምር"
-        },
-        vi: {
-          gpsOffTitle: "GPS đang tắt", gpsOffBody: "Hãy bật định vị (GPS) trong cài đặt thiết bị để cảnh báo trước điểm đến.",
-          fgPermTitle: "Quyền vị trí khi dùng ứng dụng", fgPermBody: "Cần quyền vị trí khi mở ứng dụng để theo dõi khoảng cách tới đích.",
-          bgPermTitle: "Quyền GPS chạy nền", bgPermBody: "Nếu bạn ngủ quên hoặc mở ứng dụng khác trên đường, GPS nền giúp báo thức kịp lúc.",
-          allowBtn: "Cho phép", cancelBtn: "Hủy", cancelWarnTitle: "Bạn có chắc muốn hủy?",
-          cancelWarnBody: "Không có GPS nền, theo dõi có thể dừng khi khóa màn hình hoặc chuyển ứng dụng và làm lỡ trạm.",
-          yesSureBtn: "Có, chắc chắn", noNotSureBtn: "Không chắc",
-          readyBlinkHint: "Đã đủ quyền. Hãy bấm nút 'Bắt đầu theo dõi' đang nhấp nháy!",
-          stopConfirmTitle: "Bạn có chắc muốn dừng?", stopConfirmBody: "Dừng ngay bây giờ sẽ tắt báo thức trước điểm đến.",
-          confirmStopYes: "Có, dừng lại", confirmStopNo: "Hủy",
-          stallWatchTitle: "Giám sát dừng xe", stallWatchBody: "Xe có vẻ đang dừng lâu tại chỗ. Hãy kiểm tra hoặc tiếp tục theo dõi.",
-          stallContinueBtn: "Tiếp tục theo dõi", stallStopBtn: "Dừng theo dõi",
-          arrivedTitle: "Bạn đã tới nơi!", arrivedBody: "Bạn đã đến điểm đến đã đặt.", arrivedOkBtn: "OK",
-          arrivedChoiceBody: "Bạn muốn làm gì tiếp theo?", disableTrackingBtn: "Tắt theo dõi", newTripBtn: "Chọn chuyến mới",
-          restartRequiredTitle: "Cần khởi động lại",
-          restartRequiredBody: "Theo dõi bắt đầu không có GPS nền và đã dừng do khóa màn hình hoặc ứng dụng khác. Hãy làm lại các bước cấp quyền.",
-          restartFlowBtn: "Bắt đầu lại"
-        },
-        fr: {
-          gpsOffTitle: "GPS désactivé", gpsOffBody: "Activez la localisation (GPS) dans les paramètres de l'appareil pour les alertes avant l'arrêt.",
-          fgPermTitle: "Accès à la position pendant l'utilisation", fgPermBody: "L'autorisation de localisation pendant l'utilisation est requise pour suivre la distance.",
-          bgPermTitle: "Accès GPS en arrière-plan", bgPermBody: "Si vous vous endormez ou changez d'application, le GPS en arrière-plan aide à vous réveiller à temps.",
-          allowBtn: "Autoriser", cancelBtn: "Annuler", cancelWarnTitle: "Voulez-vous vraiment annuler ?",
-          cancelWarnBody: "Sans GPS en arrière-plan, le suivi peut s'arrêter au verrouillage ou en changeant d'app et faire rater l'arrêt.",
-          yesSureBtn: "Oui, sûr", noNotSureBtn: "Pas sûr",
-          readyBlinkHint: "Autorisations prêtes. Appuyez sur « Démarrer le suivi » qui clignote !",
-          stopConfirmTitle: "Voulez-vous vraiment arrêter ?", stopConfirmBody: "Arrêter maintenant désactive l'alarme avant l'arrêt.",
-          confirmStopYes: "Oui, arrêter", confirmStopNo: "Annuler",
-          stallWatchTitle: "Surveillance d'arrêt prolongé", stallWatchBody: "Le véhicule semble immobile depuis un moment. Vérifiez ou poursuivez le suivi.",
-          stallContinueBtn: "Continuer le suivi", stallStopBtn: "Arrêter le suivi",
-          arrivedTitle: "Vous êtes arrivé !", arrivedBody: "Vous avez atteint votre destination.", arrivedOkBtn: "OK",
-          arrivedChoiceBody: "Que souhaitez-vous faire maintenant ?", disableTrackingBtn: "Désactiver le suivi", newTripBtn: "Nouveau trajet",
-          restartRequiredTitle: "Redémarrage requis",
-          restartRequiredBody: "Le suivi a démarré sans GPS en arrière-plan et s'est arrêté suite au verrouillage ou à une autre app. Refaites les étapes d'autorisation.",
-          restartFlowBtn: "Recommencer"
-        },
-        es: {
-          gpsOffTitle: "El GPS está desactivado", gpsOffBody: "Activa la ubicación (GPS) en los ajustes del dispositivo para recibir avisos antes de la parada.",
-          fgPermTitle: "Ubicación en uso de la app", fgPermBody: "Se necesita permiso de ubicación mientras usas la app para calcular la distancia al destino.",
-          bgPermTitle: "Acceso GPS en segundo plano", bgPermBody: "Si te duermes o cambias de app en el trayecto, el GPS en segundo plano ayuda a avisarte a tiempo.",
-          allowBtn: "Permitir", cancelBtn: "Cancelar", cancelWarnTitle: "¿Seguro que quieres cancelar?",
-          cancelWarnBody: "Sin GPS en segundo plano, el seguimiento puede detenerse al bloquear la pantalla o cambiar de app.",
-          yesSureBtn: "Sí, seguro", noNotSureBtn: "No estoy seguro",
-          readyBlinkHint: "Permisos listos. ¡Pulsa el botón parpadeante «Iniciar seguimiento»!",
-          stopConfirmTitle: "¿Seguro que quieres detenerlo?", stopConfirmBody: "Detener ahora desactiva la alarma antes de la parada.",
-          confirmStopYes: "Sí, detener", confirmStopNo: "Cancelar",
-          stallWatchTitle: "Control de parada prolongada", stallWatchBody: "Parece que el vehículo lleva un rato detenido. Comprueba o continúa el seguimiento.",
-          stallContinueBtn: "Continuar seguimiento", stallStopBtn: "Detener seguimiento",
-          arrivedTitle: "¡Has llegado!", arrivedBody: "Llegaste a tu destino configurado.", arrivedOkBtn: "Aceptar",
-          arrivedChoiceBody: "¿Qué quieres hacer ahora?", disableTrackingBtn: "Desactivar seguimiento", newTripBtn: "Elegir nuevo viaje",
-          restartRequiredTitle: "Reinicio necesario",
-          restartRequiredBody: "El seguimiento inició sin GPS en segundo plano y se detuvo por bloqueo de pantalla u otra app. Repite los pasos de permisos.",
-          restartFlowBtn: "Reiniciar"
-        },
-        de: {
-          gpsOffTitle: "GPS ist deaktiviert", gpsOffBody: "Aktiviere den Standort (GPS) in den Geräteeinstellungen für Warnungen vor dem Halt.",
-          fgPermTitle: "Standortzugriff bei Nutzung", fgPermBody: "Standortberechtigung während der App-Nutzung wird für die Entfernungsprüfung benötigt.",
-          bgPermTitle: "GPS-Zugriff im Hintergrund", bgPermBody: "Falls du einschläfst oder die App wechselst, weckt dich Hintergrund-GPS rechtzeitig.",
-          allowBtn: "Erlauben", cancelBtn: "Abbrechen", cancelWarnTitle: "Wirklich abbrechen?",
-          cancelWarnBody: "Ohne Hintergrund-GPS kann die Überwachung beim Sperren oder App-Wechsel stoppen und du verpasst den Halt.",
-          yesSureBtn: "Ja, sicher", noNotSureBtn: "Nicht sicher",
-          readyBlinkHint: "Berechtigungen bereit. Tippe auf den blinkenden Button „Überwachung starten“!",
-          stopConfirmTitle: "Wirklich stoppen?", stopConfirmBody: "Beim Stoppen wird der Wecker vor dem Halt deaktiviert.",
-          confirmStopYes: "Ja, stoppen", confirmStopNo: "Abbrechen",
-          stallWatchTitle: "Halt-Überwachung", stallWatchBody: "Das Fahrzeug scheint länger zu stehen. Prüfe die Lage oder setze die Überwachung fort.",
-          stallContinueBtn: "Überwachung fortsetzen", stallStopBtn: "Überwachung stoppen",
-          arrivedTitle: "Angekommen!", arrivedBody: "Du hast dein Ziel erreicht.", arrivedOkBtn: "OK",
-          arrivedChoiceBody: "Was möchtest du als Nächstes tun?", disableTrackingBtn: "Tracking deaktivieren", newTripBtn: "Neue Fahrt wählen",
-          restartRequiredTitle: "Neustart erforderlich",
-          restartRequiredBody: "Überwachung startete ohne Hintergrund-GPS und stoppte durch Displaysperre oder andere App. Bitte Berechtigungen erneut durchlaufen.",
-          restartFlowBtn: "Neu starten"
-        },
-        zh: {
-          gpsOffTitle: "GPS 已关闭", gpsOffBody: "请在设备设置中开启定位（GPS），以便在到站前提醒。",
-          fgPermTitle: "使用应用时获取位置", fgPermBody: "需要应用使用期间的位置权限来追踪到目的地的距离。",
-          bgPermTitle: "后台 GPS 访问", bgPermBody: "如果旅途中睡着或切换应用，后台 GPS 有助于及时提醒你。",
-          allowBtn: "允许", cancelBtn: "取消", cancelWarnTitle: "确定要取消吗？",
-          cancelWarnBody: "没有后台 GPS 权限，锁屏或切换应用时监控可能停止，导致错过站点。",
-          yesSureBtn: "是的，确定", noNotSureBtn: "不确定",
-          readyBlinkHint: "权限已就绪。请点击闪烁的“开始监控”按钮！",
-          stopConfirmTitle: "确定要停止吗？", stopConfirmBody: "现在停止将关闭到站前闹钟。",
-          confirmStopYes: "是的，停止", confirmStopNo: "取消",
-          stallWatchTitle: "停车监控", stallWatchBody: "车辆似乎已长时间停留。请检查情况或继续监控。",
-          stallContinueBtn: "继续监控", stallStopBtn: "停止监控",
-          arrivedTitle: "已到达！", arrivedBody: "你已到达设定的目的地。", arrivedOkBtn: "确定",
-          arrivedChoiceBody: "接下来想怎么做？", disableTrackingBtn: "关闭追踪", newTripBtn: "选择新行程",
-          restartRequiredTitle: "需要重新开始",
-          restartRequiredBody: "监控在无后台 GPS 权限下启动，并因锁屏或其他应用而停止。请重新完成权限步骤。",
-          restartFlowBtn: "重新开始"
-        },
-        ja: {
-          gpsOffTitle: "GPSがオフです", gpsOffBody: "降車前アラームのために端末の設定で位置情報（GPS）をオンにしてください。",
-          fgPermTitle: "アプリ使用中の位置情報", fgPermBody: "目的地までの距離を追跡するには、使用中の位置情報許可が必要です。",
-          bgPermTitle: "バックグラウンドGPS", bgPermBody: "移動中に眠ったり別アプリへ切り替えても、バックグラウンドGPSで時間通りにお知らせします。",
-          allowBtn: "許可", cancelBtn: "キャンセル", cancelWarnTitle: "本当にキャンセルしますか？",
-          cancelWarnBody: "バックグラウンドGPSがないと、画面ロックやアプリ切替で監視が止まり乗り過ごす恐れがあります。",
-          yesSureBtn: "はい、確かです", noNotSureBtn: "自信がありません",
-          readyBlinkHint: "許可が完了しました。点滅している「監視を開始」を押してください！",
-          stopConfirmTitle: "本当に停止しますか？", stopConfirmBody: "停止すると降車前アラームがオフになります。",
-          confirmStopYes: "はい、停止", confirmStopNo: "キャンセル",
-          stallWatchTitle: "停車モニター", stallWatchBody: "車両がしばらく停止しているようです。確認するか監視を続けてください。",
-          stallContinueBtn: "監視を続ける", stallStopBtn: "監視を停止",
-          arrivedTitle: "到着しました！", arrivedBody: "設定した目的地に到着しました。", arrivedOkBtn: "OK",
-          arrivedChoiceBody: "次はどうしますか？", disableTrackingBtn: "追跡をオフ", newTripBtn: "新しい移動を選ぶ",
-          restartRequiredTitle: "やり直しが必要です",
-          restartRequiredBody: "バックグラウンドGPSなしで開始した監視が画面ロックや他アプリで停止しました。許可手順をやり直してください。",
-          restartFlowBtn: "やり直す"
-        },
-        ko: {
-          gpsOffTitle: "GPS가 꺼져 있습니다", gpsOffBody: "정류장 전 알림을 위해 기기 설정에서 위치(GPS)를 켜고 다시 시도하세요.",
-          fgPermTitle: "앱 사용 중 위치 접근", fgPermBody: "목적지까지의 거리를 추적하려면 앱 사용 중 위치 권한이 필요합니다.",
-          bgPermTitle: "백그라운드 GPS 접근", bgPermBody: "이동 중 잠들거나 다른 앱으로 전환해도 백그라운드 GPS가 제때 알려줍니다.",
-          allowBtn: "허용", cancelBtn: "취소", cancelWarnTitle: "정말 취소하시겠습니까?",
-          cancelWarnBody: "백그라운드 GPS 권한이 없으면 화면 잠금이나 앱 전환 시 감시가 멈춰 내릴 곳을 놓칠 수 있습니다.",
-          yesSureBtn: "네, 확실합니다", noNotSureBtn: "잘 모르겠습니다",
-          readyBlinkHint: "권한이 준비되었습니다. 깜빡이는 '감시 시작' 버튼을 누르세요!",
-          stopConfirmTitle: "정말 중지하시겠습니까?", stopConfirmBody: "지금 중지하면 정류장 전 알람이 꺼집니다.",
-          confirmStopYes: "네, 중지", confirmStopNo: "취소",
-          stallWatchTitle: "정차 모니터링", stallWatchBody: "차량이 한동안 멈춰 있는 것 같습니다. 확인하거나 감시를 계속하세요.",
-          stallContinueBtn: "감시 계속", stallStopBtn: "감시 중지",
-          arrivedTitle: "도착했습니다!", arrivedBody: "설정한 목적지에 도착했습니다.", arrivedOkBtn: "확인",
-          arrivedChoiceBody: "다음에 무엇을 하시겠습니까?", disableTrackingBtn: "추적 끄기", newTripBtn: "새 이동 선택",
-          restartRequiredTitle: "다시 시작해야 합니다",
-          restartRequiredBody: "백그라운드 GPS 권한 없이 시작한 감시가 화면 잠금이나 다른 앱 때문에 중지되었습니다. 권한 단계를 다시 진행하세요.",
-          restartFlowBtn: "다시 시작"
-        },
-        it: {
-          gpsOffTitle: "GPS disattivato", gpsOffBody: "Attiva la posizione (GPS) nelle impostazioni del dispositivo per l'avviso prima della fermata.",
-          fgPermTitle: "Posizione durante l'uso", fgPermBody: "Serve il permesso di posizione durante l'uso dell'app per monitorare la distanza.",
-          bgPermTitle: "GPS in background", bgPermBody: "Se ti addormenti o cambi app durante il viaggio, il GPS in background ti avvisa in tempo.",
-          allowBtn: "Consenti", cancelBtn: "Annulla", cancelWarnTitle: "Sei sicuro di voler annullare?",
-          cancelWarnBody: "Senza GPS in background il controllo può fermarsi al blocco schermo o cambiando app e far saltare la fermata.",
-          yesSureBtn: "Sì, sicuro", noNotSureBtn: "Non sicuro",
-          readyBlinkHint: "Permessi pronti. Tocca il pulsante lampeggiante 'Avvia controllo'!",
-          stopConfirmTitle: "Sei sicuro di voler fermare?", stopConfirmBody: "Fermando ora disattivi la sveglia prima della fermata.",
-          confirmStopYes: "Sì, ferma", confirmStopNo: "Annulla",
-          stallWatchTitle: "Monitoraggio sosta", stallWatchBody: "Il veicolo sembra fermo da un po'. Controlla o continua il monitoraggio.",
-          stallContinueBtn: "Continua controllo", stallStopBtn: "Ferma controllo",
-          arrivedTitle: "Sei arrivato!", arrivedBody: "Hai raggiunto la destinazione impostata.", arrivedOkBtn: "OK",
-          arrivedChoiceBody: "Cosa vuoi fare ora?", disableTrackingBtn: "Disattiva tracciamento", newTripBtn: "Nuovo viaggio",
-          restartRequiredTitle: "Riavvio necessario",
-          restartRequiredBody: "Il controllo è partito senza GPS in background ed è stato fermato da blocco schermo o altra app. Ripeti i passaggi dei permessi.",
-          restartFlowBtn: "Ricomincia"
-        },
-        pt: {
-          gpsOffTitle: "GPS desligado", gpsOffBody: "Ative a localização (GPS) nas definições do dispositivo para alertas antes da paragem.",
-          fgPermTitle: "Localização durante a utilização", fgPermBody: "É necessária permissão de localização durante o uso para acompanhar a distância.",
-          bgPermTitle: "GPS em segundo plano", bgPermBody: "Se adormecer ou mudar de app na viagem, o GPS em segundo plano ajuda a avisar a tempo.",
-          allowBtn: "Permitir", cancelBtn: "Cancelar", cancelWarnTitle: "Tem a certeza de que quer cancelar?",
-          cancelWarnBody: "Sem GPS em segundo plano, a vigilância pode parar ao bloquear o ecrã ou mudar de app.",
-          yesSureBtn: "Sim, tenho certeza", noNotSureBtn: "Não tenho certeza",
-          readyBlinkHint: "Permissões prontas. Toque no botão intermitente 'Iniciar vigilância'!",
-          stopConfirmTitle: "Tem a certeza de que quer parar?", stopConfirmBody: "Parar agora desativa o alarme antes da paragem.",
-          confirmStopYes: "Sim, parar", confirmStopNo: "Cancelar",
-          stallWatchTitle: "Monitor de paragem", stallWatchBody: "O veículo parece parado há algum tempo. Verifique ou continue a vigilância.",
-          stallContinueBtn: "Continuar vigilância", stallStopBtn: "Parar vigilância",
-          arrivedTitle: "Chegou!", arrivedBody: "Chegou ao destino definido.", arrivedOkBtn: "OK",
-          arrivedChoiceBody: "O que pretende fazer agora?", disableTrackingBtn: "Desativar seguimento", newTripBtn: "Nova viagem",
-          restartRequiredTitle: "Reinício necessário",
-          restartRequiredBody: "A vigilância iniciou sem GPS em segundo plano e parou por bloqueio de ecrã ou outra app. Repita os passos de permissão.",
-          restartFlowBtn: "Recomeçar"
-        },
-        uk: {
-          gpsOffTitle: "GPS вимкнено", gpsOffBody: "Увімкніть геолокацію (GPS) у налаштуваннях пристрою для сповіщення перед зупинкою.",
-          fgPermTitle: "Доступ до геопозиції під час використання", fgPermBody: "Дозвіл на місцезнаходження під час роботи додатка потрібен для відстеження відстані.",
-          bgPermTitle: "Фоновий доступ до GPS", bgPermBody: "Якщо ви заснете або перемкнетеся на інший додаток у дорозі, фоновий GPS розбудить вчасно.",
-          allowBtn: "Дозволити", cancelBtn: "Скасувати", cancelWarnTitle: "Ви впевнені, що хочете скасувати?",
-          cancelWarnBody: "Без фонового GPS стеження може зупинитися при блокуванні екрана або зміні додатка.",
-          yesSureBtn: "Так, упевнений", noNotSureBtn: "Не впевнений",
-          readyBlinkHint: "Дозволи готові. Натисніть миготливу кнопку «Почати стеження»!",
-          stopConfirmTitle: "Ви впевнені, що хочете зупинити?", stopConfirmBody: "Зупинка вимкне будильник перед зупинкою.",
-          confirmStopYes: "Так, зупинити", confirmStopNo: "Скасувати",
-          stallWatchTitle: "Контроль зупинки", stallWatchBody: "Схоже, транспорт довго стоїть на місці. Перевірте або продовжте стеження.",
-          stallContinueBtn: "Продовжити стеження", stallStopBtn: "Зупинити стеження",
-          arrivedTitle: "Ви прибули!", arrivedBody: "Ви досягли обраного місця.", arrivedOkBtn: "ОК",
-          arrivedChoiceBody: "Що робити далі?", disableTrackingBtn: "Вимкнути стеження", newTripBtn: "Обрати нову поїздку",
-          restartRequiredTitle: "Потрібен перезапуск",
-          restartRequiredBody: "Стеження запускалося без фонового GPS і зупинилося через блокування екрана або інший додаток. Пройдіть кроки дозволів заново.",
-          restartFlowBtn: "Почати заново"
-        },
-        pl: {
-          gpsOffTitle: "GPS jest wyłączony", gpsOffBody: "Włącz lokalizację (GPS) w ustawieniach urządzenia, aby otrzymywać alerty przed przystankiem.",
-          fgPermTitle: "Lokalizacja podczas korzystania", fgPermBody: "Uprawnienie do lokalizacji podczas używania aplikacji jest potrzebne do śledzenia dystansu.",
-          bgPermTitle: "Dostęp GPS w tle", bgPermBody: "Jeśli zaśniesz lub przełączysz aplikację w trasie, GPS w tle obudzi Cię na czas.",
-          allowBtn: "Zezwól", cancelBtn: "Anuluj", cancelWarnTitle: "Na pewno chcesz anulować?",
-          cancelWarnBody: "Bez GPS w tle śledzenie może zatrzymać się po zablokowaniu ekranu lub zmianie aplikacji.",
-          yesSureBtn: "Tak, na pewno", noNotSureBtn: "Nie jestem pewien",
-          readyBlinkHint: "Uprawnienia gotowe. Naciśnij migający przycisk „Rozpocznij śledzenie”!",
-          stopConfirmTitle: "Na pewno chcesz zatrzymać?", stopConfirmBody: "Zatrzymanie teraz wyłączy alarm przed przystankiem.",
-          confirmStopYes: "Tak, zatrzymaj", confirmStopNo: "Anuluj",
-          stallWatchTitle: "Monitor postoju", stallWatchBody: "Pojazd wygląda na zatrzymany dłużej w jednym miejscu. Sprawdź lub kontynuuj śledzenie.",
-          stallContinueBtn: "Kontynuuj śledzenie", stallStopBtn: "Zatrzymaj śledzenie",
-          arrivedTitle: "Dotarłeś!", arrivedBody: "Osiągnięto ustawiony cel.", arrivedOkBtn: "OK",
-          arrivedChoiceBody: "Co chcesz teraz zrobić?", disableTrackingBtn: "Wyłącz śledzenie", newTripBtn: "Wybierz nową podróż",
-          restartRequiredTitle: "Wymagany ponowny start",
-          restartRequiredBody: "Śledzenie ruszyło bez GPS w tle i zatrzymało się przez blokadę ekranu lub inną aplikację. Przejdź kroki uprawnień ponownie.",
-          restartFlowBtn: "Zacznij od nowa"
-        },
-        tr: {
-          gpsOffTitle: "GPS kapalı", gpsOffBody: "Durak öncesi uyarılar için cihaz ayarlarından konumu (GPS) açıp tekrar deneyin.",
-          fgPermTitle: "Uygulama kullanılırken konum erişimi", fgPermBody: "Hedefe olan mesafeyi izlemek için kullanım sırasında konum izni gerekir.",
-          bgPermTitle: "Arka planda GPS erişimi", bgPermBody: "Yolda uyursanız veya başka uygulamaya geçerseniz arka plan GPS zamanında uyarır.",
-          allowBtn: "İzin ver", cancelBtn: "İptal", cancelWarnTitle: "İptal etmek istediğinizden emin misiniz?",
-          cancelWarnBody: "Arka plan GPS olmadan ekran kilitlendiğinde veya uygulama değiştiğinde takip durabilir.",
-          yesSureBtn: "Evet, eminim", noNotSureBtn: "Emin değilim",
-          readyBlinkHint: "İzinler hazır. Yanıp sönen 'Takibi başlat' düğmesine basın!",
-          stopConfirmTitle: "Durdurmak istediğinizden emin misiniz?", stopConfirmBody: "Şimdi durdurmak durak öncesi alarmı kapatır.",
-          confirmStopYes: "Evet, durdur", confirmStopNo: "İptal",
-          stallWatchTitle: "Duraklama izleme", stallWatchBody: "Araç bir süredir aynı yerde duruyor gibi görünüyor. Kontrol edin veya takibe devam edin.",
-          stallContinueBtn: "Takibe devam et", stallStopBtn: "Takibi durdur",
-          arrivedTitle: "Vardınız!", arrivedBody: "Ayarlanan hedefe ulaştınız.", arrivedOkBtn: "Tamam",
-          arrivedChoiceBody: "Şimdi ne yapmak istersiniz?", disableTrackingBtn: "Takibi kapat", newTripBtn: "Yeni yolculuk seç",
-          restartRequiredTitle: "Yeniden başlatma gerekli",
-          restartRequiredBody: "Takip arka plan GPS izni olmadan başladı ve ekran kilidi veya başka uygulama yüzünden durdu. İzin adımlarını yeniden yapın.",
-          restartFlowBtn: "Yeniden başla"
-        },
-        hi: {
-          gpsOffTitle: "GPS बंद है", gpsOffBody: "स्टॉप से पहले अलर्ट के लिए डिवाइस सेटिंग में लोकेशन (GPS) चालू करें और पुनः प्रयास करें।",
-          fgPermTitle: "ऐप उपयोग करते समय लोकेशन", fgPermBody: "गंतव्य की दूरी ट्रैक करने के लिए ऐप उपयोग के दौरान लोकेशन अनुमति आवश्यक है।",
-          bgPermTitle: "बैकग्राउंड GPS एक्सेस", bgPermBody: "यात्रा में नींद आ जाए या ऐप बदलें, तो बैकग्राउंड GPS समय पर जगाने में मदद करता है।",
-          allowBtn: "अनुमति दें", cancelBtn: "रद्द करें", cancelWarnTitle: "क्या आप वाकई रद्द करना चाहते हैं?",
-          cancelWarnBody: "बैकग्राउंड GPS के बिना स्क्रीन लॉक या ऐप बदलने पर निगरानी रुक सकती है।",
-          yesSureBtn: "हाँ, पक्का", noNotSureBtn: "पक्का नहीं",
-          readyBlinkHint: "अनुमतियां तैयार हैं। चमकते हुए 'निगरानी शुरू करें' बटन को दबाएं!",
-          stopConfirmTitle: "क्या आप वाकई रोकना चाहते हैं?", stopConfirmBody: "अभी रोकने से स्टॉप से पहले का अलार्म बंद हो जाएगा।",
-          confirmStopYes: "हाँ, रोकें", confirmStopNo: "रद्द करें",
-          stallWatchTitle: "रुकावट निगरानी", stallWatchBody: "वाहन काफी देर से एक जगह रुका लग रहा है। जांचें या निगरानी जारी रखें।",
-          stallContinueBtn: "निगरानी जारी रखें", stallStopBtn: "निगरानी रोकें",
-          arrivedTitle: "आप पहुँच गए!", arrivedBody: "आप अपने निर्धारित गंतव्य पर पहुँच गए हैं।", arrivedOkBtn: "ठीक है",
-          arrivedChoiceBody: "आगे क्या करना चाहते हैं?", disableTrackingBtn: "ट्रैकिंग बंद करें", newTripBtn: "नई यात्रा चुनें",
-          restartRequiredTitle: "फिर से शुरू करना आवश्यक है",
-          restartRequiredBody: "निगरानी बैकग्राउंड GPS अनुमति के बिना शुरू हुई और स्क्रीन लॉक या अन्य ऐप से रुक गई। कृपया अनुमति चरण दोबारा करें।",
-          restartFlowBtn: "फिर शुरू करें"
-        },
-        sw: {
-          gpsOffTitle: "GPS imezimwa", gpsOffBody: "Washa mahali (GPS) kwenye mipangilio ya kifaa kwa arifa kabla ya kituo.",
-          fgPermTitle: "Ufikiaji mahali unapotumia app", fgPermBody: "Ruhusa ya mahali unapotumia app inahitajika kufuatilia umbali wa lengo.",
-          bgPermTitle: "GPS chinichini", bgPermBody: "Ukilala au kubadili app safarini, GPS ya chinichini husaidia kukuamsha kwa wakati.",
-          allowBtn: "Ruhusu", cancelBtn: "Ghairi", cancelWarnTitle: "Una uhakika unataka kughairi?",
-          cancelWarnBody: "Bila GPS ya chinichini, ufuatiliaji unaweza kusimama skrini ikifungwa au ukibadili app.",
-          yesSureBtn: "Ndiyo, nina uhakika", noNotSureBtn: "Sina uhakika",
-          readyBlinkHint: "Ruhusa ziko tayari. Bonyeza kitufe kinachomulika 'Anza kufuatilia'!",
-          stopConfirmTitle: "Una uhakika unataka kusimamisha?", stopConfirmBody: "Kusimamisha sasa huzima kengele kabla ya kituo.",
-          confirmStopYes: "Ndiyo, simamisha", confirmStopNo: "Ghairi",
-          stallWatchTitle: "Ufuatiliaji wa kusimama", stallWatchBody: "Inaonekana chombo kimesimama kwa muda. Angalia au endelea kufuatilia.",
-          stallContinueBtn: "Endelea kufuatilia", stallStopBtn: "Simamisha ufuatiliaji",
-          arrivedTitle: "Umefika!", arrivedBody: "Umefika kwenye lengo uliloweka.", arrivedOkBtn: "Sawa",
-          arrivedChoiceBody: "Ungependa kufanya nini sasa?", disableTrackingBtn: "Zima ufuatiliaji", newTripBtn: "Chagua safari mpya",
-          restartRequiredTitle: "Kuanza upya kunahitajika",
-          restartRequiredBody: "Ufuatiliaji ulianza bila GPS ya chinichini na ukasimama kwa kufunga skrini au app nyingine. Rudia hatua za ruhusa.",
-          restartFlowBtn: "Anza upya"
-        }
-      };
+    let watchId = null;
+    let pendingModalAction = null;
+    let editingIndex = null;
 
-      Object.keys(EXTRA_LANG_KEYS).forEach(code => {
-        if (TRANSLATIONS[code]) {
-          TRANSLATIONS[code] = { ...TRANSLATIONS[code], ...EXTRA_LANG_KEYS[code] };
-        }
-      });
+    const el = id => document.getElementById(id);
 
-      const SOUNDS = [
-        { id: "roman_horn" }, { id: "clock_bell" }, { id: "ship_horn" },
-        { id: "train_whistle" }, { id: "sonar_ping" }, { id: "fire_alarm" },
-        { id: "bronze_gong" }, { id: "bugle_call" }, { id: "church_bell" },
-        { id: "morse_sos" }, { id: "digital_pulse" }
-      ];
+    function t(key) {
+      const dict = TRANSLATIONS[state.lang] || TRANSLATIONS.hu;
+      return dict[key] !== undefined ? dict[key] : (TRANSLATIONS.en[key] || key);
+    }
 
-      let currentLang = "hu";
+    function saveState() {
+      try {
+        localStorage.setItem("stopway_state_v1", JSON.stringify(state));
+      } catch (_) {}
+    }
 
-      function t(key) {
-        const cur = TRANSLATIONS[currentLang] || {};
-        const fb = TRANSLATIONS.en || TRANSLATIONS.hu || {};
-        return cur[key] !== undefined ? cur[key] : (fb[key] !== undefined ? fb[key] : "");
-      }
+    function loadState() {
+      try {
+        const raw = localStorage.getItem("stopway_state_v1");
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        Object.assign(state, parsed);
+      } catch (_) {}
+    }
 
-      function getSoundLabel(id) {
-        const curSounds = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].sounds) || {};
-        const fbSounds = (TRANSLATIONS.en && TRANSLATIONS.en.sounds) || {};
-        return curSounds[id] || fbSounds[id] || id;
-      }
-
-      function getThemeLabel(id) {
-        const curThemes = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].themes) || {};
-        const fbThemes = (TRANSLATIONS.en && TRANSLATIONS.en.themes) || {};
-        return curThemes[id] || fbThemes[id] || id;
-      }
-
-      function getDefaultPlaceName(idx) {
-        const curList = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].defaultPlaces) || [];
-        const fbList = (TRANSLATIONS.en && TRANSLATIONS.en.defaultPlaces) || [];
-        return curList[idx] || fbList[idx] || `${idx + 1}`;
-      }
-      let state = {
-        places: [],
-        selectedIndex: 0,
-        thresholdMeters: 1000,
-        soundId: "roman_horn",
-        loudMode: true,
-        theme: "classic",
-        glassPolarity: "dark-ui"
-      };
-
-      let editMode = false;
-      let editingIndex = null;
-      let watching = false;
-      let watchId = null;
-      let alarmActive = false;
-      let snoozeRemaining = 0;
-      let snoozeInterval = null;
-      let alarmLoopInterval = null;
-      let audioCtx = null;
-      let customAudioUrl = null;
-      let customAudioName = "";
-      let customAudioPlayer = null;
-      let wallpaperDataUrl = null;
-
-      let leafletMap = null;
-      let leafletMarker = null;
-
-      let bgPermissionGranted = false;
-      let pendingStartAfterPermissions = false;
-      let stopConfirmResolver = null;
-      let stallCheckTimer = null;
-      let lastMotionCheck = null;
-      let arrivedShown = false;
-
-      const destinationsGrid = document.getElementById("destinationsGrid");
-      const thresholdSelect = document.getElementById("thresholdSelect");
-      const langBtn = document.getElementById("langBtn");
-      const langMenu = document.getElementById("langMenu");
-      const langMenuTitle = document.getElementById("langMenuTitle");
-      const langList = document.getElementById("langList");
-      const voiceBtn = document.getElementById("voiceBtn");
-      const themeBtn = document.getElementById("themeBtn");
-      const editModeBtn = document.getElementById("editModeBtn");
-      const themeDrawer = document.getElementById("themeDrawer");
-      const themeDrawerTitle = document.getElementById("themeDrawerTitle");
-      const glassBox = document.getElementById("glassBox");
-      const glassPolarityInfo = document.getElementById("glassPolarityInfo");
-      const pickWallpaperBtn = document.getElementById("pickWallpaperBtn");
-      const flipGlassPolarityBtn = document.getElementById("flipGlassPolarityBtn");
-      const wallpaperInput = document.getElementById("wallpaperInput");
-
-      const statusLine = document.getElementById("statusLine");
-      const statusDetail = document.getElementById("statusDetail");
-      const toggleWatchBtn = document.getElementById("toggleWatchBtn");
-      const stopWatchBtn = document.getElementById("stopWatchBtn");
-      const soundSelect = document.getElementById("soundSelect");
-      const previewSoundBtn = document.getElementById("previewSoundBtn");
-      const loudModeToggle = document.getElementById("loudModeToggle");
-      const pickAudioBtn = document.getElementById("pickAudioBtn");
-      const customAudioInput = document.getElementById("customAudioInput");
-      const customAudioInfo = document.getElementById("customAudioInfo");
-      const simDistanceRange = document.getElementById("simDistanceRange");
-      const simDistanceLabel = document.getElementById("simDistanceLabel");
-      const simDistanceLabelWrap = document.getElementById("simDistanceLabelWrap");
-      const triggerSimAlarmBtn = document.getElementById("triggerSimAlarmBtn");
-      const adBannerSlot = document.getElementById("adBannerSlot");
-
-      const editModal = document.getElementById("editModal");
-      const editModalTitle = document.getElementById("editModalTitle");
-      const editNameLabel = document.getElementById("editNameLabel");
-      const editNameInput = document.getElementById("editNameInput");
-      const addressSearchLabel = document.getElementById("addressSearchLabel");
-      const addressSearchInput = document.getElementById("addressSearchInput");
-      const searchAddressBtn = document.getElementById("searchAddressBtn");
-      const searchResults = document.getElementById("searchResults");
-      const editLatInput = document.getElementById("editLatInput");
-      const editLngInput = document.getElementById("editLngInput");
-      const useCurrentGpsBtn = document.getElementById("useCurrentGpsBtn");
-      const savePlaceBtn = document.getElementById("savePlaceBtn");
-      const cancelEditBtn = document.getElementById("cancelEditBtn");
-
-      const flowModal = document.getElementById("flowModal");
-      const flowBadge = document.getElementById("flowBadge");
-      const flowModalTitle = document.getElementById("flowModalTitle");
-      const flowModalBody = document.getElementById("flowModalBody");
-      const flowActions = document.getElementById("flowActions");
-
-      const alarmOverlay = document.getElementById("alarmOverlay");
-      const alarmHeading = document.getElementById("alarmHeading");
-      const alarmSub = document.getElementById("alarmSub");
-      const snoozeGiantBtn = document.getElementById("snoozeGiantBtn");
-      const snoozeMainLabel = document.getElementById("snoozeMainLabel");
-      const snoozeCountdownText = document.getElementById("snoozeCountdownText");
-      const dismissForeverBtn = document.getElementById("dismissForeverBtn");
-      const alarmFooterNote = document.getElementById("alarmFooterNote");
-
-      function makeDefaultPlaces() {
-        return Array.from({ length: 10 }, (_, idx) => ({
-          name: getDefaultPlaceName(idx),
-          isDefaultName: true,
-          lat: null,
-          lng: null
-        }));
-      }
-
-      function loadState() {
-        state.places = makeDefaultPlaces();
-        try {
-          const savedLang = localStorage.getItem(LANG_STORAGE_KEY);
-          if (savedLang && LANGUAGES.some(l => l.code === savedLang)) {
-            currentLang = savedLang;
-          }
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) return;
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed.places) && parsed.places.length === 10) {
-            state.places = parsed.places.map((p, idx) => ({
-              name: p.name || getDefaultPlaceName(idx),
-              isDefaultName: Boolean(p.isDefaultName),
-              lat: typeof p.lat === "number" ? p.lat : null,
-              lng: typeof p.lng === "number" ? p.lng : null
-            }));
-          }
-          if (typeof parsed.selectedIndex === "number") state.selectedIndex = parsed.selectedIndex;
-          if (typeof parsed.thresholdMeters === "number") state.thresholdMeters = parsed.thresholdMeters;
-          if (typeof parsed.soundId === "string") state.soundId = parsed.soundId;
-          if (typeof parsed.loudMode === "boolean") state.loudMode = parsed.loudMode;
-          if (typeof parsed.theme === "string") state.theme = parsed.theme;
-          if (parsed.glassPolarity === "light-ui" || parsed.glassPolarity === "dark-ui") {
-            state.glassPolarity = parsed.glassPolarity;
-          }
-        } catch (err) {
-          console.warn("State load error:", err);
-        }
-      }
-
-      function saveState() {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-          localStorage.setItem(LANG_STORAGE_KEY, currentLang);
-        } catch (err) {
-          console.warn("State save error:", err);
-        }
-      }
-
-      function setReadyBlink(enabled) {
-        toggleWatchBtn.classList.toggle("ready-blink", Boolean(enabled));
-      }
-
-      function openFlowPanel({ badge = "📍", title = "", body = "", buttons = [] }) {
-        flowBadge.innerHTML = badge;
-        flowModalTitle.textContent = title;
-        flowModalBody.textContent = body;
-        flowActions.innerHTML = "";
-        buttons.forEach(b => {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "action-btn " + (b.className || "");
-          btn.textContent = b.label;
-          btn.addEventListener("click", () => {
-            if (b.close !== false) closeFlowPanel();
-            if (typeof b.onClick === "function") b.onClick();
-          });
-          flowActions.appendChild(btn);
-        });
-        flowModal.classList.add("open");
-      }
-
-      function closeFlowPanel() {
-        flowModal.classList.remove("open");
-      }
-
-      function syncGlassPolarityLabel() {
-        glassPolarityInfo.textContent = `${t("flipGlass")}: ${getThemeLabel("glass")}`;
-      }
-
-      function applyTheme(themeName) {
-        const validThemes = ["classic", "glass", "cartoon", "gothic", "renaissance", "punk"];
-        const chosen = validThemes.includes(themeName) ? themeName : "classic";
-        state.theme = chosen;
-        document.body.setAttribute("data-theme", chosen);
-        document.body.setAttribute("data-glass-polarity", state.glassPolarity);
-        if (wallpaperDataUrl) {
-          document.body.setAttribute("data-has-wallpaper", "true");
-          document.body.style.setProperty("--wallpaper-img", `url("${wallpaperDataUrl}")`);
-        } else {
-          document.body.removeAttribute("data-has-wallpaper");
-          document.body.style.setProperty("--wallpaper-img", "none");
-        }
-
-        document.querySelectorAll(".theme-chip[data-theme-choice]").forEach(chip => {
-          const id = chip.dataset.themeChoice;
-          chip.textContent = getThemeLabel(id);
-          chip.classList.toggle("active", id === chosen);
-        });
-        glassBox.classList.toggle("visible", chosen === "glass");
-        syncGlassPolarityLabel();
-        saveState();
-      }
-
-      function detectImageLuminanceAndApply(imgSrc) {
-        const img = new Image();
-        img.onload = () => {
-          try {
-            const canvas = document.createElement("canvas");
-            const size = 48;
-            canvas.width = size;
-            canvas.height = size;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0, size, size);
-            const data = ctx.getImageData(0, 0, size, size).data;
-            let sum = 0;
-            const pixels = data.length / 4;
-            for (let i = 0; i < data.length; i += 4) {
-              sum += 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-            }
-            const avg = sum / pixels;
-            state.glassPolarity = avg > 135 ? "dark-ui" : "light-ui";
-            applyTheme("glass");
-          } catch (e) {
-            applyTheme("glass");
-          }
-        };
-        img.src = imgSrc;
-      }
-
-      function populateSounds() {
-        soundSelect.innerHTML = "";
-        SOUNDS.forEach(s => {
-          const opt = document.createElement("option");
-          opt.value = s.id;
-          opt.textContent = getSoundLabel(s.id);
-          if (s.id === state.soundId) opt.selected = true;
-          soundSelect.appendChild(opt);
-        });
-        if (customAudioUrl) {
-          const customOpt = document.createElement("option");
-          customOpt.value = "__custom__";
-          customOpt.textContent = t("customAudioLoaded") + customAudioName;
-          if (state.soundId === "__custom__") customOpt.selected = true;
-          soundSelect.appendChild(customOpt);
-        }
-      }
-
-      function renderLangMenu() {
-        if (!langList) return;
-        if (langMenuTitle) langMenuTitle.textContent = t("langMenuTitle");
-        langList.innerHTML = "";
-        LANGUAGES.forEach(lang => {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "theme-chip" + (lang.code === currentLang ? " active" : "");
-          btn.textContent = lang.label;
-          btn.addEventListener("click", () => {
-            applyLanguage(lang.code);
-            langMenu.style.display = "none";
-          });
-          langList.appendChild(btn);
-        });
-      }
-
-      function applyLanguage(langCode) {
-        const langObj = LANGUAGES.find(l => l.code === langCode) || LANGUAGES[0];
-        currentLang = langObj.code;
-        document.documentElement.lang = langObj.code;
-        document.documentElement.dir = langObj.dir || "ltr";
-
-        state.places.forEach((p, idx) => {
-          if (p.isDefaultName) {
-            p.name = getDefaultPlaceName(idx);
-          }
-        });
-
-        document.querySelector(".brand-title").textContent = t("brandTitle");
-        document.querySelector(".prompt-title").textContent = t("promptTitle");
-        toggleWatchBtn.textContent = t("startWatch");
-        stopWatchBtn.textContent = t("stopWatch");
-        previewSoundBtn.textContent = t("previewSound");
-        const loudSpan = loudModeToggle.parentElement.querySelector("span");
-        if (loudSpan) loudSpan.textContent = t("loudMode");
-        pickAudioBtn.textContent = t("pickAudio");
-        customAudioInfo.textContent = customAudioUrl ? (t("customAudioLoaded") + customAudioName) : t("noCustomAudio");
-
-        themeDrawerTitle.textContent = t("themeDrawerTitle");
-        pickWallpaperBtn.textContent = t("pickWallpaper");
-        flipGlassPolarityBtn.textContent = t("flipGlass");
-        simDistanceLabelWrap.innerHTML = `${t("simPrefix")} <strong id="simDistanceLabel">${simDistanceRange.value} m</strong>`;
-        triggerSimAlarmBtn.textContent = t("triggerSim");
-        adBannerSlot.textContent = t("adBanner");
-
-        editModalTitle.textContent = t("editModalTitle");
-        editNameLabel.textContent = t("editNameLabel");
-        addressSearchLabel.textContent = t("addressSearchLabel");
-        addressSearchInput.placeholder = t("addressSearchPlaceholder");
-        searchAddressBtn.textContent = t("searchBtn");
-        useCurrentGpsBtn.textContent = t("useCurrentGps");
-        savePlaceBtn.textContent = t("savePlace");
-        cancelEditBtn.textContent = t("cancelEdit");
-
-        dismissForeverBtn.textContent = t("dismissForever");
-        snoozeMainLabel.textContent = t("snoozeMain");
-        if (!alarmActive || snoozeRemaining <= 0) {
-          snoozeCountdownText.textContent = t("snoozeTap");
-        }
-        alarmFooterNote.textContent = t("alarmFooter");
-
-        applyTheme(state.theme);
-        populateSounds();
-        renderDestinations();
-        renderLangMenu();
-        updateStatus();
-        saveState();
-      }
-
-      function renderDestinations() {
-        destinationsGrid.innerHTML = "";
-        state.places.forEach((place, idx) => {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "dest-btn" + (idx === state.selectedIndex ? " selected" : "");
-          const hasCoords = typeof place.lat === "number" && typeof place.lng === "number";
-          const roleTag = idx < 2 ? t("fixedPlace") : t("freePlace");
-          btn.innerHTML = `
-            <span class="dest-index">${idx + 1}. • ${escapeHtml(roleTag)}</span>
-            <span class="dest-name">${escapeHtml(place.name)}</span>
-            <span class="dest-sub">${escapeHtml(hasCoords ? t("coordsSet") : t("setPlaceHint"))}</span>
-          `;
-          btn.addEventListener("click", () => {
-            state.selectedIndex = idx;
-            saveState();
-            renderDestinations();
-            if (editMode || !hasCoords) {
-              openEditModal(idx);
-            } else {
-              updateStatus();
-            }
-          });
-          destinationsGrid.appendChild(btn);
-        });
-      }
-
-      function escapeHtml(str) {
-        return String(str)
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;");
-      }
-
-      function formatDistance(meters) {
-        const suffix = t("beforeSuffix");
-        if (meters >= 1000) {
-          const km = (meters / 1000).toFixed(meters % 1000 === 0 ? 0 : 1).replace(".", ",");
-          return `${km} km ${suffix}`;
-        }
-        return `${meters} m ${suffix}`;
-      }
-
-      function updateStatus(extraText = "") {
-        const place = state.places[state.selectedIndex] || state.places[0];
-        const hasCoords = typeof place.lat === "number" && typeof place.lng === "number";
-        statusLine.textContent = `${place.name} • ${formatDistance(state.thresholdMeters)}`;
-        if (extraText) {
-          statusDetail.textContent = extraText;
-        } else if (!hasCoords) {
-          statusDetail.textContent = t("noCoordsYet");
-        } else if (watching) {
-          statusDetail.textContent = t("watchingActive");
-        } else {
-          statusDetail.textContent = `${place.lat.toFixed(5)}, ${place.lng.toFixed(5)} • ${t("coordsReady")}`;
-        }
-      }
-
-      function haversineMeters(lat1, lon1, lat2, lon2) {
-        const R = 6371000;
-        const toRad = d => d * Math.PI / 180;
-        const dLat = toRad(lat2 - lat1);
-        const dLon = toRad(lon2 - lon1);
-        const a =
-          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-          Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      }
-
-      function ensureAudioContext() {
-        if (!audioCtx) {
-          const Ctx = window.AudioContext || window.webkitAudioContext;
-          if (Ctx) audioCtx = new Ctx();
-        }
-        if (audioCtx && audioCtx.state === "suspended") {
-          audioCtx.resume().catch(() => {});
-        }
-        return audioCtx;
-      }
-
-      function getGainMultiplier() {
-        return state.loudMode ? 1.8 : 1.0;
-      }
-
-      function playTone(freq, duration, type = "sawtooth", delay = 0, peak = 0.28, endFreq = null) {
-        const ctx = ensureAudioContext();
-        if (!ctx) return;
-        const start = ctx.currentTime + delay;
+    function playTone(type = "chime") {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, start);
-        if (endFreq !== null) {
-          osc.frequency.exponentialRampToValueAtTime(Math.max(40, endFreq), start + duration);
-        }
-
-        const scaledPeak = Math.min(0.75, peak * getGainMultiplier());
-        gain.gain.setValueAtTime(0.0001, start);
-        gain.gain.linearRampToValueAtTime(scaledPeak, start + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
-
+        osc.type = type === "siren" ? "sawtooth" : type === "pulse" ? "square" : "sine";
+        osc.frequency.setValueAtTime(type === "siren" ? 780 : type === "pulse" ? 520 : 660, ctx.currentTime);
+        gain.gain.setValueAtTime(state.loudMode ? 0.6 : 0.2, ctx.currentTime);
         osc.connect(gain);
         gain.connect(ctx.destination);
-        osc.start(start);
-        osc.stop(start + duration + 0.03);
-      }
+        osc.start();
+        osc.stop(ctx.currentTime + 0.35);
+      } catch (_) {}
+    }
 
-      function stopAllSounds() {
-        if (alarmLoopInterval) {
-          clearInterval(alarmLoopInterval);
-          alarmLoopInterval = null;
-        }
-        if (customAudioPlayer) {
-          customAudioPlayer.pause();
-          customAudioPlayer.currentTime = 0;
-        }
-      }
+    function openConfirm(title, text, onConfirm, onCancel) {
+      el("modalTitle").textContent = title;
+      el("modalText").textContent = text;
+      el("modalConfirmBtn").textContent = t("okBtn");
+      el("modalCancelBtn").textContent = t("cancelBtn");
+      el("confirmModal").classList.add("open");
 
-      function triggerSoundOnce(soundId) {
-        if (soundId === "__custom__" && customAudioUrl) {
-          if (!customAudioPlayer) {
-            customAudioPlayer = new Audio(customAudioUrl);
-          } else if (customAudioPlayer.src !== customAudioUrl) {
-            customAudioPlayer.src = customAudioUrl;
-          }
-          customAudioPlayer.volume = 1.0;
-          customAudioPlayer.currentTime = 0;
-          customAudioPlayer.play().catch(() => {});
+      pendingModalAction = {
+        confirm: () => {
+          el("confirmModal").classList.remove("open");
+          if (onConfirm) onConfirm();
+        },
+        cancel: () => {
+          el("confirmModal").classList.remove("open");
+          if (onCancel) onCancel();
+        }
+      };
+    }
+
+    function distanceMeters(lat1, lon1, lat2, lon2) {
+      const R = 6371000;
+      const toRad = d => (d * Math.PI) / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+      return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function triggerArrival() {
+      state.watching = false;
+      if (watchId !== null && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+      }
+      playTone(state.sound);
+      el("arrivedCard").style.display = "block";
+      el("startBtn").disabled = false;
+      el("stopBtn").disabled = true;
+      el("startBtn").classList.add("blinking");
+      saveState();
+    }
+
+    function startWatch() {
+      el("arrivedCard").style.display = "none";
+      const begin = () => {
+        state.watching = true;
+        state.lastMoveTime = Date.now();
+        el("startBtn").disabled = true;
+        el("stopBtn").disabled = false;
+        el("startBtn").classList.remove("blinking");
+        el("statusBox").textContent = t("watchingActive");
+        saveState();
+
+        if (!navigator.geolocation) {
+          openConfirm(
+            t("gpsOffTitle"),
+            t("gpsOffText"),
+            () => setTimeout(triggerArrival, 2500),
+            () => openConfirm(t("cancelWarnTitle"), t("cancelWarnText"), () => stopWatch(true))
+          );
           return;
         }
-
-        switch (soundId) {
-          case "roman_horn":
-            playTone(146.8, 0.9, "sawtooth", 0.0, 0.36, 152);
-            playTone(146.8, 0.9, "triangle", 0.0, 0.26, 152);
-            playTone(220.0, 1.15, "sawtooth", 0.55, 0.36, 214);
-            break;
-          case "clock_bell":
-            for (let i = 0; i < 6; i++) {
-              playTone(1850, 0.09, "square", i * 0.12, 0.26);
-            }
-            break;
-          case "ship_horn":
-            playTone(110, 1.3, "sawtooth", 0, 0.32, 104);
-            playTone(112.5, 1.3, "triangle", 0, 0.24, 106);
-            break;
-          case "train_whistle":
-            playTone(620, 0.35, "sawtooth", 0, 0.28, 660);
-            playTone(840, 0.55, "sawtooth", 0.36, 0.3, 790);
-            break;
-          case "sonar_ping":
-            playTone(1320, 0.45, "sine", 0, 0.34);
-            playTone(1320, 0.45, "sine", 0.65, 0.3);
-            break;
-          case "fire_alarm":
-            for (let i = 0; i < 4; i++) {
-              playTone(760 + i * 160, 0.18, "sawtooth", i * 0.2, 0.3);
-            }
-            break;
-          case "bronze_gong":
-            playTone(140, 1.5, "sine", 0, 0.34, 132);
-            playTone(352, 1.2, "triangle", 0, 0.2, 340);
-            break;
-          case "bugle_call":
-            playTone(440, 0.22, "sawtooth", 0, 0.26);
-            playTone(554.37, 0.22, "sawtooth", 0.24, 0.26);
-            playTone(659.25, 0.45, "sawtooth", 0.48, 0.3);
-            break;
-          case "church_bell":
-            playTone(392, 1.1, "sine", 0, 0.28, 388);
-            playTone(784, 0.9, "triangle", 0.02, 0.16);
-            break;
-          case "morse_sos":
-            [0, 0.22, 0.44, 0.72, 1.02, 1.32, 1.62, 1.84, 2.06].forEach((t0, idx) => {
-              const dur = (idx >= 3 && idx <= 5) ? 0.24 : 0.11;
-              playTone(880, dur, "square", t0, 0.24);
-            });
-            break;
-          case "digital_pulse":
-          default:
-            playTone(980, 0.16, "square", 0, 0.24);
-            playTone(1240, 0.16, "square", 0.2, 0.24);
-            break;
-        }
-      }
-
-      function showArrivedBanner(distMeters = null) {
-        if (arrivedShown) return;
-        arrivedShown = true;
-        const place = state.places[state.selectedIndex] || state.places[0];
-        const detailDist = typeof distMeters === "number" ? ` (${Math.round(distMeters)} m)` : "";
-        openFlowPanel({
-          badge: `<span class="flag-wave">🏁</span>`,
-          title: t("arrivedTitle"),
-          body: `${place.name}${detailDist} • ${t("arrivedBody")}`,
-          buttons: [
-            {
-              label: t("arrivedOkBtn"),
-              className: "primary",
-              onClick: () => {
-                openFlowPanel({
-                  badge: "🧭",
-                  title: t("arrivedTitle"),
-                  body: t("arrivedChoiceBody"),
-                  buttons: [
-                    {
-                      label: t("disableTrackingBtn"),
-                      className: "danger",
-                      onClick: () => {
-                        arrivedShown = false;
-                        stopWatching(true);
-                      }
-                    },
-                    {
-                      label: t("newTripBtn"),
-                      className: "primary",
-                      onClick: () => {
-                        arrivedShown = false;
-                        stopWatching(true);
-                        openEditModal(state.selectedIndex);
-                      }
-                    }
-                  ]
-                });
-              }
-            }
-          ]
-        });
-      }
-
-      function startAlarm(messageSub = "", isArrival = false) {
-        alarmActive = true;
-        snoozeRemaining = 0;
-        if (snoozeInterval) {
-          clearInterval(snoozeInterval);
-          snoozeInterval = null;
-        }
-        const place = state.places[state.selectedIndex] || state.places[0];
-        alarmHeading.textContent = `${t("alarmPrefix")} ${place.name}`;
-        alarmSub.textContent = messageSub || formatDistance(state.thresholdMeters);
-        snoozeGiantBtn.disabled = false;
-        snoozeCountdownText.textContent = t("snoozeTap");
-        alarmOverlay.classList.add("active");
-        alarmOverlay.dataset.isArrival = isArrival ? "1" : "0";
-
-        if (navigator.vibrate) {
-          navigator.vibrate([500, 250, 500, 250, 800]);
-        }
-
-        stopAllSounds();
-        triggerSoundOnce(state.soundId);
-        alarmLoopInterval = setInterval(() => {
-          if (alarmActive && snoozeRemaining <= 0) {
-            triggerSoundOnce(state.soundId);
-            if (navigator.vibrate) navigator.vibrate([400, 200, 400]);
-          }
-        }, 2400);
-      }
-
-      function snoozeFor20Seconds() {
-        if (!alarmActive) return;
-        stopAllSounds();
-        snoozeRemaining = 20;
-        snoozeGiantBtn.disabled = true;
-        snoozeCountdownText.textContent = `${snoozeRemaining} ${t("snoozeLeft")}`;
-
-        if (snoozeInterval) clearInterval(snoozeInterval);
-        snoozeInterval = setInterval(() => {
-          snoozeRemaining -= 1;
-          if (snoozeRemaining > 0) {
-            snoozeCountdownText.textContent = `${snoozeRemaining} ${t("snoozeLeft")}`;
-          } else {
-            clearInterval(snoozeInterval);
-            snoozeInterval = null;
-            snoozeGiantBtn.disabled = false;
-            snoozeCountdownText.textContent = t("snoozeTap");
-            if (alarmActive) {
-              triggerSoundOnce(state.soundId);
-              alarmLoopInterval = setInterval(() => {
-                if (alarmActive && snoozeRemaining <= 0) {
-                  triggerSoundOnce(state.soundId);
-                }
-              }, 2400);
-            }
-          }
-        }, 1000);
-      }
-
-      function dismissAlarmForever() {
-        const wasArrival = alarmOverlay.dataset.isArrival === "1";
-        alarmActive = false;
-        snoozeRemaining = 0;
-        if (snoozeInterval) {
-          clearInterval(snoozeInterval);
-          snoozeInterval = null;
-        }
-        stopAllSounds();
-        alarmOverlay.classList.remove("active");
-        stopWatching(true);
-        if (wasArrival) {
-          showArrivedBanner();
-        }
-      }
-
-      function startStallMonitor() {
-        if (stallCheckTimer) clearInterval(stallCheckTimer);
-        lastMotionCheck = { lat: null, lng: null, stationaryMs: 0 };
-        stallCheckTimer = setInterval(() => {
-          if (!watching || alarmActive || !lastMotionCheck) return;
-          if (lastMotionCheck.stationaryMs >= 180000) {
-            lastMotionCheck.stationaryMs = 0;
-            openFlowPanel({
-              badge: "🛑",
-              title: t("stallWatchTitle"),
-              body: t("stallWatchBody"),
-              buttons: [
-                {
-                  label: t("stallContinueBtn"),
-                  className: "primary",
-                  onClick: () => updateStatus(t("watchingActive"))
-                },
-                {
-                  label: t("stallStopBtn"),
-                  className: "danger",
-                  onClick: () => stopWatching(true)
-                }
-              ]
-            });
-          }
-        }, 15000);
-      }
-
-      function stopStallMonitor() {
-        if (stallCheckTimer) {
-          clearInterval(stallCheckTimer);
-          stallCheckTimer = null;
-        }
-        lastMotionCheck = null;
-      }
-
-      function beginGpsWatchNow() {
-        const place = state.places[state.selectedIndex];
-        if (!place || typeof place.lat !== "number" || typeof place.lng !== "number") {
-          updateStatus(t("noCoordsYet"));
-          return;
-        }
-        if (!navigator.geolocation) return;
-
-        ensureAudioContext();
-        setReadyBlink(false);
-        arrivedShown = false;
-        watching = true;
-        toggleWatchBtn.style.display = "none";
-        stopWatchBtn.style.display = "inline-flex";
-        updateStatus(t("watchingActive"));
-        startStallMonitor();
 
         watchId = navigator.geolocation.watchPosition(
           pos => {
-            if (!watching || alarmActive) return;
-            const curLat = pos.coords.latitude;
-            const curLng = pos.coords.longitude;
-
-            if (lastMotionCheck) {
-              if (typeof lastMotionCheck.lat === "number" && typeof lastMotionCheck.lng === "number") {
-                const moved = haversineMeters(lastMotionCheck.lat, lastMotionCheck.lng, curLat, curLng);
-                if (moved < 25) {
-                  lastMotionCheck.stationaryMs += 3000;
-                } else {
-                  lastMotionCheck.stationaryMs = 0;
-                }
+            const { latitude, longitude } = pos.coords;
+            if (state.lastPos) {
+              const moved = distanceMeters(state.lastPos.lat, state.lastPos.lng, latitude, longitude);
+              if (moved > 8) {
+                state.lastMoveTime = Date.now();
+              } else if (Date.now() - state.lastMoveTime > 60000) {
+                el("statusBox").textContent = `${t("watchingActive")} — ${t("stallWarning")}`;
               }
-              lastMotionCheck.lat = curLat;
-              lastMotionCheck.lng = curLng;
             }
+            state.lastPos = { lat: latitude, lng: longitude };
 
-            const dist = haversineMeters(curLat, curLng, place.lat, place.lng);
-            updateStatus(`${place.name}: ${Math.round(dist)} m`);
-            if (dist <= 35) {
-              startAlarm(`${place.name}: ${Math.round(dist)} m`, true);
-            } else if (dist <= state.thresholdMeters) {
-              startAlarm(`${place.name}: ${Math.round(dist)} m`, false);
+            const target = state.places[state.selectedIndex];
+            if (target && typeof target.lat === "number" && typeof target.lng === "number") {
+              const dist = distanceMeters(latitude, longitude, target.lat, target.lng);
+              el("statusBox").textContent = `${t("watchingActive")} (${Math.round(dist)} m)`;
+              if (dist <= state.threshold) {
+                triggerArrival();
+              }
             }
           },
-          err => {
-            updateStatus(err.message || "GPS");
+          () => {
+            openConfirm(
+              t("gpsOffTitle"),
+              t("gpsOffText"),
+              () => setTimeout(triggerArrival, 2500),
+              () => openConfirm(t("cancelWarnTitle"), t("cancelWarnText"), () => stopWatch(true))
+            );
           },
-          { enableHighAccuracy: true, maximumAge: 3000, timeout: 10000 }
+          { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
         );
-      }
+      };
 
-      function showCancelWarningPanel(onSureCancel, onNotSure) {
-        openFlowPanel({
-          badge: "⚠️",
-          title: t("cancelWarnTitle"),
-          body: t("cancelWarnBody"),
-          buttons: [
-            { label: t("yesSureBtn"), className: "danger", onClick: onSureCancel },
-            { label: t("noNotSureBtn"), className: "primary", onClick: onNotSure }
-          ]
-        });
-      }
-
-      function promptBackgroundPermission() {
-        openFlowPanel({
-          badge: "🌙",
-          title: t("bgPermTitle"),
-          body: t("bgPermBody"),
-          buttons: [
-            {
-              label: t("allowBtn"),
-              className: "primary",
-              onClick: () => {
-                bgPermissionGranted = true;
-                pendingStartAfterPermissions = false;
-                setReadyBlink(true);
-                updateStatus(t("readyBlinkHint"));
-              }
-            },
-            {
-              label: t("cancelBtn"),
-              onClick: () => {
-                showCancelWarningPanel(
-                  () => {
-                    bgPermissionGranted = false;
-                    pendingStartAfterPermissions = false;
-                    setReadyBlink(true);
-                    updateStatus(t("readyBlinkHint"));
-                  },
-                  () => promptBackgroundPermission()
-                );
-              }
-            }
-          ]
-        });
-      }
-
-      function promptForegroundPermission() {
-        openFlowPanel({
-          badge: "🛰️",
-          title: t("fgPermTitle"),
-          body: t("fgPermBody"),
-          buttons: [
-            {
-              label: t("allowBtn"),
-              className: "primary",
-              onClick: () => {
-                if (!navigator.geolocation) {
-                  setReadyBlink(true);
-                  updateStatus(t("readyBlinkHint"));
-                  return;
-                }
-                navigator.geolocation.getCurrentPosition(
-                  () => promptBackgroundPermission(),
-                  err => {
-                    if (err && err.code === 2) {
-                      openFlowPanel({
-                        badge: "📡",
-                        title: t("gpsOffTitle"),
-                        body: t("gpsOffBody"),
-                        buttons: [{ label: t("arrivedOkBtn"), className: "primary" }]
-                      });
-                    } else {
-                      promptBackgroundPermission();
-                    }
-                  },
-                  { enableHighAccuracy: true, timeout: 8000 }
-                );
-              }
-            },
-            {
-              label: t("cancelBtn"),
-              onClick: () => {
-                showCancelWarningPanel(
-                  () => {
-                    bgPermissionGranted = false;
-                    pendingStartAfterPermissions = false;
-                    setReadyBlink(true);
-                    updateStatus(t("readyBlinkHint"));
-                  },
-                  () => promptForegroundPermission()
-                );
-              }
-            }
-          ]
-        });
-      }
-
-      function requestStartWatchingFlow() {
-        const place = state.places[state.selectedIndex];
-        if (!place || typeof place.lat !== "number" || typeof place.lng !== "number") {
-          updateStatus(t("noCoordsYet"));
-          return;
-        }
-        if (toggleWatchBtn.classList.contains("ready-blink")) {
-          beginGpsWatchNow();
-          return;
-        }
-        pendingStartAfterPermissions = true;
-        promptForegroundPermission();
-      }
-
-      function stopWatching(skipConfirm = false) {
-        const performStop = () => {
-          watching = false;
-          stopStallMonitor();
-          setReadyBlink(false);
-          if (watchId !== null && navigator.geolocation) {
-            navigator.geolocation.clearWatch(watchId);
-            watchId = null;
-          }
-          toggleWatchBtn.style.display = "inline-flex";
-          stopWatchBtn.style.display = "none";
-          updateStatus();
-        };
-
-        if (skipConfirm || !watching) {
-          performStop();
-          return;
-        }
-
-        openFlowPanel({
-          badge: "⏹️",
-          title: t("stopConfirmTitle"),
-          body: t("stopConfirmBody"),
-          buttons: [
-            { label: t("confirmStopYes"), className: "danger", onClick: performStop },
-            { label: t("confirmStopNo"), className: "primary" }
-          ]
-        });
-      }
-
-      document.addEventListener("visibilitychange", () => {
-        if (document.hidden && watching && !bgPermissionGranted) {
-          watching = false;
-          stopStallMonitor();
-          setReadyBlink(false);
-          if (watchId !== null && navigator.geolocation) {
-            navigator.geolocation.clearWatch(watchId);
-            watchId = null;
-          }
-          toggleWatchBtn.style.display = "inline-flex";
-          stopWatchBtn.style.display = "none";
-          localStorage.setItem("stopway_bg_interrupted", "1");
-        } else if (!document.hidden && localStorage.getItem("stopway_bg_interrupted") === "1") {
-          localStorage.removeItem("stopway_bg_interrupted");
-          openFlowPanel({
-            badge: "🔄",
-            title: t("restartRequiredTitle"),
-            body: t("restartRequiredBody"),
-            buttons: [
-              {
-                label: t("restartFlowBtn"),
-                className: "primary",
-                onClick: () => {
-                  bgPermissionGranted = false;
-                  promptForegroundPermission();
-                }
-              }
-            ]
-          });
-        }
-      });
-
-      function ensureLeafletMap(lat, lng) {
-        if (typeof window.L === "undefined") return;
-        const centerLat = typeof lat === "number" ? lat : 32.0853;
-        const centerLng = typeof lng === "number" ? lng : 34.7818;
-
-        if (!leafletMap) {
-          leafletMap = L.map("mapContainer").setView([centerLat, centerLng], typeof lat === "number" ? 15 : 8);
-          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            maxZoom: 19,
-            attribution: "&copy; OpenStreetMap"
-          }).addTo(leafletMap);
-
-          leafletMap.on("click", e => {
-            setMapPoint(e.latlng.lat, e.latlng.lng, true);
-          });
-        } else {
-          leafletMap.setView([centerLat, centerLng], typeof lat === "number" ? 15 : 8);
-        }
-
-        if (typeof lat === "number" && typeof lng === "number") {
-          setMapPoint(lat, lng, false);
-        } else if (leafletMarker) {
-          leafletMap.removeLayer(leafletMarker);
-          leafletMarker = null;
-        }
-
-        setTimeout(() => {
-          if (leafletMap) leafletMap.invalidateSize();
-        }, 120);
-      }
-
-      function setMapPoint(lat, lng, panTo) {
-        const fixedLat = Number(lat.toFixed(6));
-        const fixedLng = Number(lng.toFixed(6));
-        editLatInput.value = fixedLat;
-        editLngInput.value = fixedLng;
-
-        if (!leafletMap || typeof window.L === "undefined") return;
-        if (!leafletMarker) {
-          leafletMarker = L.marker([fixedLat, fixedLng]).addTo(leafletMap);
-        } else {
-          leafletMarker.setLatLng([fixedLat, fixedLng]);
-        }
-        if (panTo) {
-          leafletMap.setView([fixedLat, fixedLng], Math.max(leafletMap.getZoom(), 15));
-        }
-      }
-
-      async function searchAddress() {
-        const q = addressSearchInput.value.trim();
-        if (!q) return;
-        searchResults.innerHTML = `<div class="field-label">...</div>`;
-        try {
-          const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(q)}`;
-          const res = await fetch(url, { headers: { "Accept-Language": currentLang } });
-          const items = await res.json();
-          searchResults.innerHTML = "";
-          if (!Array.isArray(items) || items.length === 0) return;
-          items.forEach(item => {
-            const btn = document.createElement("button");
-            btn.type = "button";
-            btn.className = "search-item-btn";
-            btn.textContent = item.display_name;
-            btn.addEventListener("click", () => {
-              const lat = parseFloat(item.lat);
-              const lon = parseFloat(item.lon);
-              if (Number.isFinite(lat) && Number.isFinite(lon)) {
-                setMapPoint(lat, lon, true);
-              }
-            });
-            searchResults.appendChild(btn);
-          });
-        } catch (err) {
-          searchResults.innerHTML = "";
-        }
-      }
-
-      function openEditModal(index) {
-        editingIndex = index;
-        const place = state.places[index];
-        editNameInput.value = place.name || "";
-        addressSearchInput.value = "";
-        searchResults.innerHTML = "";
-        editLatInput.value = typeof place.lat === "number" ? place.lat : "";
-        editLngInput.value = typeof place.lng === "number" ? place.lng : "";
-        editModal.classList.add("open");
-        ensureLeafletMap(place.lat, place.lng);
-      }
-
-      function closeEditModal() {
-        editModal.classList.remove("open");
-        editingIndex = null;
-      }
-
-      thresholdSelect.addEventListener("change", () => {
-        state.thresholdMeters = Number(thresholdSelect.value);
-        saveState();
-        updateStatus();
-      });
-
-      langBtn.addEventListener("click", () => {
-        const isOpen = langMenu.style.display !== "none";
-        langMenu.style.display = isOpen ? "none" : "flex";
-        if (!isOpen) renderLangMenu();
-      });
-
-      editModeBtn.addEventListener("click", () => {
-        editMode = !editMode;
-        editModeBtn.classList.toggle("active", editMode);
-        renderDestinations();
-        updateStatus(editMode ? t("editModeOn") : "");
-      });
-
-      themeBtn.addEventListener("click", () => {
-        const isOpen = themeDrawer.classList.toggle("open");
-        themeBtn.classList.toggle("active", isOpen);
-      });
-
-      document.querySelectorAll(".theme-chip[data-theme-choice]").forEach(chip => {
-        chip.addEventListener("click", () => applyTheme(chip.dataset.themeChoice));
-      });
-
-      pickWallpaperBtn.addEventListener("click", () => wallpaperInput.click());
-
-      wallpaperInput.addEventListener("change", e => {
-        const file = e.target.files && e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = ev => {
-          wallpaperDataUrl = ev.target.result;
-          detectImageLuminanceAndApply(wallpaperDataUrl);
-        };
-        reader.readAsDataURL(file);
-      });
-
-      flipGlassPolarityBtn.addEventListener("click", () => {
-        state.glassPolarity = state.glassPolarity === "dark-ui" ? "light-ui" : "dark-ui";
-        applyTheme("glass");
-      });
-
-      soundSelect.addEventListener("change", () => {
-        state.soundId = soundSelect.value;
-        saveState();
-      });
-
-      loudModeToggle.addEventListener("change", () => {
-        state.loudMode = loudModeToggle.checked;
-        saveState();
-      });
-
-      previewSoundBtn.addEventListener("click", () => {
-        ensureAudioContext();
-        stopAllSounds();
-        triggerSoundOnce(state.soundId);
-        setTimeout(() => {
-          if (!alarmActive) stopAllSounds();
-        }, 2200);
-      });
-
-      pickAudioBtn.addEventListener("click", () => customAudioInput.click());
-
-      customAudioInput.addEventListener("change", e => {
-        const file = e.target.files && e.target.files[0];
-        if (!file) return;
-        if (customAudioUrl) URL.revokeObjectURL(customAudioUrl);
-        customAudioUrl = URL.createObjectURL(file);
-        customAudioName = file.name;
-        state.soundId = "__custom__";
-        customAudioInfo.textContent = t("customAudioLoaded") + customAudioName;
-        populateSounds();
-        saveState();
-      });
-
-      simDistanceRange.addEventListener("input", () => {
-        const lbl = document.getElementById("simDistanceLabel");
-        if (lbl) lbl.textContent = `${simDistanceRange.value} m`;
-      });
-
-      triggerSimAlarmBtn.addEventListener("click", () => {
-        ensureAudioContext();
-        startAlarm(`${simDistanceRange.value} m`, Number(simDistanceRange.value) <= 35);
-      });
-
-      toggleWatchBtn.addEventListener("click", requestStartWatchingFlow);
-      stopWatchBtn.addEventListener("click", () => stopWatching(false));
-      snoozeGiantBtn.addEventListener("click", snoozeFor20Seconds);
-      dismissForeverBtn.addEventListener("click", dismissAlarmForever);
-
-      searchAddressBtn.addEventListener("click", searchAddress);
-      addressSearchInput.addEventListener("keydown", e => {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          searchAddress();
-        }
-      });
-
-      useCurrentGpsBtn.addEventListener("click", () => {
-        if (!navigator.geolocation) return;
-        navigator.geolocation.getCurrentPosition(
-          pos => {
-            setMapPoint(pos.coords.latitude, pos.coords.longitude, true);
-          },
-          () => {},
-          { enableHighAccuracy: true }
-        );
-      });
-
-      savePlaceBtn.addEventListener("click", () => {
-        if (editingIndex === null) return;
-        const customName = editNameInput.value.trim();
-        const defName = getDefaultPlaceName(editingIndex);
-        const name = customName || defName;
-        const isDefaultName = !customName || customName === defName;
-        const latVal = parseFloat(editLatInput.value);
-        const lngVal = parseFloat(editLngInput.value);
-        state.places[editingIndex] = {
-          name,
-          isDefaultName,
-          lat: Number.isFinite(latVal) ? latVal : null,
-          lng: Number.isFinite(lngVal) ? lngVal : null
-        };
-        saveState();
-        renderDestinations();
-        updateStatus();
-        closeEditModal();
-      });
-
-      cancelEditBtn.addEventListener("click", closeEditModal);
-
-      voiceBtn.addEventListener("click", () => {
-        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRec) {
-          updateStatus(t("voiceUnavailable"));
-          return;
-        }
-        const langObj = LANGUAGES.find(l => l.code === currentLang) || LANGUAGES[0];
-        const rec = new SpeechRec();
-        rec.lang = langObj.speech || "en-US";
-        rec.interimResults = false;
-        voiceBtn.classList.add("active");
-        updateStatus(t("voiceListening"));
-
-        rec.onresult = event => {
-          const spoken = (event.results[0][0].transcript || "").toLowerCase().trim();
-          const foundIdx = state.places.findIndex(p => spoken.includes(p.name.toLowerCase()));
-          if (foundIdx !== -1) {
-            state.selectedIndex = foundIdx;
-            saveState();
-            renderDestinations();
-            updateStatus(`${t("voiceSelected")} ${state.places[foundIdx].name}`);
-          } else {
-            updateStatus(`${t("voiceNotFound")} ${spoken}`);
-          }
-        };
-
-        rec.onerror = () => updateStatus(t("voiceUnavailable"));
-        rec.onend = () => voiceBtn.classList.remove("active");
-        rec.start();
-      });
-
-      loadState();
-      thresholdSelect.value = String(state.thresholdMeters);
-      loudModeToggle.checked = state.loudMode;
-      applyLanguage(currentLang);      const FULL_BASE_KEYS = [
-        "brandTitle", "promptTitle", "langMenuTitle", "startWatch", "stopWatch",
-        "previewSound", "loudMode", "pickAudio", "noCustomAudio", "customAudioLoaded",
-        "choosePlace", "tapToWatch", "editModeOn", "noCoordsYet", "watchingActive",
-        "coordsReady", "beforeSuffix", "fixedPlace", "freePlace", "setPlaceHint",
-        "coordsSet", "themeDrawerTitle", "pickWallpaper", "flipGlass", "simPrefix",
-        "triggerSim", "adBanner", "editModalTitle", "editNameLabel",
-        "addressSearchLabel", "addressSearchPlaceholder", "searchBtn",
-        "useCurrentGps", "savePlace", "cancelEdit", "alarmPrefix",
-        "dismissForever", "snoozeMain", "snoozeTap", "snoozeLeft", "alarmFooter",
-        "voiceListening", "voiceSelected", "voiceNotFound", "voiceUnavailable"
-      ];
-
-      LANGUAGES.forEach(lang => {
-        const entry = TRANSLATIONS[lang.code];
-        if (!entry) return;
-        FULL_BASE_KEYS.forEach(key => {
-          if (entry[key] === undefined && TRANSLATIONS.en && TRANSLATIONS.en[key] !== undefined) {
-            entry[key] = TRANSLATIONS.en[key];
-          }
-        });
-        if (!Array.isArray(entry.defaultPlaces) || entry.defaultPlaces.length !== 10) {
-          entry.defaultPlaces = Array.from({ length: 10 }, (_, idx) => `${lang.label} ${idx + 1}`);
-        }
-        if (!entry.themes) {
-          entry.themes = { ...(TRANSLATIONS.en && TRANSLATIONS.en.themes) };
-        }
-        if (!entry.sounds) {
-          entry.sounds = { ...(TRANSLATIONS.en && TRANSLATIONS.en.sounds) };
-        }
-      });
-
-      applyLanguage(currentLang);
-
-    } catch (fatalErr) {
-      document.body.innerHTML = `<div style="padding:20px;font-family:sans-serif;color:#111;background:#fff;"><h2>StopWay</h2><p>${String(fatalErr && fatalErr.message || fatalErr)}</p></div>`;
+      begin();
     }
+
+    function stopWatch(force = false) {
+      const doStop = () => {
+        state.watching = false;
+        if (watchId !== null && navigator.geolocation) {
+          navigator.geolocation.clearWatch(watchId);
+          watchId = null;
+        }
+        el("startBtn").disabled = false;
+        el("stopBtn").disabled = true;
+        el("startBtn").classList.add("blinking");
+        el("statusBox").textContent = "";
+        saveState();
+      };
+
+      if (force) {
+        doStop();
+        return;
+      }
+
+      openConfirm(
+        t("stopConfirmTitle"),
+        t("stopConfirmText"),
+        doStop,
+        () => openConfirm(t("cancelWarnTitle"), t("cancelWarnText"))
+      );
+    }
+
+    function openEditModal(idx) {
+      editingIndex = idx;
+      const place = state.places[idx];
+      el("editModalTitle").textContent = t("editModalTitle");
+      el("editNameLabel").textContent = t("editNameLabel");
+      el("coordsLabel").textContent = t("coordsLabel");
+      el("useGpsBtn").textContent = t("useGpsBtn");
+      el("savePlaceBtn").textContent = t("savePlaceBtn");
+      el("cancelEditBtn").textContent = t("cancelBtn");
+
+      el("placeNameInput").value = place.name;
+      el("latInput").value = place.lat ?? "";
+      el("lngInput").value = place.lng ?? "";
+      el("editModal").classList.add("open");
+    }
+
+    function renderPlaces() {
+      const grid = el("placesGrid");
+      grid.innerHTML = "";
+      state.places.forEach((p, idx) => {
+        const item = document.createElement("div");
+        item.className = "place-item" + (idx === state.selectedIndex ? " selected" : "");
+        const coordsText =
+          typeof p.lat === "number" && typeof p.lng === "number"
+            ? `${t("coordsSet")} (${p.lat.toFixed(4)}, ${p.lng.toFixed(4)})`
+            : t("noCoords");
+        item.innerHTML = `<strong>${p.name}</strong><span class="place-meta">${coordsText}</span>`;
+        item.addEventListener("click", () => {
+          state.selectedIndex = idx;
+          saveState();
+          renderPlaces();
+          if (state.editMode) {
+            openEditModal(idx);
+          }
+        });
+        grid.appendChild(item);
+      });
+    }
+
+    function applyLanguage(code) {
+      const langObj = LANGUAGES.find(l => l.code === code) || LANGUAGES[0];
+      state.lang = langObj.code;
+      document.documentElement.lang = langObj.code;
+      document.documentElement.dir = langObj.dir;
+      el("langSelect").value = langObj.code;
+
+      const dict = TRANSLATIONS[langObj.code] || TRANSLATIONS.hu;
+      el("brandTitle").textContent = t("brandTitle");
+      el("promptTitle").textContent = t("promptTitle");
+      el("startBtn").textContent = t("startWatch");
+      el("stopBtn").textContent = t("stopWatch");
+      el("previewSoundBtn").textContent = t("previewSound");
+      el("loudModeLabel").textContent = t("loudMode");
+      el("editModeLabel").textContent = t("editMode");
+      el("choosePlaceTitle").textContent = t("choosePlace");
+      el("tapHint").textContent = t("tapHint");
+      el("arrivedTitle").textContent = t("arrivedTitle");
+      el("arrivedDesc").textContent = t("arrivedDesc");
+      el("restartBtn").textContent = t("restartBtn");
+
+      const themeSel = el("themeSelect");
+      themeSel.innerHTML = "";
+      Object.entries(dict.themes).forEach(([key, label]) => {
+        const opt = document.createElement("option");
+        opt.value = key;
+        opt.textContent = label;
+        if (key === state.theme) opt.selected = true;
+        themeSel.appendChild(opt);
+      });
+
+      const soundSel = el("soundSelect");
+      soundSel.innerHTML = "";
+      Object.entries(dict.sounds).forEach(([key, label]) => {
+        const opt = document.createElement("option");
+        opt.value = key;
+        opt.textContent = label;
+        if (key === state.sound) opt.selected = true;
+        soundSel.appendChild(opt);
+      });
+
+      state.places.forEach((p, idx) => {
+        const looksDefault = Object.values(TRANSLATIONS).some(d => d.defaultPlaces && d.defaultPlaces[idx] === p.name);
+        if (looksDefault) {
+          p.name = dict.defaultPlaces[idx];
+        }
+      });
+
+      renderPlaces();
+      saveState();
+    }
+
+    function init() {
+      loadState();
+      const langSel = el("langSelect");
+      langSel.innerHTML = "";
+      LANGUAGES.forEach(l => {
+        const opt = document.createElement("option");
+        opt.value = l.code;
+        opt.textContent = `${l.label} (${l.code})`;
+        langSel.appendChild(opt);
+      });
+
+      document.body.dataset.theme = state.theme;
+      el("loudModeToggle").checked = Boolean(state.loudMode);
+      el("editModeToggle").checked = Boolean(state.editMode);
+      el("thresholdSelect").value = String(state.threshold || 500);
+
+      langSel.addEventListener("change", e => applyLanguage(e.target.value));
+      el("themeSelect").addEventListener("change", e => {
+        state.theme = e.target.value;
+        document.body.dataset.theme = state.theme;
+        if (state.theme === "glass") {
+          document.body.classList.toggle("flipped");
+        } else {
+          document.body.classList.remove("flipped");
+        }
+        saveState();
+      });
+      el("soundSelect").addEventListener("change", e => {
+        state.sound = e.target.value;
+        saveState();
+      });
+      el("previewSoundBtn").addEventListener("click", () => playTone(state.sound));
+      el("loudModeToggle").addEventListener("change", e => {
+        state.loudMode = e.target.checked;
+        saveState();
+      });
+      el("editModeToggle").addEventListener("change", e => {
+        state.editMode = e.target.checked;
+        saveState();
+      });
+      el("thresholdSelect").addEventListener("change", e => {
+        state.threshold = Number(e.target.value) || 500;
+        saveState();
+      });
+      el("startBtn").addEventListener("click", startWatch);
+      el("stopBtn").addEventListener("click", () => stopWatch(false));
+      el("restartBtn").addEventListener("click", () => {
+        el("arrivedCard").style.display = "none";
+        startWatch();
+      });
+
+      el("modalConfirmBtn").addEventListener("click", () => pendingModalAction?.confirm?.());
+      el("modalCancelBtn").addEventListener("click", () => pendingModalAction?.cancel?.());
+
+      el("useGpsBtn").addEventListener("click", () => {
+        if (!navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition(pos => {
+          el("latInput").value = pos.coords.latitude.toFixed(6);
+          el("lngInput").value = pos.coords.longitude.toFixed(6);
+        });
+      });
+
+      el("savePlaceBtn").addEventListener("click", () => {
+        if (editingIndex === null) return;
+        const nameVal = el("placeNameInput").value.trim();
+        const latVal = parseFloat(el("latInput").value);
+        const lngVal = parseFloat(el("lngInput").value);
+        state.places[editingIndex].name = nameVal || TRANSLATIONS[state.lang].defaultPlaces[editingIndex];
+        state.places[editingIndex].lat = Number.isFinite(latVal) ? latVal : null;
+        state.places[editingIndex].lng = Number.isFinite(lngVal) ? lngVal : null;
+        el("editModal").classList.remove("open");
+        editingIndex = null;
+        renderPlaces();
+        saveState();
+      });
+
+      el("cancelEditBtn").addEventListener("click", () => {
+        el("editModal").classList.remove("open");
+        editingIndex = null;
+      });
+
+      applyLanguage(state.lang);
+    }
+
+    init();
   </script>
 </body>
 </html>
+
