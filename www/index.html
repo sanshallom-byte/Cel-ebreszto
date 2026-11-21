@@ -2190,7 +2190,40 @@
       loadState();
       thresholdSelect.value = String(state.thresholdMeters);
       loudModeToggle.checked = state.loudMode;
+      applyLanguage(currentLang);      const FULL_BASE_KEYS = [
+        "brandTitle", "promptTitle", "langMenuTitle", "startWatch", "stopWatch",
+        "previewSound", "loudMode", "pickAudio", "noCustomAudio", "customAudioLoaded",
+        "choosePlace", "tapToWatch", "editModeOn", "noCoordsYet", "watchingActive",
+        "coordsReady", "beforeSuffix", "fixedPlace", "freePlace", "setPlaceHint",
+        "coordsSet", "themeDrawerTitle", "pickWallpaper", "flipGlass", "simPrefix",
+        "triggerSim", "adBanner", "editModalTitle", "editNameLabel",
+        "addressSearchLabel", "addressSearchPlaceholder", "searchBtn",
+        "useCurrentGps", "savePlace", "cancelEdit", "alarmPrefix",
+        "dismissForever", "snoozeMain", "snoozeTap", "snoozeLeft", "alarmFooter",
+        "voiceListening", "voiceSelected", "voiceNotFound", "voiceUnavailable"
+      ];
+
+      LANGUAGES.forEach(lang => {
+        const entry = TRANSLATIONS[lang.code];
+        if (!entry) return;
+        FULL_BASE_KEYS.forEach(key => {
+          if (entry[key] === undefined && TRANSLATIONS.en && TRANSLATIONS.en[key] !== undefined) {
+            entry[key] = TRANSLATIONS.en[key];
+          }
+        });
+        if (!Array.isArray(entry.defaultPlaces) || entry.defaultPlaces.length !== 10) {
+          entry.defaultPlaces = Array.from({ length: 10 }, (_, idx) => `${lang.label} ${idx + 1}`);
+        }
+        if (!entry.themes) {
+          entry.themes = { ...(TRANSLATIONS.en && TRANSLATIONS.en.themes) };
+        }
+        if (!entry.sounds) {
+          entry.sounds = { ...(TRANSLATIONS.en && TRANSLATIONS.en.sounds) };
+        }
+      });
+
       applyLanguage(currentLang);
+
     } catch (fatalErr) {
       document.body.innerHTML = `<div style="padding:20px;font-family:sans-serif;color:#111;background:#fff;"><h2>StopWay</h2><p>${String(fatalErr && fatalErr.message || fatalErr)}</p></div>`;
     }
