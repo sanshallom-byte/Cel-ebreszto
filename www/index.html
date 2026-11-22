@@ -2967,5 +2967,703 @@
     }
   </script>
 </body>
+  <style id="stopway-extension-styles">
+  .sw-ext-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 99990;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    background: rgba(8, 12, 20, 0.78);
+    backdrop-filter: blur(6px);
+  }
+  .sw-ext-backdrop.is-open {
+    display: flex;
+  }
+  .sw-ext-card {
+    width: 100%;
+    max-width: 460px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 18px;
+    padding: 22px 20px;
+    background: var(--card-bg, var(--surface, #161b26));
+    color: var(--text-color, var(--text, #f4f6fb));
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+    text-align: center;
+  }
+  .sw-ext-stop-banner {
+    font-weight: 900;
+    font-size: 1.5rem;
+    letter-spacing: 0.14em;
+    padding: 6px 14px;
+    margin: 0 auto 10px auto;
+    display: inline-block;
+    border-radius: 10px;
+    background: #d92d20;
+    color: #ffffff;
+  }
+  .sw-ext-icon {
+    font-size: 3rem;
+    line-height: 1.15;
+    margin: 6px 0 12px 0;
+  }
+  .sw-ext-flag-wave {
+    display: inline-block;
+    transform-origin: bottom center;
+    animation: swFlagWave 1.4s ease-in-out infinite;
+  }
+  @keyframes swFlagWave {
+    0%, 100% { transform: rotate(-10deg); }
+    50% { transform: rotate(12deg); }
+  }
+  .sw-ext-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+  }
+  .sw-ext-message {
+    font-size: 1rem;
+    line-height: 1.45;
+    margin: 0 0 18px 0;
+    opacity: 0.95;
+  }
+  .sw-ext-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .sw-ext-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+  .sw-ext-row > button {
+    flex: 1;
+  }
+  .sw-ext-btn {
+    cursor: pointer;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    background: var(--accent, #2563eb);
+    color: #ffffff;
+  }
+  .sw-ext-btn.secondary {
+    background: rgba(148, 163, 184, 0.25);
+    color: inherit;
+  }
+  .sw-ext-btn.danger {
+    background: #dc2626;
+    color: #ffffff;
+  }
+  .sw-ext-btn.snooze-giant {
+    width: 100%;
+    min-height: 112px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    border-radius: 18px;
+    background: #16a34a;
+    color: #ffffff;
+  }
+  .sw-ext-btn.stop-small {
+    align-self: center;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 9px;
+    background: rgba(220, 38, 38, 0.22);
+    color: #fca5a5;
+    border: 1px solid rgba(248, 113, 113, 0.45);
+  }
+  .sw-ext-blink {
+    animation: swStartBlink 0.9s ease-in-out infinite;
+  }
+  @keyframes swStartBlink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.45; transform: scale(1.03); }
+  }
+</style>
+
+<div id="swExtModalBackdrop" class="sw-ext-backdrop" role="dialog" aria-modal="true" aria-live="assertive">
+  <div class="sw-ext-card">
+    <div id="swExtStopBanner" class="sw-ext-stop-banner" style="display:none;">STOP</div>
+    <div id="swExtIcon" class="sw-ext-icon">📍</div>
+    <h2 id="swExtTitle" class="sw-ext-title"></h2>
+    <p id="swExtMessage" class="sw-ext-message"></p>
+    <div id="swExtActions" class="sw-ext-actions"></div>
+  </div>
+</div>
+
+<script id="stopway-extension-script">
+(function () {
+  if (window.__StopWayExtensionLoaded) return;
+  window.__StopWayExtensionLoaded = true;
+
+  const EXT_I18N = {
+    hu: {
+      gpsEnableTitle: "Kapcsold be a helymeghatározást",
+      gpsEnableMsg: "Húzd le a felső gyorsmenüt, kapcsold be a helymeghatározást (GPS-t), majd térj vissza ide.",
+      gpsCheckBtn: "Ellenőrzés",
+      permTitle: "Helyhozzáférés engedélyezése",
+      permMsg: "Engedélyezd az alkalmazásnak a helymeghatározás használatát a folytatáshoz.",
+      permBtn: "Hozzáférés kérése",
+      bgTitle: "Háttérfutás engedélyezése",
+      bgMsg: "Szeretnéd engedélyezni, hogy a figyelés a háttérben is működjön?",
+      bgYes: "Igen",
+      bgNo: "Nem",
+      bgWarnTitle: "Figyelmeztetés a leállásra",
+      bgWarnMsg: "Ha nem engedélyezed a háttérfutást, a képernyőzár vagy más alkalmazás leállíthatja a figyelést. Biztosan így folytatod?",
+      bgWarnContinue: "Igen, így folytatom",
+      bgWarnBack: "Nem, visszalépek",
+      weakSignalTitle: "Gyenge vagy hiányzó GPS-jel",
+      weakSignalMsg: "A helymeghatározás be van kapcsolva, de zárt helyen gyengülhet a műholdas jel. Kérlek, menj szabadabb, nyíltabb térbe, hogy újra fogni tudjam.",
+      retryBtn: "Újrapróbálás",
+      closeBtn: "Bezárás",
+      idleTitle: "Haladási szünet",
+      idleMsg: "1 órája nem érzékeltük a haladásodat. Szeretnéd befejezni az utazást vagy folytatod?",
+      yesBtn: "Igen",
+      noBtn: "Nem",
+      arrivedTitle: "Megérkeztél a célhoz",
+      arrivedMsg: "Elérted a célpontot. Befejezed az utazást, vagy új utazást kezdesz?",
+      finishTripBtn: "Befejezem",
+      newTripBtn: "Új utazás",
+      exitConfirmTitle: "Kilépés megerősítése",
+      exitConfirmMsg: "Biztosan be szeretnéd fejezni és leállítani az utazást?",
+      goodbyeTitle: "Köszönjük az utazást",
+      goodbyeMsg: "Nagyon szépen köszönjük, hogy a StopWay-t használtad! Ha már másra nem használod, kérlek, kapcsold ki a helymeghatározást.",
+      snoozeBtn: "SZUNDI (20 mp)",
+      finalStopBtn: "Végleges leállítás"
+    },
+    en: {
+      gpsEnableTitle: "Turn on Location Services",
+      gpsEnableMsg: "Swipe down your quick settings, turn on Location (GPS), and return here.",
+      gpsCheckBtn: "Check now",
+      permTitle: "Allow Location Access",
+      permMsg: "Please allow the app to access your location to continue.",
+      permBtn: "Request access",
+      bgTitle: "Allow Background Operation",
+      bgMsg: "Would you like monitoring to keep running in the background?",
+      bgYes: "Yes",
+      bgNo: "No",
+      bgWarnTitle: "Possible Stop Warning",
+      bgWarnMsg: "Without background operation, screen lock or other apps may stop monitoring. Continue anyway?",
+      bgWarnContinue: "Yes, continue",
+      bgWarnBack: "No, go back",
+      weakSignalTitle: "Weak or Missing GPS Signal",
+      weakSignalMsg: "Location is on, but satellite signals can be blocked indoors. Please move to a more open space so I can pick up the signal.",
+      retryBtn: "Retry",
+      closeBtn: "Close",
+      idleTitle: "No Progress Detected",
+      idleMsg: "We haven't detected your progress for 1 hour. Would you like to end the trip or continue?",
+      yesBtn: "Yes",
+      noBtn: "No",
+      arrivedTitle: "Destination Reached",
+      arrivedMsg: "You have arrived at your destination. Finish the trip or start a new trip?",
+      finishTripBtn: "Finish",
+      newTripBtn: "New trip",
+      exitConfirmTitle: "Confirm Exit",
+      exitConfirmMsg: "Are you sure you want to finish and stop the trip?",
+      goodbyeTitle: "Thank You for Your Trip",
+      goodbyeMsg: "Thank you very much for using StopWay! If you no longer need location services for other tasks, please turn Location off.",
+      snoozeBtn: "SNOOZE (20s)",
+      finalStopBtn: "Final stop"
+    }
+  };
+
+  const ALL_21_LANGS = ["hu","en","de","fr","es","it","pt","nl","pl","cs","sk","ro","hr","sr","sl","bg","uk","ru","ar","zh","ja"];
+  ALL_21_LANGS.forEach((code) => {
+    if (!EXT_I18N[code]) {
+      EXT_I18N[code] = Object.assign({}, EXT_I18N.en);
+    }
+  });
+
+  function getActiveLang() {
+    const candidates = [
+      window.currentLang,
+      window.activeLang,
+      window.lang,
+      localStorage.getItem("stopway_lang"),
+      localStorage.getItem("lang"),
+      document.documentElement.lang
+    ];
+    for (const c of candidates) {
+      if (typeof c === "string" && c.trim()) {
+        const normalized = c.trim().toLowerCase().slice(0, 2);
+        if (EXT_I18N[normalized]) return normalized;
+      }
+    }
+    return "hu";
+  }
+
+  function extT(key) {
+    const lang = getActiveLang();
+    if (typeof window.t === "function") {
+      const fromApp = window.t(key);
+      if (typeof fromApp === "string" && fromApp.trim() && fromApp !== key) {
+        return fromApp;
+      }
+    }
+    return (EXT_I18N[lang] && EXT_I18N[lang][key]) || EXT_I18N.hu[key] || EXT_I18N.en[key] || key;
+  }
+
+  const backdrop = document.getElementById("swExtModalBackdrop");
+  const stopBanner = document.getElementById("swExtStopBanner");
+  const iconEl = document.getElementById("swExtIcon");
+  const titleEl = document.getElementById("swExtTitle");
+  const msgEl = document.getElementById("swExtMessage");
+  const actionsEl = document.getElementById("swExtActions");
+
+  function closeModal() {
+    backdrop.classList.remove("is-open");
+    actionsEl.innerHTML = "";
+  }
+
+  function openModal({ showStop = false, icon = "📍", flagWave = false, title = "", message = "", buttons = [] }) {
+    stopBanner.style.display = showStop ? "inline-block" : "none";
+    iconEl.innerHTML = flagWave
+      ? `<span class="sw-ext-flag-wave">${icon}</span>`
+      : icon;
+    titleEl.textContent = title;
+    msgEl.textContent = message;
+    actionsEl.innerHTML = "";
+
+    const row = document.createElement("div");
+    row.className = "sw-ext-row";
+    let useRow = buttons.length === 2 && !buttons.some((b) => b.fullWidth);
+
+    buttons.forEach((btnCfg) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = btnCfg.label;
+      btn.className = "sw-ext-btn " + (btnCfg.variant || "");
+      btn.addEventListener("click", () => {
+        if (btnCfg.keepOpen !== true) closeModal();
+        if (typeof btnCfg.onClick === "function") btnCfg.onClick();
+      });
+      if (useRow) {
+        row.appendChild(btn);
+      } else {
+        actionsEl.appendChild(btn);
+      }
+    });
+
+    if (useRow) actionsEl.appendChild(row);
+    backdrop.classList.add("is-open");
+  }
+
+  const MOVE_THRESHOLD_METERS = 100;
+  const IDLE_TIMEOUT_MS = 60 * 60 * 1000;
+  let anchorPos = null;
+  let anchorTime = null;
+  let idleCheckTimer = null;
+  let monitoringActive = false;
+
+  function haversineMeters(a, b) {
+    const R = 6371000;
+    const toRad = (deg) => (deg * Math.PI) / 180;
+    const dLat = toRad(b.lat - a.lat);
+    const dLon = toRad(b.lng - a.lng);
+    const lat1 = toRad(a.lat);
+    const lat2 = toRad(b.lat);
+    const h =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+
+  function resetAnchor(pos) {
+    anchorPos = { lat: pos.lat, lng: pos.lng };
+    anchorTime = Date.now();
+  }
+
+  function recordPositionSample(lat, lng) {
+    const now = Date.now();
+    const current = { lat, lng };
+    if (!anchorPos || anchorTime === null) {
+      anchorPos = current;
+      anchorTime = now;
+      return true;
+    }
+    const dist = haversineMeters(anchorPos, current);
+    if (dist >= MOVE_THRESHOLD_METERS) {
+      anchorPos = current;
+      anchorTime = now;
+      return true;
+    }
+    return false;
+  }
+
+  function showOneHourStopPrompt() {
+    openModal({
+      showStop: true,
+      icon: "🛑❓",
+      title: extT("idleTitle"),
+      message: extT("idleMsg"),
+      buttons: [
+        {
+          label: extT("yesBtn"),
+          variant: "danger",
+          onClick: () => triggerUnifiedExit()
+        },
+        {
+          label: extT("noBtn"),
+          variant: "secondary",
+          onClick: () => {
+            anchorTime = Date.now();
+          }
+        }
+      ]
+    });
+  }
+
+  function startIdleWatcher() {
+    stopIdleWatcher();
+    if (!anchorTime) anchorTime = Date.now();
+    idleCheckTimer = setInterval(() => {
+      if (!monitoringActive || !anchorTime) return;
+      if (Date.now() - anchorTime >= IDLE_TIMEOUT_MS) {
+        showOneHourStopPrompt();
+      }
+    }, 15000);
+  }
+
+  function stopIdleWatcher() {
+    if (idleCheckTimer) {
+      clearInterval(idleCheckTimer);
+      idleCheckTimer = null;
+    }
+  }
+
+  function showGoodbyeAndGpsOffNotice() {
+    monitoringActive = false;
+    stopIdleWatcher();
+    setStartButtonBlinking(false);
+    openModal({
+      icon: "🙏📍",
+      title: extT("goodbyeTitle"),
+      message: extT("goodbyeMsg"),
+      buttons: [
+        {
+          label: extT("closeBtn"),
+          variant: "",
+          onClick: () => {}
+        }
+      ]
+    });
+  }
+
+  function triggerUnifiedExit() {
+    openModal({
+      icon: "🛑",
+      title: extT("exitConfirmTitle"),
+      message: extT("exitConfirmMsg"),
+      buttons: [
+        {
+          label: extT("yesBtn"),
+          variant: "danger",
+          onClick: () => {
+            if (typeof window.stopMonitoring === "function") {
+              try { window.stopMonitoring(); } catch (_) {}
+            }
+            showGoodbyeAndGpsOffNotice();
+          }
+        },
+        {
+          label: extT("noBtn"),
+          variant: "secondary",
+          onClick: () => {}
+        }
+      ]
+    });
+  }
+
+  function showArrivalModal(onNewTrip) {
+    monitoringActive = false;
+    stopIdleWatcher();
+    setStartButtonBlinking(false);
+    openModal({
+      icon: "🏁",
+      flagWave: true,
+      title: extT("arrivedTitle"),
+      message: extT("arrivedMsg"),
+      buttons: [
+        {
+          label: extT("finishTripBtn"),
+          variant: "",
+          onClick: () => showGoodbyeAndGpsOffNotice()
+        },
+        {
+          label: extT("newTripBtn"),
+          variant: "secondary",
+          onClick: () => {
+            anchorPos = null;
+            anchorTime = null;
+            if (typeof onNewTrip === "function") {
+              onNewTrip();
+            } else {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+          }
+        }
+      ]
+    });
+  }
+
+  let snoozeTimeout = null;
+  function duckMediaForAlarm(duck) {
+    const mediaEls = document.querySelectorAll("audio, video");
+    mediaEls.forEach((el) => {
+      try {
+        if (duck) {
+          if (el.dataset.swPrevVol === undefined) {
+            el.dataset.swPrevVol = String(el.volume);
+          }
+          el.volume = Math.min(el.volume, 0.12);
+        } else if (el.dataset.swPrevVol !== undefined) {
+          el.volume = Number(el.dataset.swPrevVol);
+          delete el.dataset.swPrevVol;
+        }
+      } catch (_) {}
+    });
+  }
+
+  function showAlarmControls(onSnooze, onFinalStop) {
+    duckMediaForAlarm(true);
+    openModal({
+      icon: "🔔",
+      title: "STOPWAY",
+      message: "",
+      buttons: [
+        {
+          label: extT("snoozeBtn"),
+          variant: "snooze-giant",
+          fullWidth: true,
+          onClick: () => {
+            if (typeof onSnooze === "function") onSnooze();
+            if (snoozeTimeout) clearTimeout(snoozeTimeout);
+            snoozeTimeout = setTimeout(() => {
+              showAlarmControls(onSnooze, onFinalStop);
+            }, 20000);
+          }
+        },
+        {
+          label: extT("finalStopBtn"),
+          variant: "stop-small",
+          fullWidth: true,
+          onClick: () => {
+            if (snoozeTimeout) clearTimeout(snoozeTimeout);
+            duckMediaForAlarm(false);
+            if (typeof onFinalStop === "function") onFinalStop();
+          }
+        }
+      ]
+    });
+  }
+
+  function findStartButton() {
+    const byId = document.getElementById("startBtn") || document.getElementById("startMonitoringBtn");
+    if (byId) return byId;
+    const btns = Array.from(document.querySelectorAll("button"));
+    return btns.find((b) => /indít|start/i.test((b.textContent || "").trim())) || null;
+  }
+
+  function setStartButtonBlinking(blinking) {
+    const btn = findStartButton();
+    if (!btn) return;
+    btn.classList.toggle("sw-ext-blink", Boolean(blinking));
+  }
+
+  function probeLocation(onReady, onNeedEnableGps, onWeakSignal) {
+    if (!navigator.geolocation) {
+      if (typeof onWeakSignal === "function") onWeakSignal();
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        resetAnchor({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        if (typeof onReady === "function") onReady(pos);
+      },
+      (err) => {
+        if (err && err.code === 1) {
+          if (typeof onNeedEnableGps === "function") onNeedEnableGps();
+        } else {
+          if (typeof onWeakSignal === "function") onWeakSignal();
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  }
+
+  function showBackgroundWarningStep(onContinueAnyway, onGoBackToBg) {
+    openModal({
+      icon: "⚠️",
+      title: extT("bgWarnTitle"),
+      message: extT("bgWarnMsg"),
+      buttons: [
+        {
+          label: extT("bgWarnContinue"),
+          variant: "danger",
+          onClick: onContinueAnyway
+        },
+        {
+          label: extT("bgWarnBack"),
+          variant: "secondary",
+          onClick: onGoBackToBg
+        }
+      ]
+    });
+  }
+
+  function showBackgroundStep(onDone) {
+    openModal({
+      icon: "🔄",
+      title: extT("bgTitle"),
+      message: extT("bgMsg"),
+      buttons: [
+        {
+          label: extT("bgYes"),
+          variant: "",
+          onClick: onDone
+        },
+        {
+          label: extT("bgNo"),
+          variant: "secondary",
+          onClick: () => showBackgroundWarningStep(onDone, () => showBackgroundStep(onDone))
+        }
+      ]
+    });
+  }
+
+  function showPermissionStep(onGranted) {
+    openModal({
+      icon: "🔐",
+      title: extT("permTitle"),
+      message: extT("permMsg"),
+      buttons: [
+        {
+          label: extT("permBtn"),
+          variant: "",
+          onClick: () => {
+            probeLocation(
+              () => onGranted(),
+              () => showGpsEnableStep(onGranted),
+              () => showWeakSignalStep(onGranted)
+            );
+          }
+        }
+      ]
+    });
+  }
+
+  function showWeakSignalStep(onReady) {
+    openModal({
+      icon: "📡🌳",
+      title: extT("weakSignalTitle"),
+      message: extT("weakSignalMsg"),
+      buttons: [
+        {
+          label: extT("retryBtn"),
+          variant: "",
+          onClick: () => {
+            probeLocation(
+              () => onReady(),
+              () => showGpsEnableStep(onReady),
+              () => showWeakSignalStep(onReady)
+            );
+          }
+        },
+        {
+          label: extT("closeBtn"),
+          variant: "secondary",
+          onClick: () => {}
+        }
+      ]
+    });
+  }
+
+  function showGpsEnableStep(onReady) {
+    openModal({
+      icon: "📍",
+      title: extT("gpsEnableTitle"),
+      message: extT("gpsEnableMsg"),
+      buttons: [
+        {
+          label: extT("gpsCheckBtn"),
+          variant: "",
+          onClick: () => {
+            probeLocation(
+              () => showPermissionStep(onReady),
+              () => showGpsEnableStep(onReady),
+              () => showWeakSignalStep(onReady)
+            );
+          }
+        }
+      ]
+    });
+  }
+
+  function runOnboardingBeforeStart(onReadyToBlinkStart) {
+    probeLocation(
+      () => showBackgroundStep(onReadyToBlinkStart),
+      () => showGpsEnableStep(onReadyToBlinkStart),
+      () => showWeakSignalStep(onReadyToBlinkStart)
+    );
+  }
+
+  window.StopWayExt = {
+    extT,
+    openModal,
+    closeModal,
+    runOnboardingBeforeStart,
+    setStartButtonBlinking,
+    recordPositionSample,
+    startIdleWatcher,
+    stopIdleWatcher,
+    triggerUnifiedExit,
+    showArrivalModal,
+    showAlarmControls,
+    setMonitoringActive: (val) => {
+      monitoringActive = Boolean(val);
+      if (monitoringActive) {
+        if (!anchorTime) anchorTime = Date.now();
+        startIdleWatcher();
+      } else {
+        stopIdleWatcher();
+      }
+    }
+  };
+
+  let onboardingCompletedForSession = false;
+  const startBtn = findStartButton();
+  if (startBtn) {
+    startBtn.addEventListener(
+      "click",
+      function (ev) {
+        if (onboardingCompletedForSession) {
+          setStartButtonBlinking(false);
+          monitoringActive = true;
+          if (!anchorTime) anchorTime = Date.now();
+          startIdleWatcher();
+          return;
+        }
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+        runOnboardingBeforeStart(() => {
+          onboardingCompletedForSession = true;
+          setStartButtonBlinking(true);
+        });
+      },
+      true
+    );
+  }
+})();
+</script>
+
 </html>
 
