@@ -866,3 +866,897 @@
 
       const statusLine = document.getElementById("statusLine");
       const statusDetail = document.getElement
+ById("statusDetail");
+      const toggleWatchBtn = document.getElementById("toggleWatchBtn");
+      const stopWatchBtn = document.getElementById("stopWatchBtn");
+      const soundSelect = document.getElementById("soundSelect");
+      const previewSoundBtn = document.getElementById("previewSoundBtn");
+      const loudModeToggle = document.getElementById("loudModeToggle");
+      const pickAudioBtn = document.getElementById("pickAudioBtn");
+      const customAudioInput = document.getElementById("customAudioInput");
+      const customAudioInfo = document.getElementById("customAudioInfo");
+      const simDistanceRange = document.getElementById("simDistanceRange");
+      const simDistanceLabelWrap = document.getElementById("simDistanceLabelWrap");
+      const triggerSimAlarmBtn = document.getElementById("triggerSimAlarmBtn");
+      const adBannerSlot = document.getElementById("adBannerSlot");
+
+      const editModal = document.getElementById("editModal");
+      const editModalTitle = document.getElementById("editModalTitle");
+      const editNameLabel = document.getElementById("editNameLabel");
+      const editNameInput = document.getElementById("editNameInput");
+      const addressSearchLabel = document.getElementById("addressSearchLabel");
+      const addressSearchInput = document.getElementById("addressSearchInput");
+      const searchAddressBtn = document.getElementById("searchAddressBtn");
+      const searchResults = document.getElementById("searchResults");
+      const editLatInput = document.getElementById("editLatInput");
+      const editLngInput = document.getElementById("editLngInput");
+      const useCurrentGpsBtn = document.getElementById("useCurrentGpsBtn");
+      const savePlaceBtn = document.getElementById("savePlaceBtn");
+      const cancelEditBtn = document.getElementById("cancelEditBtn");
+
+      const alarmOverlay = document.getElementById("alarmOverlay");
+      const alarmHeading = document.getElementById("alarmHeading");
+      const alarmSub = document.getElementById("alarmSub");
+      const snoozeGiantBtn = document.getElementById("snoozeGiantBtn");
+      const snoozeMainLabel = document.getElementById("snoozeMainLabel");
+      const snoozeCountdownText = document.getElementById("snoozeCountdownText");
+      const dismissForeverBtn = document.getElementById("dismissForeverBtn");
+      const alarmFooterNote = document.getElementById("alarmFooterNote");
+
+      const swGoodbyeBanner = document.getElementById("swGoodbyeBanner");
+      const swGoodbyeTitle = document.getElementById("swGoodbyeTitle");
+      const swGoodbyeMsg = document.getElementById("swGoodbyeMsg");
+
+      const swCheckOverlay = document.getElementById("sw-check-overlay");
+      const swPanelTitle = document.getElementById("sw-panel-title");
+      const swStep1 = document.getElementById("sw-step-1");
+      const swStep2 = document.getElementById("sw-step-2");
+      const swStep3 = document.getElementById("sw-step-3");
+
+      function loadState() {
+        try {
+          currentLang = getSystemLang();
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed.places) && parsed.places.length === 10) {
+            state.places = parsed.places.map((p, idx) => ({
+              name: p.name || getDefaultPlaceName(idx),
+              isDefaultName: Boolean(p.isDefaultName),
+              lat: typeof p.lat === "number" ? p.lat : null,
+              lng: typeof p.lng === "number" ? p.lng : null
+            }));
+          }
+          if (typeof parsed.selectedIndex === "number") state.selectedIndex = parsed.selectedIndex;
+          if (typeof parsed.thresholdMeters === "number") state.thresholdMeters = parsed.thresholdMeters;
+          if (typeof parsed.soundId === "string") state.soundId = parsed.soundId;
+          if (typeof parsed.loudMode === "boolean") state.loudMode = parsed.loudMode;
+          if (typeof parsed.theme === "string") state.theme = parsed.theme;
+          if (parsed.glassPolarity === "light-ui" || parsed.glassPolarity === "dark-ui") {
+            state.glassPolarity = parsed.glassPolarity;
+          }
+        } catch (_) {}
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          localStorage.setItem(LANG_STORAGE_KEY, currentLang);
+        } catch (_) {}
+      }
+
+      function renderHelpModal() {
+        helpModalTitle.textContent = t("helpTitle");
+        helpBodyList.innerHTML = "";
+        const items = Array.isArray(t("helpItems")) ? t("helpItems") : BASE_HELP_EN;
+        items.forEach(text => {
+          const div = document.createElement("div");
+          div.className = "help-item";
+          div.textContent = text;
+          helpBodyList.appendChild(div);
+        });
+      }
+
+      function applyTheme(themeName) {
+        const validThemes = ["classic", "glass", "cartoon", "gothic", "renaissance", "punk"];
+        const chosen = validThemes.includes(themeName) ? themeName : "classic";
+        state.theme = chosen;
+        document.body.setAttribute("data-theme", chosen);
+        document.body.setAttribute("data-glass-polarity", state.glassPolarity);
+        if (wallpaperDataUrl) {
+          document.body.setAttribute("data-has-wallpaper", "true");
+          document.body.style.setProperty("--wallpaper-img", `url("${wallpaperDataUrl}")`);
+        } else {
+          document.body.removeAttribute("data-has-wallpaper");
+          document.body.style.setProperty("--wallpaper-img", "none");
+        }
+        document.querySelectorAll(".theme-chip[data-theme-choice]").forEach(chip => {
+          const id = chip.dataset.themeChoice;
+          chip.textContent = getThemeLabel(id);
+          chip.classList.toggle("active", id === chosen);
+        });
+        glassBox.classList.toggle("visible", chosen === "glass");
+        glassPolarityInfo.textContent = `${t("flipGlass")}: ${getThemeLabel("glass")}`;
+        saveState();
+      }
+
+      function populateSounds() {
+        soundSelect.innerHTML = "";
+        SOUNDS.forEach(s => {
+          const opt = document.createElement("option");
+          opt.value = s.id;
+          opt.textContent = getSoundLabel(s.id);
+          if (s.id === state.soundId) opt.selected = true;
+          soundSelect.appendChild(opt);
+        });
+        if (customAudioUrl) {
+          const customOpt = document.createElement("option");
+          customOpt.value = "__custom__";
+          customOpt.textContent = t("customAudioLoaded") + customAudioName;
+          if (state.soundId === "__custom__") customOpt.selected = true;
+          soundSelect.appendChild(customOpt);
+        }
+      }
+
+      function renderLangMenu() {
+        if (!langList) return;
+        if (langMenuTitle) langMenuTitle.textContent = t("langMenuTitle");
+        langList.innerHTML = "";
+        LANGUAGES.forEach(lang => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "theme-chip" + (lang.code === currentLang ? " active" : "");
+          btn.textContent = lang.label;
+          btn.addEventListener("click", () => {
+            applyLanguage(lang.code);
+            langMenu.style.display = "none";
+          });
+          langList.appendChild(btn);
+        });
+      }
+
+      function applyLanguage(langCode) {
+        const langObj = LANGUAGES.find(l => l.code === langCode) || LANGUAGES[0];
+        currentLang = langObj.code;
+        document.documentElement.lang = langObj.code;
+        document.documentElement.dir = langObj.dir || "ltr";
+
+        state.places.forEach((p, idx) => {
+          if (p.isDefaultName) {
+            p.name = getDefaultPlaceName(idx);
+          }
+        });
+
+        document.querySelector(".brand-title").textContent = t("brandTitle");
+        document.querySelector(".prompt-title").textContent = t("promptTitle");
+        toggleWatchBtn.textContent = t("startWatch");
+        stopWatchBtn.textContent = t("stopWatch");
+        previewSoundBtn.textContent = t("previewSound");
+        const loudSpan = loudModeToggle.parentElement.querySelector("span");
+        if (loudSpan) loudSpan.textContent = t("loudMode");
+        pickAudioBtn.textContent = t("pickAudio");
+        customAudioInfo.textContent = customAudioUrl ? (t("customAudioLoaded") + customAudioName) : t("noCustomAudio");
+
+        themeDrawerTitle.textContent = t("themeDrawerTitle");
+        pickWallpaperBtn.textContent = t("pickWallpaper");
+        flipGlassPolarityBtn.textContent = t("flipGlass");
+        simDistanceLabelWrap.innerHTML = `${t("simPrefix")} <strong id="simDistanceLabel">${simDistanceRange.value} m</strong>`;
+        triggerSimAlarmBtn.textContent = t("triggerSim");
+        adBannerSlot.textContent = t("adBanner");
+
+        editModalTitle.textContent = t("editModalTitle");
+        editNameLabel.textContent = t("editNameLabel");
+        addressSearchLabel.textContent = t("addressSearchLabel");
+        addressSearchInput.placeholder = t("addressSearchPlaceholder");
+        searchAddressBtn.textContent = t("searchBtn");
+        useCurrentGpsBtn.textContent = t("useCurrentGps");
+        savePlaceBtn.textContent = t("savePlace");
+        cancelEditBtn.textContent = t("cancelEdit");
+
+        dismissForeverBtn.textContent = t("dismissForever");
+        snoozeMainLabel.textContent = t("snoozeMain");
+        if (!alarmActive || snoozeRemaining <= 0) {
+          snoozeCountdownText.textContent = t("snoozeTap");
+        }
+        alarmFooterNote.textContent = t("alarmFooter");
+
+        applyTheme(state.theme);
+        populateSounds();
+        renderDestinations();
+        renderLangMenu();
+        renderHelpModal();
+        renderPermissionCheckUI();
+        updateStatus();
+        saveState();
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function renderDestinations() {
+        destinationsGrid.innerHTML = "";
+        state.places.forEach((place, idx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "dest-btn" + (idx === state.selectedIndex ? " selected" : "");
+          const hasCoords = typeof place.lat === "number" && typeof place.lng === "number";
+          const roleTag = idx < 2 ? t("fixedPlace") : t("freePlace");
+          btn.innerHTML = `
+            <span class="dest-index">${idx + 1}. • ${escapeHtml(roleTag)}</span>
+            <span class="dest-name">${escapeHtml(place.name)}</span>
+            <span class="dest-sub">${escapeHtml(hasCoords ? t("coordsSet") : t("setPlaceHint"))}</span>
+          `;
+          btn.addEventListener("click", () => {
+            state.selectedIndex = idx;
+            saveState();
+            renderDestinations();
+            if (!hasCoords || (editMode && (idx >= 2 || confirmEditLockedPlace(place.name)))) {
+              openEditModal(idx);
+            } else {
+              updateStatus();
+            }
+          });
+          destinationsGrid.appendChild(btn);
+        });
+      }
+
+      function confirmEditLockedPlace(name) {
+        return window.confirm(`${name} — ✏️`);
+      }
+
+      function formatDistance(meters) {
+        const suffix = t("beforeSuffix");
+        if (meters >= 1000) {
+          const km = (meters / 1000).toFixed(meters % 1000 === 0 ? 0 : 1).replace(".", ",");
+          return `${km} km ${suffix}`;
+        }
+        return `${meters} m ${suffix}`;
+      }
+
+      function updateStatus(extraText = "") {
+        const place = state.places[state.selectedIndex] || state.places[0];
+        const hasCoords = typeof place.lat === "number" && typeof place.lng === "number";
+        statusLine.textContent = `${place.name} • ${formatDistance(state.thresholdMeters)}`;
+        if (extraText) {
+          statusDetail.textContent = extraText;
+        } else if (!hasCoords) {
+          statusDetail.textContent = t("noCoordsYet");
+        } else if (watching) {
+          statusDetail.textContent = t("watchingActive");
+        } else {
+          statusDetail.textContent = `${place.lat.toFixed(5)}, ${place.lng.toFixed(5)} • ${t("coordsReady")}`;
+        }
+      }
+
+      function haversineMeters(lat1, lon1, lat2, lon2) {
+        const R = 6371000;
+        const toRad = d => d * Math.PI / 180;
+        const dLat = toRad(lat2 - lat1);
+        const dLon = toRad(lon2 - lon1);
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      }
+
+      function ensureAudioContext() {
+        if (!audioCtx) {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (Ctx) audioCtx = new Ctx();
+        }
+        if (audioCtx && audioCtx.state === "suspended") {
+          audioCtx.resume().catch(() => {});
+        }
+        return audioCtx;
+      }
+
+      function getGainMultiplier() {
+        return state.loudMode ? 1.8 : 1.0;
+      }
+
+      function playTone(freq, duration, type = "sawtooth", delay = 0, peak = 0.28, endFreq = null) {
+        const ctx = ensureAudioContext();
+        if (!ctx) return;
+        const start = ctx.currentTime + delay;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, start);
+        if (endFreq !== null) {
+          osc.frequency.exponentialRampToValueAtTime(Math.max(40, endFreq), start + duration);
+        }
+        const scaledPeak = Math.min(0.75, peak * getGainMultiplier());
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.linearRampToValueAtTime(scaledPeak, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + duration + 0.03);
+      }
+
+      function stopVibration() {
+        try {
+          if (navigator && typeof navigator.vibrate === "function") {
+            navigator.vibrate(0);
+          }
+        } catch (_) {}
+      }
+
+      function triggerVibrationOnce() {
+        try {
+          if (navigator && typeof navigator.vibrate === "function") {
+            navigator.vibrate([450, 180, 450, 180, 600]);
+          }
+        } catch (_) {}
+      }
+
+      function stopAllSounds() {
+        if (alarmLoopInterval) {
+          clearInterval(alarmLoopInterval);
+          alarmLoopInterval = null;
+        }
+        if (customAudioPlayer) {
+          customAudioPlayer.pause();
+          customAudioPlayer.currentTime = 0;
+        }
+        stopVibration();
+      }
+
+      function triggerSoundOnce(soundId) {
+        if (soundId === "__custom__" && customAudioUrl) {
+          if (!customAudioPlayer) customAudioPlayer = new Audio(customAudioUrl);
+          else if (customAudioPlayer.src !== customAudioUrl) customAudioPlayer.src = customAudioUrl;
+          customAudioPlayer.volume = 1.0;
+          customAudioPlayer.currentTime = 0;
+          customAudioPlayer.play().catch(() => {});
+          return;
+        }
+        switch (soundId) {
+          case "roman_horn":
+            playTone(146.8, 0.9, "sawtooth", 0.0, 0.36, 152);
+            playTone(220.0, 1.15, "sawtooth", 0.55, 0.36, 214);
+            break;
+          case "clock_bell":
+            for (let i = 0; i < 6; i++) playTone(1850, 0.09, "square", i * 0.12, 0.26);
+            break;
+          case "ship_horn":
+            playTone(110, 1.3, "sawtooth", 0, 0.32, 104);
+            break;
+          case "train_whistle":
+            playTone(620, 0.35, "sawtooth", 0, 0.28, 660);
+            playTone(840, 0.55, "sawtooth", 0.36, 0.3, 790);
+            break;
+          case "sonar_ping":
+            playTone(1320, 0.45, "sine", 0, 0.34);
+            break;
+          case "fire_alarm":
+            for (let i = 0; i < 4; i++) playTone(760 + i * 160, 0.18, "sawtooth", i * 0.2, 0.3);
+            break;
+          case "bronze_gong":
+            playTone(140, 1.5, "sine", 0, 0.34, 132);
+            break;
+          case "bugle_call":
+            playTone(440, 0.22, "sawtooth", 0, 0.26);
+            playTone(659.25, 0.45, "sawtooth", 0.48, 0.3);
+            break;
+          case "church_bell":
+            playTone(392, 1.1, "sine", 0, 0.28, 388);
+            break;
+          case "morse_sos":
+            [0, 0.22, 0.44, 0.72, 1.02, 1.32].forEach((t0, idx) => playTone(880, idx >= 3 ? 0.22 : 0.11, "square", t0, 0.24));
+            break;
+          case "digital_pulse":
+          default:
+            playTone(980, 0.16, "square", 0, 0.24);
+            playTone(1240, 0.16, "square", 0.2, 0.24);
+            break;
+        }
+      }
+      function startAlarm(messageSub = "") {
+        alarmActive = true;
+        snoozeRemaining = 0;
+        if (snoozeInterval) {
+          clearInterval(snoozeInterval);
+          snoozeInterval = null;
+        }
+        const place = state.places[state.selectedIndex] || state.places[0];
+        alarmHeading.textContent = `${t("alarmPrefix")} ${place.name}`;
+        alarmSub.textContent = messageSub || formatDistance(state.thresholdMeters);
+        snoozeGiantBtn.disabled = false;
+        snoozeCountdownText.textContent = t("snoozeTap");
+        alarmOverlay.classList.add("active");
+
+        stopAllSounds();
+        triggerSoundOnce(state.soundId);
+        triggerVibrationOnce();
+        alarmLoopInterval = setInterval(() => {
+          if (alarmActive && snoozeRemaining <= 0) {
+            triggerSoundOnce(state.soundId);
+            triggerVibrationOnce();
+          }
+        }, 2400);
+      }
+
+      function snoozeFor20Seconds() {
+        if (!alarmActive) return;
+        stopAllSounds();
+        snoozeRemaining = 20;
+        snoozeGiantBtn.disabled = true;
+        snoozeCountdownText.textContent = `${snoozeRemaining} ${t("snoozeLeft")}`;
+
+        if (snoozeInterval) clearInterval(snoozeInterval);
+        snoozeInterval = setInterval(() => {
+          snoozeRemaining -= 1;
+          if (snoozeRemaining > 0) {
+            snoozeCountdownText.textContent = `${snoozeRemaining} ${t("snoozeLeft")}`;
+          } else {
+            clearInterval(snoozeInterval);
+            snoozeInterval = null;
+            snoozeGiantBtn.disabled = false;
+            snoozeCountdownText.textContent = t("snoozeTap");
+            if (alarmActive) {
+              triggerSoundOnce(state.soundId);
+              triggerVibrationOnce();
+              alarmLoopInterval = setInterval(() => {
+                if (alarmActive && snoozeRemaining <= 0) {
+                  triggerSoundOnce(state.soundId);
+                  triggerVibrationOnce();
+                }
+              }, 2400);
+            }
+          }
+        }, 1000);
+      }
+
+      function showThreeSecondGoodbye(onDone) {
+        swGoodbyeTitle.textContent = t("goodbyeTitle");
+        swGoodbyeMsg.textContent = t("goodbyeMsg");
+        swGoodbyeBanner.classList.add("open");
+        setTimeout(() => {
+          swGoodbyeBanner.classList.remove("open");
+          if (typeof onDone === "function") onDone();
+        }, 3000);
+      }
+
+      function dismissAlarmForever() {
+        alarmActive = false;
+        snoozeRemaining = 0;
+        if (snoozeInterval) {
+          clearInterval(snoozeInterval);
+          snoozeInterval = null;
+        }
+        stopAllSounds();
+        alarmOverlay.classList.remove("active");
+        stopWatching(false);
+        showThreeSecondGoodbye(() => {
+          updateStatus();
+        });
+      }
+
+      function probeGpsOnce(onOk, onErr) {
+        if (!navigator.geolocation) {
+          if (onErr) onErr(new Error("Geolocation unavailable"));
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            permState.gpsEnabled = true;
+            if (onOk) onOk(pos);
+          },
+          err => {
+            if (onErr) onErr(err);
+          },
+          { enableHighAccuracy: true, timeout: 7000, maximumAge: 0 }
+        );
+      }
+
+      function renderPermissionCheckUI() {
+        swPanelTitle.textContent = t("checkPanelTitle");
+        document.getElementById("sw-step-1-label").textContent = t("checkStep1");
+        document.getElementById("sw-step-2-label").textContent = t("checkStep2");
+        document.getElementById("sw-step-3-label").textContent = t("checkStep3");
+
+        const items = [
+          [swStep1, document.getElementById("sw-step-1-badge"), permState.gpsEnabled],
+          [swStep2, document.getElementById("sw-step-2-badge"), permState.overlayAllowed],
+          [swStep3, document.getElementById("sw-step-3-badge"), permState.backgroundAllowed]
+        ];
+
+        items.forEach(([btn, badge, ok]) => {
+          btn.classList.toggle("done", Boolean(ok));
+          badge.textContent = ok ? "✓" : "○";
+        });
+      }
+
+      function hasAllPermissions() {
+        return Boolean(permState.gpsEnabled && permState.overlayAllowed && permState.backgroundAllowed);
+      }
+
+      function executeStartWatching() {
+        const place = state.places[state.selectedIndex];
+        if (!place || typeof place.lat !== "number" || typeof place.lng !== "number") {
+          updateStatus(t("noCoordsYet"));
+          return;
+        }
+        if (!navigator.geolocation) return;
+
+        ensureAudioContext();
+        watching = true;
+        lastMovementAt = Date.now();
+        toggleWatchBtn.style.display = "none";
+        stopWatchBtn.style.display = "inline-flex";
+        updateStatus(t("watchingActive"));
+
+        const handleCoords = pos => {
+          if (!watching || alarmActive) return;
+          const now = Date.now();
+          const cur = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+
+          if (lastKnownCoords) {
+            const moved = haversineMeters(lastKnownCoords.lat, lastKnownCoords.lng, cur.lat, cur.lng);
+            if (moved >= 50) {
+              lastMovementAt = now;
+            }
+          }
+          lastKnownCoords = cur;
+
+          if (lastMovementAt && now - lastMovementAt >= 60 * 60 * 1000) {
+            const cont = window.confirm(`${t("idleStopTitle")}\n\n${t("idleStopMsg")}`);
+            if (cont) {
+              lastMovementAt = Date.now();
+            } else {
+              stopWatching(true);
+              return;
+            }
+          }
+
+          const dist = haversineMeters(cur.lat, cur.lng, place.lat, place.lng);
+          updateStatus(`${place.name}: ${Math.round(dist)} m`);
+          if (dist <= state.thresholdMeters) {
+            startAlarm(`${place.name}: ${Math.round(dist)} m`);
+          }
+        };
+
+        watchId = navigator.geolocation.watchPosition(
+          handleCoords,
+          err => {
+            updateStatus(err.message || "GPS");
+          },
+          { enableHighAccuracy: true, maximumAge: 3000, timeout: 10000 }
+        );
+
+        if (reconnectTimer) clearInterval(reconnectTimer);
+        reconnectTimer = setInterval(() => {
+          if (!watching || alarmActive) return;
+          probeGpsOnce(handleCoords, () => {});
+        }, 90000);
+      }
+
+      function requestStartWatching() {
+        const place = state.places[state.selectedIndex];
+        if (!place || typeof place.lat !== "number" || typeof place.lng !== "number") {
+          updateStatus(t("noCoordsYet"));
+          return;
+        }
+        probeGpsOnce(
+          () => {
+            if (hasAllPermissions()) {
+              executeStartWatching();
+            } else {
+              renderPermissionCheckUI();
+              swCheckOverlay.style.display = "flex";
+            }
+          },
+          () => {
+            renderPermissionCheckUI();
+            swCheckOverlay.style.display = "flex";
+          }
+        );
+      }
+
+      function stopWatching(showGoodbye = false) {
+        watching = false;
+        if (watchId !== null && navigator.geolocation) {
+          navigator.geolocation.clearWatch(watchId);
+          watchId = null;
+        }
+        if (reconnectTimer) {
+          clearInterval(reconnectTimer);
+          reconnectTimer = null;
+        }
+        toggleWatchBtn.style.display = "inline-flex";
+        stopWatchBtn.style.display = "none";
+        if (showGoodbye) {
+          showThreeSecondGoodbye(() => updateStatus());
+        } else {
+          updateStatus();
+        }
+      }
+
+      swStep1.addEventListener("click", () => {
+        probeGpsOnce(() => {
+          renderPermissionCheckUI();
+          if (hasAllPermissions()) {
+            swCheckOverlay.style.display = "none";
+            executeStartWatching();
+          }
+        }, () => renderPermissionCheckUI());
+      });
+
+      swStep2.addEventListener("click", () => {
+        permState.overlayAllowed = true;
+        renderPermissionCheckUI();
+        if (hasAllPermissions()) {
+          swCheckOverlay.style.display = "none";
+          executeStartWatching();
+        }
+      });
+
+      swStep3.addEventListener("click", () => {
+        permState.backgroundAllowed = true;
+        renderPermissionCheckUI();
+        if (hasAllPermissions()) {
+          swCheckOverlay.style.display = "none";
+          executeStartWatching();
+        }
+      });
+
+      function ensureLeafletMap(lat, lng) {
+        if (typeof window.L === "undefined") return;
+        const centerLat = typeof lat === "number" ? lat : 47.4979;
+        const centerLng = typeof lng === "number" ? lng : 19.0402;
+        if (!leafletMap) {
+          leafletMap = L.map("mapContainer").setView([centerLat, centerLng], typeof lat === "number" ? 15 : 8);
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution: "&copy; OpenStreetMap"
+          }).addTo(leafletMap);
+          leafletMap.on("click", e => setMapPoint(e.latlng.lat, e.latlng.lng, true));
+        } else {
+          leafletMap.setView([centerLat, centerLng], typeof lat === "number" ? 15 : 8);
+        }
+        if (typeof lat === "number" && typeof lng === "number") {
+          setMapPoint(lat, lng, false);
+        } else if (leafletMarker) {
+          leafletMap.removeLayer(leafletMarker);
+          leafletMarker = null;
+        }
+        setTimeout(() => { if (leafletMap) leafletMap.invalidateSize(); }, 120);
+      }
+
+      function setMapPoint(lat, lng, panTo) {
+        const fixedLat = Number(lat.toFixed(6));
+        const fixedLng = Number(lng.toFixed(6));
+        editLatInput.value = fixedLat;
+        editLngInput.value = fixedLng;
+        if (!leafletMap || typeof window.L === "undefined") return;
+        if (!leafletMarker) leafletMarker = L.marker([fixedLat, fixedLng]).addTo(leafletMap);
+        else leafletMarker.setLatLng([fixedLat, fixedLng]);
+        if (panTo) leafletMap.setView([fixedLat, fixedLng], Math.max(leafletMap.getZoom(), 15));
+      }
+
+      async function searchAddress() {
+        const q = addressSearchInput.value.trim();
+        if (!q) return;
+        searchResults.innerHTML = `<div class="field-label">...</div>`;
+        try {
+          const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(q)}`;
+          const res = await fetch(url, { headers: { "Accept-Language": currentLang } });
+          const items = await res.json();
+          searchResults.innerHTML = "";
+          if (!Array.isArray(items) || items.length === 0) return;
+          items.forEach(item => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "search-item-btn";
+            btn.textContent = item.display_name;
+            btn.addEventListener("click", () => {
+              const lat = parseFloat(item.lat);
+              const lon = parseFloat(item.lon);
+              if (Number.isFinite(lat) && Number.isFinite(lon)) setMapPoint(lat, lon, true);
+            });
+            searchResults.appendChild(btn);
+          });
+        } catch (_) {
+          searchResults.innerHTML = "";
+        }
+      }
+
+      function openEditModal(index) {
+        editingIndex = index;
+        const place = state.places[index];
+        editNameInput.value = place.name || "";
+        addressSearchInput.value = "";
+        searchResults.innerHTML = "";
+        editLatInput.value = typeof place.lat === "number" ? place.lat : "";
+        editLngInput.value = typeof place.lng === "number" ? place.lng : "";
+        editModal.classList.add("open");
+        ensureLeafletMap(place.lat, place.lng);
+      }
+
+      function closeEditModal() {
+        editModal.classList.remove("open");
+        editingIndex = null;
+      }
+
+      helpBtn.addEventListener("click", () => {
+        renderHelpModal();
+        helpModal.classList.add("open");
+      });
+
+      closeHelpBtn.addEventListener("click", () => {
+        helpModal.classList.remove("open");
+      });
+
+      thresholdSelect.addEventListener("change", () => {
+        state.thresholdMeters = Number(thresholdSelect.value);
+        saveState();
+        updateStatus();
+      });
+
+      langBtn.addEventListener("click", () => {
+        const isOpen = langMenu.style.display !== "none";
+        langMenu.style.display = isOpen ? "none" : "flex";
+        if (!isOpen) renderLangMenu();
+      });
+
+      editModeBtn.addEventListener("click", () => {
+        editMode = !editMode;
+        editModeBtn.classList.toggle("active", editMode);
+        renderDestinations();
+        updateStatus(editMode ? t("editModeOn") : "");
+      });
+
+      themeBtn.addEventListener("click", () => {
+        const isOpen = themeDrawer.classList.toggle("open");
+        themeBtn.classList.toggle("active", isOpen);
+      });
+
+      document.querySelectorAll(".theme-chip[data-theme-choice]").forEach(chip => {
+        chip.addEventListener("click", () => applyTheme(chip.dataset.themeChoice));
+      });
+
+      pickWallpaperBtn.addEventListener("click", () => wallpaperInput.click());
+
+      wallpaperInput.addEventListener("change", e => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          wallpaperDataUrl = ev.target.result;
+          applyTheme("glass");
+        };
+        reader.readAsDataURL(file);
+      });
+
+      flipGlassPolarityBtn.addEventListener("click", () => {
+        state.glassPolarity = state.glassPolarity === "dark-ui" ? "light-ui" : "dark-ui";
+        applyTheme("glass");
+      });
+
+      soundSelect.addEventListener("change", () => {
+        state.soundId = soundSelect.value;
+        saveState();
+      });
+
+      loudModeToggle.addEventListener("change", () => {
+        state.loudMode = loudModeToggle.checked;
+        saveState();
+      });
+
+      previewSoundBtn.addEventListener("click", () => {
+        ensureAudioContext();
+        stopAllSounds();
+        triggerSoundOnce(state.soundId);
+        setTimeout(() => { if (!alarmActive) stopAllSounds(); }, 2200);
+      });
+
+      pickAudioBtn.addEventListener("click", () => customAudioInput.click());
+
+      customAudioInput.addEventListener("change", e => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        if (customAudioUrl) URL.revokeObjectURL(customAudioUrl);
+        customAudioUrl = URL.createObjectURL(file);
+        customAudioName = file.name;
+        state.soundId = "__custom__";
+        customAudioInfo.textContent = t("customAudioLoaded") + customAudioName;
+        populateSounds();
+        saveState();
+      });
+
+      simDistanceRange.addEventListener("input", () => {
+        const lbl = document.getElementById("simDistanceLabel");
+        if (lbl) lbl.textContent = `${simDistanceRange.value} m`;
+      });
+
+      triggerSimAlarmBtn.addEventListener("click", () => {
+        ensureAudioContext();
+        startAlarm(`${simDistanceRange.value} m`);
+      });
+
+      toggleWatchBtn.addEventListener("click", requestStartWatching);
+      stopWatchBtn.addEventListener("click", () => stopWatching(true));
+      snoozeGiantBtn.addEventListener("click", snoozeFor20Seconds);
+      dismissForeverBtn.addEventListener("click", dismissAlarmForever);
+
+      searchAddressBtn.addEventListener("click", searchAddress);
+      addressSearchInput.addEventListener("keydown", e => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          searchAddress();
+        }
+      });
+
+      useCurrentGpsBtn.addEventListener("click", () => {
+        probeGpsOnce(pos => setMapPoint(pos.coords.latitude, pos.coords.longitude, true), () => {});
+      });
+
+      savePlaceBtn.addEventListener("click", () => {
+        if (editingIndex === null) return;
+        const customName = editNameInput.value.trim();
+        const defName = getDefaultPlaceName(editingIndex);
+        const name = customName || defName;
+        const isDefaultName = !customName || customName === defName;
+        const latVal = parseFloat(editLatInput.value);
+        const lngVal = parseFloat(editLngInput.value);
+        state.places[editingIndex] = {
+          name,
+          isDefaultName,
+          lat: Number.isFinite(latVal) ? latVal : null,
+          lng: Number.isFinite(lngVal) ? lngVal : null
+        };
+        saveState();
+        renderDestinations();
+        updateStatus();
+        closeEditModal();
+      });
+
+      cancelEditBtn.addEventListener("click", closeEditModal);
+
+      voiceBtn.addEventListener("click", () => {
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRec) {
+          updateStatus(t("voiceUnavailable"));
+          return;
+        }
+        const langObj = LANGUAGES.find(l => l.code === currentLang) || LANGUAGES[0];
+        const rec = new SpeechRec();
+        rec.lang = langObj.speech || "en-US";
+        rec.interimResults = false;
+        voiceBtn.classList.add("active");
+        updateStatus(t("voiceListening"));
+        rec.onresult = event => {
+          const spoken = (event.results[0][0].transcript || "").toLowerCase().trim();
+          const foundIdx = state.places.findIndex(p => spoken.includes(p.name.toLowerCase()));
+          if (foundIdx !== -1) {
+            state.selectedIndex = foundIdx;
+            saveState();
+            renderDestinations();
+            updateStatus(`${t("voiceSelected")} ${state.places[foundIdx].name}`);
+          } else {
+            updateStatus(`${t("voiceNotFound")} ${spoken}`);
+          }
+        };
+        rec.onerror = () => updateStatus(t("voiceUnavailable"));
+        rec.onend = () => voiceBtn.classList.remove("active");
+        rec.start();
+      });
+
+      loadState();
+      thresholdSelect.value = String(state.thresholdMeters);
+      loudModeToggle.checked = state.loudMode;
+      applyLanguage(currentLang);
+    } catch (fatalErr) {
+      document.body.innerHTML = `<div style="padding:20px;font-family:sans-serif;color:#111;background:#fff;"><h2>StopWay</h2><p>${String(fatalErr && fatalErr.message || fatalErr)}</p></div>`;
+    }
+  </script>
+</body>
+</html>
