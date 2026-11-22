@@ -28,7 +28,6 @@
       --wallpaper-img: none;
     }
 
-    /* 1. RAJZFILMES / KÉPREGÉNYES STÍLUS */
     body[data-theme="cartoon"] {
       --bg: #fef08a;
       --surface: #ffffff;
@@ -51,9 +50,7 @@
       background-image: radial-gradient(#111827 1.1px, transparent 1.1px);
       background-size: 18px 18px;
     }
-    body[data-theme="cartoon"] .dest-btn:nth-child(even) {
-      transform: rotate(0.8deg);
-    }
+    body[data-theme="cartoon"] .dest-btn:nth-child(even) { transform: rotate(0.8deg); }
     body[data-theme="cartoon"] .dest-btn:active,
     body[data-theme="cartoon"] .action-btn:active,
     body[data-theme="cartoon"] .icon-btn:active {
@@ -61,7 +58,6 @@
       box-shadow: 2px 2px 0px #111827;
     }
 
-    /* 2. GÓTIKUS STÍLUS */
     body[data-theme="gothic"] {
       --bg: #09070a;
       --surface: #161118;
@@ -94,7 +90,6 @@
       opacity: 0.7;
     }
 
-    /* 3. RENESZÁNSZ / MICHELANGELO-IHLETÉSŰ STÍLUS */
     body[data-theme="renaissance"] {
       --bg: #241911;
       --surface: #f4ead5;
@@ -119,14 +114,9 @@
     body[data-theme="renaissance"] .topbar,
     body[data-theme="renaissance"] .prompt-title,
     body[data-theme="renaissance"] .modal-title,
-    body[data-theme="renaissance"] .drawer-title {
-      color: var(--text);
-    }
-    body[data-theme="renaissance"] .topbar {
-      background: #f4ead5;
-    }
+    body[data-theme="renaissance"] .drawer-title { color: var(--text); }
+    body[data-theme="renaissance"] .topbar { background: #f4ead5; }
 
-    /* 4. PUNK STÍLUS */
     body[data-theme="punk"] {
       --bg: #111111;
       --surface: #1b1b1b;
@@ -149,7 +139,6 @@
       background-image: repeating-linear-gradient(-45deg, rgba(244,63,94,0.06) 0, rgba(244,63,94,0.06) 8px, transparent 8px, transparent 16px);
     }
 
-    /* 5. ÁTLÁTSZÓ (HÁTTÉRKÉPHEZ / KÉPERNYŐHÖZ IGAZODÓ) STÍLUS */
     body[data-theme="glass"] {
       --backdrop-blur: 14px;
       --btn-transform: none;
@@ -167,9 +156,7 @@
         linear-gradient(135deg, #e2e8f0 0%, #64748b 50%, #0f172a 100%);
     }
 
-    body[data-theme="glass"][data-has-wallpaper="true"] {
-      background-image: var(--wallpaper-img);
-    }
+    body[data-theme="glass"][data-has-wallpaper="true"] { background-image: var(--wallpaper-img); }
 
     body[data-theme="glass"][data-glass-polarity="dark-ui"] {
       --bg: #1e293b;
@@ -203,7 +190,7 @@
 
     body[data-theme="glass"] .topbar,
     body[data-theme="glass"] .dest-btn,
-    body[data-theme="glass"] .panel,9
+    body[data-theme="glass"] .panel,
     body[data-theme="glass"] .drawer,
     body[data-theme="glass"] .modal-card,
     body[data-theme="glass"] .icon-btn,
@@ -213,10 +200,7 @@
       -webkit-backdrop-filter: blur(var(--backdrop-blur));
     }
 
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     body {
       margin: 0;
@@ -253,19 +237,8 @@
       box-shadow: var(--shadow);
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-    }
-
-    .brand-icon {
-      width: 28px;
-      height: 28px;
-      flex: 0 0 28px;
-    }
-
+    .brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .brand-icon { width: 28px; height: 28px; flex: 0 0 28px; }
     .brand-title {
       font-family: var(--font-display);
       font-weight: 800;
@@ -275,18 +248,9 @@
       text-overflow: ellipsis;
     }
 
-    .top-controls {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
+    .top-controls { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
 
-    .threshold-select,
-    .icon-btn,
-    .action-btn,
-    .dest-btn {
+    .threshold-select, .icon-btn, .action-btn, .dest-btn {
       font-family: inherit;
       color: var(--text);
       background: var(--surface-2);
@@ -296,11 +260,7 @@
       transition: transform 0.12s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .threshold-select {
-      padding: 7px 9px;
-      font-size: 0.82rem;
-      font-weight: 700;
-    }
+    .threshold-select { padding: 7px 9px; font-size: 0.82rem; font-weight: 700; }
 
     .icon-btn {
       width: 36px;
@@ -313,11 +273,7 @@
       box-shadow: var(--shadow);
     }
 
-    .icon-btn.active {
-      background: var(--accent);
-      color: var(--accent-text);
-      border-color: var(--accent);
-    }
+    .icon-btn.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
 
     .prompt-title {
       margin: 2px 0 0;
@@ -328,11 +284,7 @@
       letter-spacing: -0.01em;
     }
 
-    .destinations-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
+    .destinations-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 
     .dest-btn {
       position: relative;
@@ -349,36 +301,11 @@
       transform: var(--btn-transform);
     }
 
-    .dest-btn:active,
-    .action-btn:active,
-    .icon-btn:active {
-      transform: scale(0.98);
-    }
-
-    .dest-btn.selected {
-      background: var(--accent);
-      color: var(--accent-text);
-      border-color: var(--accent);
-    }
-
-    .dest-index {
-      font-size: 0.72rem;
-      font-weight: 800;
-      opacity: 0.72;
-    }
-
-    .dest-name {
-      font-family: var(--font-display);
-      font-size: 1.05rem;
-      font-weight: 800;
-      line-height: 1.2;
-      word-break: break-word;
-    }
-
-    .dest-sub {
-      font-size: 0.73rem;
-      opacity: 0.85;
-    }
+    .dest-btn:active, .action-btn:active, .icon-btn:active { transform: scale(0.98); }
+    .dest-btn.selected { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+    .dest-index { font-size: 0.72rem; font-weight: 800; opacity: 0.72; }
+    .dest-name { font-family: var(--font-display); font-size: 1.05rem; font-weight: 800; line-height: 1.2; word-break: break-word; }
+    .dest-sub { font-size: 0.73rem; opacity: 0.85; }
 
     .panel {
       position: relative;
@@ -392,53 +319,15 @@
       gap: 10px;
     }
 
-    .status-line {
-      font-size: 0.9rem;
-      font-weight: 700;
-      line-height: 1.4;
-    }
+    .status-line { font-size: 0.9rem; font-weight: 700; line-height: 1.4; }
+    .status-detail { font-size: 0.8rem; color: var(--muted); line-height: 1.35; }
+    .action-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .action-btn { padding: 10px 14px; font-size: 0.88rem; font-weight: 800; box-shadow: var(--shadow); }
+    .action-btn.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+    .action-btn.danger { background: var(--danger); color: #ffffff; border-color: var(--danger); }
+    .sound-controls { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
 
-    .status-detail {
-      font-size: 0.8rem;
-      color: var(--muted);
-      line-height: 1.35;
-    }
-
-    .action-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .action-btn {
-      padding: 10px 14px;
-      font-size: 0.88rem;
-      font-weight: 800;
-      box-shadow: var(--shadow);
-    }
-
-    .action-btn.primary {
-      background: var(--accent);
-      color: var(--accent-text);
-      border-color: var(--accent);
-    }
-
-    .action-btn.danger {
-      background: var(--danger);
-      color: #ffffff;
-      border-color: var(--danger);
-    }
-
-    .sound-controls {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .sound-select,
-    .text-input,
-    .num-input {
+    .sound-select, .text-input, .num-input {
       width: 100%;
       padding: 9px 10px;
       border-radius: 10px;
@@ -450,14 +339,7 @@
       font-weight: 600;
     }
 
-    .extra-audio-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 0.82rem;
-    }
+    .extra-audio-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between; font-size: 0.82rem; }
 
     .toggle-pill {
       display: inline-flex;
@@ -471,11 +353,7 @@
       cursor: pointer;
     }
 
-    .custom-file-badge {
-      color: var(--muted);
-      font-size: 0.78rem;
-      word-break: break-all;
-    }
+    .custom-file-badge { color: var(--muted); font-size: 0.78rem; word-break: break-all; }
 
     .drawer {
       display: none;
@@ -487,23 +365,9 @@
       gap: 10px;
     }
 
-    .drawer.open {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .drawer-title {
-      font-family: var(--font-display);
-      font-size: 0.96rem;
-      font-weight: 800;
-      margin: 0;
-    }
-
-    .theme-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
-    }
+    .drawer.open { display: flex; flex-direction: column; }
+    .drawer-title { font-family: var(--font-display); font-size: 0.96rem; font-weight: 800; margin: 0; }
+    .theme-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 
     .theme-chip {
       padding: 9px 10px;
@@ -517,31 +381,10 @@
       text-align: left;
     }
 
-    .theme-chip.active {
-      background: var(--accent);
-      color: var(--accent-text);
-      border-color: var(--accent);
-    }
-
-    .glass-box {
-      display: none;
-      flex-direction: column;
-      gap: 8px;
-      padding-top: 6px;
-      border-top: 1px dashed var(--border);
-    }
-
-    .glass-box.visible {
-      display: flex;
-    }
-
-    .sim-box {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding-top: 4px;
-      border-top: 1px dashed var(--border);
-    }
+    .theme-chip.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+    .glass-box { display: none; flex-direction: column; gap: 8px; padding-top: 6px; border-top: 1px dashed var(--border); }
+    .glass-box.visible { display: flex; }
+    .sim-box { display: flex; flex-direction: column; gap: 6px; padding-top: 4px; border-top: 1px dashed var(--border); }
 
     .ad-slot {
       background: var(--surface);
@@ -565,9 +408,7 @@
       overflow-y: auto;
     }
 
-    .modal-backdrop.open {
-      display: flex;
-    }
+    .modal-backdrop.open { display: flex; }
 
     .modal-card {
       width: 100%;
@@ -585,38 +426,11 @@
       overflow-y: auto;
     }
 
-    .modal-title {
-      margin: 0;
-      font-family: var(--font-display);
-      font-size: 1.1rem;
-      font-weight: 800;
-    }
-
-    .field-group {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .field-label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--muted);
-    }
-
-    .search-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px;
-    }
-
-    .search-results {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      max-height: 150px;
-      overflow-y: auto;
-    }
+    .modal-title { margin: 0; font-family: var(--font-display); font-size: 1.1rem; font-weight: 800; }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-label { font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+    .search-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+    .search-results { display: flex; flex-direction: column; gap: 6px; max-height: 150px; overflow-y: auto; }
 
     .search-item-btn {
       width: 100%;
@@ -632,9 +446,7 @@
     }
 
     html[dir="rtl"] .search-item-btn,
-    html[dir="rtl"] .theme-chip {
-      text-align: right;
-    }
+    html[dir="rtl"] .theme-chip { text-align: right; }
 
     #mapContainer {
       width: 100%;
@@ -645,11 +457,7 @@
       z-index: 1;
     }
 
-    .coord-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
+    .coord-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
     .alarm-overlay {
       position: fixed;
@@ -663,28 +471,10 @@
       padding: 20px 18px 24px;
     }
 
-    .alarm-overlay.active {
-      display: flex;
-    }
-
-    .alarm-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-    }
-
-    .alarm-heading {
-      font-family: var(--font-display);
-      font-size: 1.6rem;
-      font-weight: 800;
-      margin: 0 0 6px;
-    }
-
-    .alarm-sub {
-      font-size: 0.95rem;
-      color: #cbd5e1;
-    }
+    .alarm-overlay.active { display: flex; }
+    .alarm-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .alarm-heading { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; margin: 0 0 6px; }
+    .alarm-sub { font-size: 0.95rem; color: #cbd5e1; }
 
     .dismiss-tiny-btn {
       padding: 6px 9px;
@@ -718,18 +508,98 @@
       gap: 8px;
     }
 
-    .snooze-sub {
-      font-family: var(--font-main);
-      font-size: 1rem;
-      font-weight: 700;
-      opacity: 0.92;
-    }
+    .snooze-sub { font-family: var(--font-main); font-size: 1rem; font-weight: 700; opacity: 0.92; }
+    .alarm-footer-note { text-align: center; font-size: 0.78rem; color: #94a3b8; }
+  </style>
 
-    .alarm-footer-note {
-      text-align: center;
-      font-size: 0.78rem;
-      color: #94a3b8;
+  <!-- StopWay toldás stílusok -->
+  <style id="stopway-addon-styles">
+    .sw-addon-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.78);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 250;
+      overflow-y: auto;
     }
+    .sw-addon-backdrop.open { display: flex; }
+    .sw-addon-card {
+      width: 100%;
+      max-width: 460px;
+      background: var(--surface, #1e293b);
+      color: var(--text, #f8fafc);
+      border: var(--btn-border-width, 1.5px) solid var(--border, #475569);
+      border-radius: var(--radius, 16px);
+      padding: 18px;
+      box-shadow: var(--shadow, 0 12px 28px rgba(0, 0, 0, 0.45));
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 90dvh;
+      overflow-y: auto;
+    }
+    .sw-addon-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .sw-addon-title { margin: 0; font-family: var(--font-display, system-ui, sans-serif); font-size: 1.12rem; font-weight: 800; }
+    .sw-addon-date { font-size: 0.78rem; color: var(--muted, #94a3b8); font-weight: 700; }
+    .sw-addon-close {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1.5px solid var(--border, #475569);
+      background: var(--surface-2, #334155);
+      color: var(--text, #f8fafc);
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .sw-help-list { display: flex; flex-direction: column; gap: 8px; font-size: 0.88rem; line-height: 1.48; }
+    .sw-help-entry {
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--surface-2, #334155);
+      border: 1px solid var(--border, #475569);
+    }
+    .sw-step-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 14px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border, #475569);
+      background: var(--surface-2, #334155);
+      color: var(--text, #f8fafc);
+      font-size: 0.92rem;
+      font-weight: 700;
+      text-align: left;
+      cursor: pointer;
+    }
+    .sw-step-item.done { border-color: #22c55e; background: rgba(34, 197, 94, 0.16); }
+    .sw-step-mark { font-size: 1.15rem; font-weight: 800; flex-shrink: 0; }
+    .sw-step-mark.ok { color: #22c55e; }
+    .sw-addon-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+    .sw-addon-btn {
+      flex: 1;
+      min-width: 120px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border, #475569);
+      background: var(--surface-2, #334155);
+      color: var(--text, #f8fafc);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .sw-addon-btn.primary { background: var(--accent, #38bdf8); color: var(--accent-text, #04131d); border-color: var(--accent, #38bdf8); }
+    .sw-addon-btn.danger { background: var(--danger, #ef4444); color: #ffffff; border-color: var(--danger, #ef4444); }
+    .sw-goodbye-box { text-align: center; align-items: center; }
+    .sw-goodbye-flag { font-size: 2.5rem; line-height: 1; }
   </style>
 </head>
 <body data-theme="classic" data-glass-polarity="dark-ui">
@@ -756,6 +626,7 @@
           <option value="5000">5 km</option>
         </select>
         <button id="langBtn" class="icon-btn" type="button" title="Nyelv / Language">🌐</button>
+        <button id="sw-addon-help-btn" class="icon-btn" type="button" title="Súgó / Help">❓</button>
         <button id="voiceBtn" class="icon-btn" type="button" title="Hangvezérlés">🎤</button>
         <button id="themeBtn" class="icon-btn" type="button" title="Dizájn és szimuláció">🎨</button>
         <button id="editModeBtn" class="icon-btn" type="button" title="Helyek szerkesztése">✏️</button>
@@ -832,7 +703,6 @@
     </div>
   </div>
 
-  <!-- Hely szerkesztő modális ablak (címkereső + térkép) -->
   <div id="editModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
     <div class="modal-card">
       <h2 id="editModalTitle" class="modal-title">Célpont szerkesztése</h2>
@@ -872,7 +742,6 @@
     </div>
   </div>
 
-  <!-- Ébresztő képernyő: óriási 20 mp Szundi + apró Végleges leállítás -->
   <div id="alarmOverlay" class="alarm-overlay" role="alertdialog" aria-modal="true" aria-live="assertive">
     <div class="alarm-top">
       <div>
@@ -889,6 +758,74 @@
 
     <div id="alarmFooterNote" class="alarm-footer-note">
       20 mp szundi • Végleges leállítás a jobb felső gombbal.
+    </div>
+  </div>
+
+  <!-- StopWay toldás ablakok -->
+  <div id="sw-addon-help-backdrop" class="sw-addon-backdrop" role="dialog" aria-modal="true" aria-labelledby="sw-addon-help-title">
+    <div class="sw-addon-card">
+      <div class="sw-addon-header">
+        <div>
+          <h2 id="sw-addon-help-title" class="sw-addon-title"></h2>
+          <div id="sw-addon-help-date" class="sw-addon-date"></div>
+        </div>
+        <button id="sw-addon-help-close" class="sw-addon-close" type="button" aria-label="Bezárás">✕</button>
+      </div>
+      <div id="sw-addon-help-list" class="sw-help-list"></div>
+    </div>
+  </div>
+
+  <div id="sw-addon-check-backdrop" class="sw-addon-backdrop" role="dialog" aria-modal="true" aria-labelledby="sw-addon-check-title">
+    <div class="sw-addon-card">
+      <div class="sw-addon-header">
+        <h2 id="sw-addon-check-title" class="sw-addon-title"></h2>
+        <button id="sw-addon-check-close" class="sw-addon-close" type="button" aria-label="Bezárás">✕</button>
+      </div>
+      <button id="sw-addon-step-1" class="sw-step-item" type="button">
+        <span id="sw-addon-step-1-text"></span>
+        <span id="sw-addon-step-1-mark" class="sw-step-mark">○</span>
+      </button>
+      <button id="sw-addon-step-2" class="sw-step-item" type="button">
+        <span id="sw-addon-step-2-text"></span>
+        <span id="sw-addon-step-2-mark" class="sw-step-mark">○</span>
+      </button>
+      <button id="sw-addon-step-3" class="sw-step-item" type="button">
+        <span id="sw-addon-step-3-text"></span>
+        <span id="sw-addon-step-3-mark" class="sw-step-mark">○</span>
+      </button>
+      <div class="sw-addon-actions">
+        <button id="sw-addon-go-btn" class="sw-addon-btn primary" type="button"></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="sw-addon-bg-backdrop" class="sw-addon-backdrop" role="dialog" aria-modal="true" aria-labelledby="sw-addon-bg-title">
+    <div class="sw-addon-card">
+      <h3 id="sw-addon-bg-title" class="sw-addon-title"></h3>
+      <p id="sw-addon-bg-desc" style="margin:0; font-size:0.9rem; line-height:1.45;"></p>
+      <div class="sw-addon-actions">
+        <button id="sw-addon-bg-back" class="sw-addon-btn primary" type="button"></button>
+        <button id="sw-addon-bg-confirm" class="sw-addon-btn danger" type="button"></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="sw-addon-idle-backdrop" class="sw-addon-backdrop" role="dialog" aria-modal="true" aria-labelledby="sw-addon-idle-title">
+    <div class="sw-addon-card">
+      <h3 id="sw-addon-idle-title" class="sw-addon-title"></h3>
+      <p id="sw-addon-idle-desc" style="margin:0; font-size:0.9rem; line-height:1.45;"></p>
+      <div class="sw-addon-actions">
+        <button id="sw-addon-idle-continue" class="sw-addon-btn primary" type="button"></button>
+        <button id="sw-addon-idle-stop" class="sw-addon-btn danger" type="button"></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="sw-addon-goodbye-backdrop" class="sw-addon-backdrop" role="dialog" aria-modal="true" aria-live="polite">
+    <div class="sw-addon-card sw-goodbye-box">
+      <div class="sw-goodbye-flag" aria-hidden="true">🏁</div>
+      <h2 id="sw-addon-goodbye-title" class="sw-addon-title"></h2>
+      <p id="sw-addon-goodbye-desc" style="margin:0; font-size:0.9rem; line-height:1.45;"></p>
     </div>
   </div>
 
@@ -2503,6 +2440,7 @@
         renderLangMenu();
         updateStatus();
         saveState();
+        window.dispatchEvent(new CustomEvent("stopway:lang-changed", { detail: { lang: currentLang } }));
       }
 
       function renderDestinations() {
@@ -2761,6 +2699,7 @@
         alarmOverlay.classList.remove("active");
         stopWatching();
         updateStatus();
+        window.dispatchEvent(new CustomEvent("stopway:alarm-dismissed"));
       }
 
       function startWatching() {
@@ -2776,10 +2715,12 @@
         toggleWatchBtn.style.display = "none";
         stopWatchBtn.style.display = "inline-flex";
         updateStatus(t("watchingActive"));
+        window.dispatchEvent(new CustomEvent("stopway:watch-started"));
 
         watchId = navigator.geolocation.watchPosition(
           pos => {
             if (!watching || alarmActive) return;
+            window.dispatchEvent(new CustomEvent("stopway:gps-position", { detail: { coords: pos.coords } }));
             const dist = haversineMeters(pos.coords.latitude, pos.coords.longitude, place.lat, place.lng);
             updateStatus(`${place.name}: ${Math.round(dist)} m`);
             if (dist <= state.thresholdMeters) {
@@ -2788,6 +2729,7 @@
           },
           err => {
             updateStatus(err.message || "GPS");
+            window.dispatchEvent(new CustomEvent("stopway:gps-error", { detail: { error: err } }));
           },
           { enableHighAccuracy: true, maximumAge: 3000, timeout: 10000 }
         );
@@ -2802,6 +2744,7 @@
         toggleWatchBtn.style.display = "inline-flex";
         stopWatchBtn.style.display = "none";
         updateStatus();
+        window.dispatchEvent(new CustomEvent("stopway:watch-stopped"));
       }
 
       function ensureLeafletMap(lat, lng) {
@@ -3072,8 +3015,417 @@
       document.body.innerHTML = `<div style="padding:20px;font-family:sans-serif;color:#111;background:#fff;"><h2>StopWay</h2><p>${String(fatalErr && fatalErr.message || fatalErr)}</p></div>`;
     }
   </script>
+
+  <!-- StopWay külső toldás logika -->
+  <script id="stopway-addon-script">
+    (function () {
+      const ADDON_DATE_HU = "2026. november 22., 21:00";
+      const ADDON_DATE_EN = "November 22, 2026, 21:00";
+      const RECONNECT_MS = 90000;
+      const STAGNATION_METERS = 100;
+      const STAGNATION_MS = 60 * 60 * 1000;
+
+      const ADDON_TEXT = {
+        hu: {
+          helpTitle: "Gyakorlati súgó",
+          helpDate: "Keltezés: " + ADDON_DATE_HU,
+          helpItems: [
+            "📍 Célpontok és védelem: Add meg a célpontot pontos cím alapján vagy a térképre bökve (az otthon és a munka alapból elérhető, és további helyek is felvehetők), majd mentsd el. A már beállított, gombokon rögzített címek csak a ✏️ ikonra nyomva, a beállításoknál módosíthatók; máskülönben nem írhatók át.",
+            "🌐 Nyelvválasztás: A 🌐 ikonnal bármikor kiválaszthatod a kívánt nyelvet, és elmenthető a későbbi használathoz.",
+            "🎨 Megjelenési stílusok: A 🎨 ikonnal kiválaszthatod a tetszőleges vizuális témát.",
+            "🎤 Riasztási hangok és saját hang: A hangbeállításoknál és a 🎤 vezérlésnél állítható be a megfelelő riasztási hang, vagy tölthető fel saját hangfájl.",
+            "📏 Riasztási távolság: A képernyő tetején található választó gombbal állítható be a riasztási távolság: városban 300 m, 500 m vagy legfeljebb 1 km, vonaton, hosszabb utazáson vagy távolsági buszon pedig 5 km ajánlott.",
+            "✅ Háromlépéses indítási panel: A célállomás-figyelés indításakor — ha valami még hiányzik — jelenik meg a háromlépéses panel, ahol be kell jelölni a helymeghatározást, valamint engedélyezni kell a felszíni és a háttérműködést."
+          ],
+          checkTitle: "Indítás előtti ellenőrzés",
+          step1: "1. Telefonos helymeghatározás bekapcsolása",
+          step2: "2. Helyhozzáférés engedélyezése",
+          step3: "3. Háttérben futás engedélyezése",
+          goBtn: "Figyelés indítása",
+          bgTitle: "Biztos, hogy nem engedélyezed?",
+          bgDesc: "Ha nem engedélyezed a háttérben futást, zárolt képernyő vagy más alkalmazások használata közben leállhat a működés.",
+          bgBack: "Vissza az engedélyezéshez",
+          bgConfirm: "Igen, biztos",
+          idleTitle: "1 órája nincs 100 méteres mozgás",
+          idleDesc: "Az elmúlt 1 órában nem történt 100 métert elérő elmozdulás. Folytatjuk az utazást, vagy leállítjuk?",
+          idleContinue: "Folytatjuk",
+          idleStop: "Leállítjuk",
+          goodbyeTitle: "Köszönjük, hogy velünk utaztál",
+          goodbyeDesc: "Jó pihenést és biztonságos folytatást! Ha már nincs szükség a helymeghatározásra, ne felejtsd el kikapcsolni.",
+          reconnectingMsg: "GPS jel keresése (90 mp-es újracsatlakozás aktív)..."
+        },
+        en: {
+          helpTitle: "Practical Guide",
+          helpDate: "Date: " + ADDON_DATE_EN,
+          helpItems: [
+            "📍 Destinations & lock: Set your destination by exact address or tapping on the map (home and work are available by default, and you can add more), then save it. Already set addresses fixed on buttons can only be modified by tapping the ✏️ icon in settings; otherwise they cannot be overwritten.",
+            "🌐 Language selection: Use the 🌐 icon at any time to select your preferred language and save it for future use.",
+            "🎨 Appearance styles: Use the 🎨 icon to choose the visual style that suits you best.",
+            "🎤 Alarm sounds & custom audio: Set an alarm sound that works for you or upload your own custom sound.",
+            "📏 Alert distance: Use the top selector to set the alert distance: 300 m, 500 m, or up to 1 km in the city, and 5 km recommended on trains, longer trips, or intercity buses.",
+            "✅ Three-step start panel: When starting destination monitoring — if something is still missing — a three-step panel appears where you need to enable location as well as surface and background operation."
+          ],
+          checkTitle: "Pre-start check",
+          step1: "1. Turn on phone location",
+          step2: "2. Allow location access",
+          step3: "3. Allow background execution",
+          goBtn: "Start watching",
+          bgTitle: "Are you sure you don't allow it?",
+          bgDesc: "If you do not allow background execution, operation may stop when the screen is locked or while using other apps.",
+          bgBack: "Back to permission",
+          bgConfirm: "Yes, I'm sure",
+          idleTitle: "No 100 m movement for 1 hour",
+          idleDesc: "No movement of at least 100 meters has been detected in the past hour. Continue the trip or stop?",
+          idleContinue: "Continue trip",
+          idleStop: "Stop watching",
+          goodbyeTitle: "Thank you for traveling with us",
+          goodbyeDesc: "If you no longer need location services, don't forget to turn them off.",
+          reconnectingMsg: "Searching for GPS signal (90s reconnect active)..."
+        }
+      };
+
+      const perms = { gps: false, overlay: false, background: false };
+      let bypassStartOnce = false;
+      let explicitStopPending = false;
+      let reconnectInterval = null;
+      let lastAnchorCoords = null;
+      let lastSignificantMoveAt = null;
+      let idlePromptOpen = false;
+
+      const helpBtn = document.getElementById("sw-addon-help-btn");
+      const helpBackdrop = document.getElementById("sw-addon-help-backdrop");
+      const helpCloseBtn = document.getElementById("sw-addon-help-close");
+      const helpTitleEl = document.getElementById("sw-addon-help-title");
+      const helpDateEl = document.getElementById("sw-addon-help-date");
+      const helpListEl = document.getElementById("sw-addon-help-list");
+
+      const checkBackdrop = document.getElementById("sw-addon-check-backdrop");
+      const checkCloseBtn = document.getElementById("sw-addon-check-close");
+      const checkTitleEl = document.getElementById("sw-addon-check-title");
+      const step1Btn = document.getElementById("sw-addon-step-1");
+      const step2Btn = document.getElementById("sw-addon-step-2");
+      const step3Btn = document.getElementById("sw-addon-step-3");
+      const goBtn = document.getElementById("sw-addon-go-btn");
+
+      const bgBackdrop = document.getElementById("sw-addon-bg-backdrop");
+      const bgTitleEl = document.getElementById("sw-addon-bg-title");
+      const bgDescEl = document.getElementById("sw-addon-bg-desc");
+      const bgBackBtn = document.getElementById("sw-addon-bg-back");
+      const bgConfirmBtn = document.getElementById("sw-addon-bg-confirm");
+
+      const idleBackdrop = document.getElementById("sw-addon-idle-backdrop");
+      const idleTitleEl = document.getElementById("sw-addon-idle-title");
+      const idleDescEl = document.getElementById("sw-addon-idle-desc");
+      const idleContinueBtn = document.getElementById("sw-addon-idle-continue");
+      const idleStopBtn = document.getElementById("sw-addon-idle-stop");
+
+      const goodbyeBackdrop = document.getElementById("sw-addon-goodbye-backdrop");
+      const goodbyeTitleEl = document.getElementById("sw-addon-goodbye-title");
+      const goodbyeDescEl = document.getElementById("sw-addon-goodbye-desc");
+
+      const watchStartBtn = document.getElementById("toggleWatchBtn");
+      const watchStopBtn = document.getElementById("stopWatchBtn");
+      const statusDetailEl = document.getElementById("statusDetail");
+
+      function getAddonLang() {
+        return document.documentElement.lang === "hu" ? ADDON_TEXT.hu : ADDON_TEXT.en;
+      }
+
+      function allPermsReady() {
+        return Boolean(perms.gps && perms.overlay && perms.background);
+      }
+
+      function distMeters(a, b) {
+        const R = 6371000;
+        const toRad = x => (x * Math.PI) / 180;
+        const dLat = toRad(b.lat - a.lat);
+        const dLon = toRad(b.lng - a.lng);
+        const s =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) *
+          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return 2 * R * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+      }
+
+      function refreshAddonUI() {
+        const txt = getAddonLang();
+        helpTitleEl.textContent = txt.helpTitle;
+        helpDateEl.textContent = txt.helpDate;
+        helpListEl.innerHTML = "";
+        txt.helpItems.forEach(itemText => {
+          const box = document.createElement("div");
+          box.className = "sw-help-entry";
+          box.textContent = itemText;
+          helpListEl.appendChild(box);
+        });
+
+        checkTitleEl.textContent = txt.checkTitle;
+        document.getElementById("sw-addon-step-1-text").textContent = txt.step1;
+        document.getElementById("sw-addon-step-2-text").textContent = txt.step2;
+        document.getElementById("sw-addon-step-3-text").textContent = txt.step3;
+        goBtn.textContent = txt.goBtn;
+
+        const states = [
+          [step1Btn, document.getElementById("sw-addon-step-1-mark"), perms.gps],
+          [step2Btn, document.getElementById("sw-addon-step-2-mark"), perms.overlay],
+          [step3Btn, document.getElementById("sw-addon-step-3-mark"), perms.background]
+        ];
+        states.forEach(([btn, mark, ok]) => {
+          btn.classList.toggle("done", Boolean(ok));
+          mark.textContent = ok ? "✓" : "○";
+          mark.classList.toggle("ok", Boolean(ok));
+        });
+
+        bgTitleEl.textContent = txt.bgTitle;
+        bgDescEl.textContent = txt.bgDesc;
+        bgBackBtn.textContent = txt.bgBack;
+        bgConfirmBtn.textContent = txt.bgConfirm;
+
+        idleTitleEl.textContent = txt.idleTitle;
+        idleDescEl.textContent = txt.idleDesc;
+        idleContinueBtn.textContent = txt.idleContinue;
+        idleStopBtn.textContent = txt.idleStop;
+
+        goodbyeTitleEl.textContent = txt.goodbyeTitle;
+        goodbyeDescEl.textContent = txt.goodbyeDesc;
+      }
+
+      function showGoodbyeBanner() {
+        refreshAddonUI();
+        goodbyeBackdrop.classList.add("open");
+        setTimeout(() => {
+          goodbyeBackdrop.classList.remove("open");
+        }, 3000);
+      }
+
+      function clearReconnectLoop() {
+        if (reconnectInterval) {
+          clearInterval(reconnectInterval);
+          reconnectInterval = null;
+        }
+      }
+
+      function probeGpsSilent(onSuccess) {
+        if (!navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            perms.gps = true;
+            refreshAddonUI();
+            if (typeof onSuccess === "function") onSuccess(pos.coords);
+          },
+          () => {},
+          { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+        );
+      }
+
+      function startReconnectLoop() {
+        clearReconnectLoop();
+        if (statusDetailEl) statusDetailEl.textContent = getAddonLang().reconnectingMsg;
+        probeGpsSilent(() => {
+          clearReconnectLoop();
+        });
+        reconnectInterval = setInterval(() => {
+          probeGpsSilent(() => {
+            clearReconnectLoop();
+          });
+        }, RECONNECT_MS);
+      }
+
+      function handleCoordsUpdate(coords) {
+        if (!coords || typeof coords.latitude !== "number" || typeof coords.longitude !== "number") return;
+        clearReconnectLoop();
+        const now = Date.now();
+        const current = { lat: coords.latitude, lng: coords.longitude };
+
+        if (!lastAnchorCoords) {
+          lastAnchorCoords = current;
+          lastSignificantMoveAt = now;
+          return;
+        }
+
+        const moved = distMeters(lastAnchorCoords, current);
+        if (moved >= STAGNATION_METERS) {
+          lastAnchorCoords = current;
+          lastSignificantMoveAt = now;
+          return;
+        }
+
+        if (!lastSignificantMoveAt) {
+          lastSignificantMoveAt = now;
+          return;
+        }
+
+        if (!idlePromptOpen && now - lastSignificantMoveAt >= STAGNATION_MS) {
+          idlePromptOpen = true;
+          refreshAddonUI();
+          idleBackdrop.classList.add("open");
+        }
+      }
+
+      function triggerRealStart() {
+        if (!watchStartBtn) return;
+        checkBackdrop.classList.remove("open");
+        bgBackdrop.classList.remove("open");
+        bypassStartOnce = true;
+        watchStartBtn.click();
+      }
+
+      if (helpBtn) {
+        helpBtn.addEventListener("click", () => {
+          refreshAddonUI();
+          helpBackdrop.classList.add("open");
+        });
+      }
+      if (helpCloseBtn) {
+        helpCloseBtn.addEventListener("click", () => helpBackdrop.classList.remove("open"));
+      }
+
+      if (watchStartBtn) {
+        watchStartBtn.addEventListener("click", ev => {
+          if (bypassStartOnce) {
+            bypassStartOnce = false;
+            return;
+          }
+          if (!allPermsReady()) {
+            ev.preventDefault();
+            ev.stopImmediatePropagation();
+            refreshAddonUI();
+            checkBackdrop.classList.add("open");
+          }
+        }, true);
+      }
+
+      if (checkCloseBtn) {
+        checkCloseBtn.addEventListener("click", () => checkBackdrop.classList.remove("open"));
+      }
+
+      if (step1Btn) {
+        step1Btn.addEventListener("click", () => {
+          probeGpsSilent(() => {
+            perms.gps = true;
+            refreshAddonUI();
+          });
+          perms.gps = true;
+          refreshAddonUI();
+        });
+      }
+
+      if (step2Btn) {
+        step2Btn.addEventListener("click", () => {
+          perms.overlay = true;
+          refreshAddonUI();
+        });
+      }
+
+      function runStep3Check() {
+        const granted = window.confirm(getAddonLang().step3 + "?");
+        if (granted) {
+          perms.background = true;
+          bgBackdrop.classList.remove("open");
+          refreshAddonUI();
+        } else {
+          perms.background = false;
+          refreshAddonUI();
+          bgBackdrop.classList.add("open");
+        }
+      }
+
+      if (step3Btn) {
+        step3Btn.addEventListener("click", runStep3Check);
+      }
+      if (bgBackBtn) {
+        bgBackBtn.addEventListener("click", () => {
+          bgBackdrop.classList.remove("open");
+          runStep3Check();
+        });
+      }
+      if (bgConfirmBtn) {
+        bgConfirmBtn.addEventListener("click", () => {
+          perms.background = false;
+          bgBackdrop.classList.remove("open");
+          refreshAddonUI();
+        });
+      }
+
+      if (goBtn) {
+        goBtn.addEventListener("click", () => {
+          perms.gps = true;
+          perms.overlay = true;
+          perms.background = true;
+          refreshAddonUI();
+          triggerRealStart();
+        });
+      }
+
+      if (idleContinueBtn) {
+        idleContinueBtn.addEventListener("click", () => {
+          idlePromptOpen = false;
+          lastSignificantMoveAt = Date.now();
+          if (lastAnchorCoords) {
+            lastAnchorCoords = { lat: lastAnchorCoords.lat, lng: lastAnchorCoords.lng };
+          }
+          idleBackdrop.classList.remove("open");
+        });
+      }
+
+      if (idleStopBtn) {
+        idleStopBtn.addEventListener("click", () => {
+          idlePromptOpen = false;
+          idleBackdrop.classList.remove("open");
+          explicitStopPending = true;
+          if (watchStopBtn) watchStopBtn.click();
+        });
+      }
+
+      if (watchStopBtn) {
+        watchStopBtn.addEventListener("click", () => {
+          explicitStopPending = true;
+        });
+      }
+
+      window.addEventListener("stopway:watch-started", () => {
+        explicitStopPending = false;
+        lastAnchorCoords = null;
+        lastSignificantMoveAt = Date.now();
+        clearReconnectLoop();
+      });
+
+      window.addEventListener("stopway:gps-position", ev => {
+        if (ev && ev.detail && ev.detail.coords) {
+          handleCoordsUpdate(ev.detail.coords);
+        }
+      });
+
+      window.addEventListener("stopway:gps-error", () => {
+        if (watchStopBtn && watchStopBtn.style.display !== "none" && !reconnectInterval) {
+          startReconnectLoop();
+        }
+      });
+
+      window.addEventListener("stopway:watch-stopped", () => {
+        clearReconnectLoop();
+        lastAnchorCoords = null;
+        lastSignificantMoveAt = null;
+        idlePromptOpen = false;
+        if (explicitStopPending) {
+          explicitStopPending = false;
+          showGoodbyeBanner();
+        }
+      });
+
+      window.addEventListener("stopway:alarm-dismissed", () => {
+        explicitStopPending = false;
+        clearReconnectLoop();
+        showGoodbyeBanner();
+      });
+
+      window.addEventListener("stopway:lang-changed", refreshAddonUI);
+      refreshAddonUI();
+    })();
+  </script>
 </body>
 </html>
+
 
 
 
