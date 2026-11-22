@@ -3664,6 +3664,572 @@
   }
 })();
 </script>
+<!-- StopWay - 3 lépéses indítási ellenőrző panel és 21 nyelvű kezelő -->
+<style>
+  #sw-check-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 16px;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+  #sw-check-card, #sw-bg-modal {
+    width: 100%;
+    max-width: 420px;
+    background: #ffffff;
+    color: #0f172a;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  }
+  .sw-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 14px 0;
+  }
+  .sw-step-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    color: #0f172a;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+  }
+  .sw-step-btn.done {
+    border-color: #16a34a;
+    background: #f0fdf4;
+  }
+  .sw-badge {
+    font-size: 18px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .sw-badge.ok {
+    color: #16a34a;
+  }
+  #sw-bg-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 16px;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+  .sw-modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .sw-btn-secondary {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #94a3b8;
+    background: #e2e8f0;
+    color: #0f172a;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .sw-btn-danger {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: #dc2626;
+    color: #ffffff;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #sw-start-monitoring-btn {
+    display: none;
+    padding: 16px 24px;
+    border-radius: 14px;
+    border: none;
+    background: #16a34a;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    margin: 16px auto;
+  }
+  @keyframes swBlink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.45; transform: scale(0.97); }
+  }
+  .sw-blinking {
+    animation: swBlink 1.1s infinite;
+  }
+</style>
+
+<div id="sw-check-overlay" role="dialog" aria-modal="true">
+  <div id="sw-check-card">
+    <h2 class="sw-title" id="sw-panel-title"></h2>
+    <button type="button" class="sw-step-btn" id="sw-step-1">
+      <span id="sw-step-1-label"></span>
+      <span class="sw-badge" id="sw-step-1-badge">○</span>
+    </button>
+    <button type="button" class="sw-step-btn" id="sw-step-2">
+      <span id="sw-step-2-label"></span>
+      <span class="sw-badge" id="sw-step-2-badge">○</span>
+    </button>
+    <button type="button" class="sw-step-btn" id="sw-step-3">
+      <span id="sw-step-3-label"></span>
+      <span class="sw-badge" id="sw-step-3-badge">○</span>
+    </button>
+  </div>
+</div>
+
+<div id="sw-bg-modal-backdrop" role="dialog" aria-modal="true">
+  <div id="sw-bg-modal">
+    <h3 class="sw-title" id="sw-bg-warn-title"></h3>
+    <p id="sw-bg-warn-text" style="margin: 0; line-height: 1.45;"></p>
+    <div class="sw-modal-actions">
+      <button type="button" class="sw-btn-secondary" id="sw-bg-back-btn"></button>
+      <button type="button" class="sw-btn-danger" id="sw-bg-confirm-btn"></button>
+    </div>
+  </div>
+</div>
+
+<button type="button" id="sw-start-monitoring-btn" class="sw-blinking"></button>
+
+<script>
+(function () {
+  const SW_LANGS_21 = [
+    "hu", "en", "de", "es", "fr", "it", "he",
+    "ar", "ru", "pl", "ro", "uk", "tr", "pt",
+    "nl", "cs", "sk", "sv", "ja", "ko", "zh"
+  ];
+
+  const TRANSLATIONS = {
+    hu: {
+      panel_title: "Indítás előtti ellenőrzés",
+      step_1: "1. Telefonos helymeghatározás bekapcsolása",
+      step_2: "2. Helyhozzáférés engedélyezése",
+      step_3: "3. Háttérben futás engedélyezése",
+      bg_warn_title: "Biztos, hogy nem engedélyezed?",
+      bg_warn_text: "Ha nem engedélyezed a háttérben futást, az applikáció működése képernyőzár vagy más applikációk használata közben leállhat.",
+      bg_warn_back: "Vissza az engedélyezéshez",
+      bg_warn_confirm: "Igen, biztos",
+      start_btn: "Figyelés indítása"
+    },
+    en: {
+      panel_title: "Pre-start check",
+      step_1: "1. Turn on phone location",
+      step_2: "2. Allow location access",
+      step_3: "3. Allow background execution",
+      bg_warn_title: "Are you sure you don't allow it?",
+      bg_warn_text: "If you do not allow background execution, the app may stop working when the screen is locked or while using other apps.",
+      bg_warn_back: "Back to permission",
+      bg_warn_confirm: "Yes, I'm sure",
+      start_btn: "Start Monitoring"
+    },
+    de: {
+      panel_title: "Prüfung vor dem Start",
+      step_1: "1. Telefonstandort aktivieren",
+      step_2: "2. Standortzugriff erlauben",
+      step_3: "3. Hintergrundausführung erlauben",
+      bg_warn_title: "Sicher, dass du es nicht erlaubst?",
+      bg_warn_text: "Ohne Hintergrundausführung kann die App bei gesperrtem Bildschirm oder in anderen Apps anhalten.",
+      bg_warn_back: "Zurück zur Freigabe",
+      bg_warn_confirm: "Ja, sicher",
+      start_btn: "Überwachung starten"
+    },
+    es: {
+      panel_title: "Comprobación previa",
+      step_1: "1. Activar ubicación del teléfono",
+      step_2: "2. Permitir acceso a la ubicación",
+      step_3: "3. Permitir ejecución en segundo plano",
+      bg_warn_title: "¿Seguro que no lo permites?",
+      bg_warn_text: "Si no permites el segundo plano, la app puede detenerse con la pantalla bloqueada o al usar otras apps.",
+      bg_warn_back: "Volver al permiso",
+      bg_warn_confirm: "Sí, estoy seguro",
+      start_btn: "Iniciar monitoreo"
+    },
+    fr: {
+      panel_title: "Vérification avant démarrage",
+      step_1: "1. Activer la localisation du téléphone",
+      step_2: "2. Autoriser l'accès à la position",
+      step_3: "3. Autoriser l'exécution en arrière-plan",
+      bg_warn_title: "Voulez-vous vraiment refuser ?",
+      bg_warn_text: "Sans exécution en arrière-plan, l'application peut s'arrêter écran verrouillé ou avec d'autres apps.",
+      bg_warn_back: "Retour à l'autorisation",
+      bg_warn_confirm: "Oui, certain",
+      start_btn: "Démarrer le suivi"
+    },
+    it: {
+      panel_title: "Controllo prima dell'avvio",
+      step_1: "1. Attiva posizione del telefono",
+      step_2: "2. Consenti accesso alla posizione",
+      step_3: "3. Consenti esecuzione in background",
+      bg_warn_title: "Sei sicuro di non consentire?",
+      bg_warn_text: "Senza esecuzione in background, l'app può fermarsi a schermo bloccato o con altre app.",
+      bg_warn_back: "Torna all'autorizzazione",
+      bg_warn_confirm: "Sì, sicuro",
+      start_btn: "Avvia monitoraggio"
+    },
+    he: {
+      panel_title: "בדיקה לפני התחלה",
+      step_1: "1. הפעלת מיקום בטלפון",
+      step_2: "2. אישור גישה למיקום",
+      step_3: "3. אישור פעולה ברקע",
+      bg_warn_title: "בטוח שלא לאשר?",
+      bg_warn_text: "ללא פעולה ברקע, האפליקציה עלולה לעצור בנעילת מסך או בשימוש באפליקציות אחרות.",
+      bg_warn_back: "חזרה לאישור",
+      bg_warn_confirm: "כן, בטוח",
+      start_btn: "התחל מעקב"
+    },
+    ar: {
+      panel_title: "فحص ما قبل البدء",
+      step_1: "1. تشغيل موقع الهاتف",
+      step_2: "2. السماح بالوصول إلى الموقع",
+      step_3: "3. السماح بالتشغيل في الخلفية",
+      bg_warn_title: "هل أنت متأكد من عدم السماح؟",
+      bg_warn_text: "إذا لم تسمح بالتشغيل في الخلفية فقد يتوقف التطبيق عند قفل الشاشة أو استخدام تطبيقات أخرى.",
+      bg_warn_back: "العودة إلى الإذن",
+      bg_warn_confirm: "نعم، متأكد",
+      start_btn: "بدء المراقبة"
+    },
+    ru: {
+      panel_title: "Проверка перед запуском",
+      step_1: "1. Включить геолокацию телефона",
+      step_2: "2. Разрешить доступ к геоданным",
+      step_3: "3. Разрешить работу в фоне",
+      bg_warn_title: "Точно не разрешать?",
+      bg_warn_text: "Без фоновой работы приложение может остановиться при блокировке экрана или в других приложениях.",
+      bg_warn_back: "Назад к разрешению",
+      bg_warn_confirm: "Да, уверен",
+      start_btn: "Начать наблюдение"
+    },
+    pl: {
+      panel_title: "Sprawdzenie przed startem",
+      step_1: "1. Włącz lokalizację w telefonie",
+      step_2: "2. Zezwól na dostęp do lokalizacji",
+      step_3: "3. Zezwól na działanie w tle",
+      bg_warn_title: "Na pewno nie zezwalasz?",
+      bg_warn_text: "Bez działania w tle aplikacja może zatrzymać się przy zablokowanym ekranie lub w innych aplikacjach.",
+      bg_warn_back: "Wróć do zgody",
+      bg_warn_confirm: "Tak, na pewno",
+      start_btn: "Rozpocznij monitorowanie"
+    },
+    ro: {
+      panel_title: "Verificare înainte de pornire",
+      step_1: "1. Activează locația telefonului",
+      step_2: "2. Permite accesul la locație",
+      step_3: "3. Permite rularea în fundal",
+      bg_warn_title: "Sigur nu permiți?",
+      bg_warn_text: "Fără rulare în fundal, aplicația se poate opri când ecranul este blocat sau în alte aplicații.",
+      bg_warn_back: "Înapoi la permisiune",
+      bg_warn_confirm: "Da, sunt sigur",
+      start_btn: "Pornește monitorizarea"
+    },
+    uk: {
+      panel_title: "Перевірка перед запуском",
+      step_1: "1. Увімкнути геолокацію телефону",
+      step_2: "2. Дозволити доступ до геоданих",
+      step_3: "3. Дозволити роботу у фоні",
+      bg_warn_title: "Точно не дозволяєте?",
+      bg_warn_text: "Без фонової роботи додаток може зупинитися при блокуванні екрана або в інших додатках.",
+      bg_warn_back: "Назад до дозволу",
+      bg_warn_confirm: "Так, впевнений",
+      start_btn: "Почати спостереження"
+    },
+    tr: {
+      panel_title: "Başlatma öncesi kontrol",
+      step_1: "1. Telefon konumunu aç",
+      step_2: "2. Konum erişimine izin ver",
+      step_3: "3. Arka planda çalışmaya izin ver",
+      bg_warn_title: "İzin vermediğinden emin misin?",
+      bg_warn_text: "Arka planda çalışmaya izin vermezseniz ekran kilitlendiğinde veya diğer uygulamalarda uygulama durabilir.",
+      bg_warn_back: "İzne geri dön",
+      bg_warn_confirm: "Evet, eminim",
+      start_btn: "İzlemeyi başlat"
+    },
+    pt: {
+      panel_title: "Verificação antes de iniciar",
+      step_1: "1. Ativar localização do telefone",
+      step_2: "2. Permitir acesso à localização",
+      step_3: "3. Permitir execução em segundo plano",
+      bg_warn_title: "Tem certeza de que não vai permitir?",
+      bg_warn_text: "Sem execução em segundo plano, o app pode parar com a tela bloqueada ou em outros apps.",
+      bg_warn_back: "Voltar à permissão",
+      bg_warn_confirm: "Sim, tenho certeza",
+      start_btn: "Iniciar monitoramento"
+    },
+    nl: {
+      panel_title: "Controle vóór start",
+      step_1: "1. Locatie op telefoon aanzetten",
+      step_2: "2. Locatietoegang toestaan",
+      step_3: "3. Achtergrondgebruik toestaan",
+      bg_warn_title: "Weet je zeker dat je dit niet toestaat?",
+      bg_warn_text: "Zonder achtergrondgebruik kan de app stoppen bij een vergrendeld scherm of in andere apps.",
+      bg_warn_back: "Terug naar toestemming",
+      bg_warn_confirm: "Ja, zeker",
+      start_btn: "Monitoring starten"
+    },
+    cs: {
+      panel_title: "Kontrola před spuštěním",
+      step_1: "1. Zapnout polohu v telefonu",
+      step_2: "2. Povolit přístup k poloze",
+      step_3: "3. Povolit běh na pozadí",
+      bg_warn_title: "Opravdu nechcete povolit?",
+      bg_warn_text: "Bez běhu na pozadí se aplikace může zastavit při zamknuté obrazovce nebo v jiných aplikacích.",
+      bg_warn_back: "Zpět k oprávnění",
+      bg_warn_confirm: "Ano, jistě",
+      start_btn: "Spustit sledování"
+    },
+    sk: {
+      panel_title: "Kontrola pred spustením",
+      step_1: "1. Zapnúť polohu v telefóne",
+      step_2: "2. Povoliť prístup k polohe",
+      step_3: "3. Povoliť beh na pozadí",
+      bg_warn_title: "Naozaj nechcete povoliť?",
+      bg_warn_text: "Bez behu na pozadí sa aplikácia môže zastaviť pri zamknutej obrazovke alebo v iných aplikáciách.",
+      bg_warn_back: "Späť na povolenie",
+      bg_warn_confirm: "Áno, určite",
+      start_btn: "Spustiť sledovanie"
+    },
+    sv: {
+      panel_title: "Kontroll före start",
+      step_1: "1. Aktivera telefonens plats",
+      step_2: "2. Tillåt platsåtkomst",
+      step_3: "3. Tillåt körning i bakgrunden",
+      bg_warn_title: "Är du säker på att du inte tillåter?",
+      bg_warn_text: "Utan bakgrundskörning kan appen stanna vid låst skärm eller i andra appar.",
+      bg_warn_back: "Tillbaka till behörighet",
+      bg_warn_confirm: "Ja, säker",
+      start_btn: "Starta övervakning"
+    },
+    ja: {
+      panel_title: "開始前チェック",
+      step_1: "1. 端末の位置情報をオンにする",
+      step_2: "2. 位置情報へのアクセスを許可",
+      step_3: "3. バックグラウンド実行を許可",
+      bg_warn_title: "許可しないことでよろしいですか？",
+      bg_warn_text: "バックグラウンド実行を許可しないと、画面ロック中や他アプリ使用中に停止することがあります。",
+      bg_warn_back: "許可画面に戻る",
+      bg_warn_confirm: "はい、確かです",
+      start_btn: "監視を開始"
+    },
+    ko: {
+      panel_title: "시작 전 확인",
+      step_1: "1. 휴대폰 위치 켜기",
+      step_2: "2. 위치 접근 허용",
+      step_3: "3. 백그라운드 실행 허용",
+      bg_warn_title: "허용하지 않는 것이 확실합니까?",
+      bg_warn_text: "백그라운드 실행을 허용하지 않으면 화면 잠금 또는 다른 앱 사용 중 중단될 수 있습니다.",
+      bg_warn_back: "권한으로 돌아가기",
+      bg_warn_confirm: "예, 확실합니다",
+      start_btn: "모니터링 시작"
+    },
+    zh: {
+      panel_title: "启动前检查",
+      step_1: "1. 开启手机定位",
+      step_2: "2. 允许访问位置信息",
+      step_3: "3. 允许后台运行",
+      bg_warn_title: "确定不允许吗？",
+      bg_warn_text: "如果不允许后台运行，锁屏或使用其他应用时可能会停止。",
+      bg_warn_back: "返回授权",
+      bg_warn_confirm: "是的，确定",
+      start_btn: "开始监控"
+    }
+  };
+
+  function getActiveLang() {
+    const htmlLang = (document.documentElement.lang || "").slice(0, 2).toLowerCase();
+    if (SW_LANGS_21.includes(htmlLang)) return htmlLang;
+    const navLang = (navigator.language || "hu").slice(0, 2).toLowerCase();
+    return SW_LANGS_21.includes(navLang) ? navLang : "hu";
+  }
+
+  function t(key) {
+    const lang = getActiveLang();
+    return (TRANSLATIONS[lang] && TRANSLATIONS[lang][key]) || TRANSLATIONS.hu[key] || key;
+  }
+
+  const state = {
+    step1GpsOn: false,
+    step2PermGranted: false,
+    step3BgAllowed: false,
+    waitingForGpsReturn: false
+  };
+
+  const overlay = document.getElementById("sw-check-overlay");
+  const modalBackdrop = document.getElementById("sw-bg-modal-backdrop");
+  const startBtn = document.getElementById("sw-start-monitoring-btn");
+
+  function applyTexts() {
+    document.getElementById("sw-panel-title").textContent = t("panel_title");
+    document.getElementById("sw-step-1-label").textContent = t("step_1");
+    document.getElementById("sw-step-2-label").textContent = t("step_2");
+    document.getElementById("sw-step-3-label").textContent = t("step_3");
+    document.getElementById("sw-bg-warn-title").textContent = t("bg_warn_title");
+    document.getElementById("sw-bg-warn-text").textContent = t("bg_warn_text");
+    document.getElementById("sw-bg-back-btn").textContent = t("bg_warn_back");
+    document.getElementById("sw-bg-confirm-btn").textContent = t("bg_warn_confirm");
+    startBtn.textContent = t("start_btn");
+  }
+
+  function renderUI() {
+    applyTexts();
+    const s1 = document.getElementById("sw-step-1");
+    const s2 = document.getElementById("sw-step-2");
+    const s3 = document.getElementById("sw-step-3");
+    const b1 = document.getElementById("sw-step-1-badge");
+    const b2 = document.getElementById("sw-step-2-badge");
+    const b3 = document.getElementById("sw-step-3-badge");
+
+    s1.classList.toggle("done", state.step1GpsOn);
+    b1.textContent = state.step1GpsOn ? "✓" : "○";
+    b1.classList.toggle("ok", state.step1GpsOn);
+
+    s2.classList.toggle("done", state.step2PermGranted);
+    b2.textContent = state.step2PermGranted ? "✓" : "○";
+    b2.classList.toggle("ok", state.step2PermGranted);
+
+    s3.classList.toggle("done", state.step3BgAllowed);
+    b3.textContent = state.step3BgAllowed ? "✓" : "○";
+    b3.classList.toggle("ok", state.step3BgAllowed);
+
+    const allDone = state.step1GpsOn && state.step2PermGranted && state.step3BgAllowed;
+    if (allDone) {
+      overlay.style.display = "none";
+      modalBackdrop.style.display = "none";
+      startBtn.style.display = "block";
+    } else {
+      overlay.style.display = "flex";
+      startBtn.style.display = "none";
+    }
+  }
+
+  function probeLocation(onSuccess, onFail) {
+    if (!navigator.geolocation) {
+      if (onFail) onFail();
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      () => {
+        if (onSuccess) onSuccess();
+      },
+      (err) => {
+        if (onFail) onFail(err);
+      },
+      { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
+    );
+  }
+
+  function checkInitialGps() {
+    probeLocation(
+      () => {
+        state.step1GpsOn = true;
+        renderUI();
+      },
+      () => {
+        renderUI();
+      }
+    );
+  }
+
+  // 1. lépés: helymeghatározás bekapcsolása
+  document.getElementById("sw-step-1").addEventListener("click", () => {
+    if (state.step1GpsOn) return;
+    state.waitingForGpsReturn = true;
+    // Ha natív/csomagolt réteg biztosít beállítás-nyitót, itt hívható; fallbackként jelezzük
+    if (window.StopWayNative && typeof window.StopWayNative.openLocationSettings === "function") {
+      window.StopWayNative.openLocationSettings();
+    } else {
+      probeLocation(
+        () => {
+          state.step1GpsOn = true;
+          state.waitingForGpsReturn = false;
+          renderUI();
+        },
+        () => {}
+      );
+    }
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && state.waitingForGpsReturn) {
+      probeLocation(() => {
+        state.step1GpsOn = true;
+        state.waitingForGpsReturn = false;
+        renderUI();
+      });
+    }
+  });
+
+  // 2. lépés: helyhozzáférés engedélyezése
+  document.getElementById("sw-step-2").addEventListener("click", () => {
+    probeLocation(
+      () => {
+        state.step1GpsOn = true;
+        state.step2PermGranted = true;
+        renderUI();
+      },
+      () => {
+        state.step2PermGranted = false;
+        renderUI();
+      }
+    );
+  });
+
+  // 3. lépés: háttérben futás engedélyezése
+  function handleStep3Permission() {
+    let granted = false;
+    if (window.StopWayNative && typeof window.StopWayNative.requestBackgroundPermission === "function") {
+      granted = Boolean(window.StopWayNative.requestBackgroundPermission());
+    } else {
+      granted = window.confirm(t("step_3") + "?");
+    }
+
+    if (granted) {
+      state.step3BgAllowed = true;
+      modalBackdrop.style.display = "none";
+      renderUI();
+    } else {
+      state.step3BgAllowed = false;
+      modalBackdrop.style.display = "flex";
+    }
+  }
+
+  document.getElementById("sw-step-3").addEventListener("click", handleStep3Permission);
+
+  document.getElementById("sw-bg-back-btn").addEventListener("click", () => {
+    modalBackdrop.style.display = "none";
+    handleStep3Permission();
+  });
+
+  document.getElementById("sw-bg-confirm-btn").addEventListener("click", () => {
+    modalBackdrop.style.display = "none";
+    state.step2PermGranted = false;
+    state.step3BgAllowed = false;
+    renderUI();
+  });
+
+  startBtn.addEventListener("click", () => {
+    window.dispatchEvent(new CustomEvent("stopway:start-monitoring"));
+  });
+
+  applyTexts();
+  checkInitialGps();
+})();
+</script>
 
 </html>
 
