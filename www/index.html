@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="hu" dir="ltr">
 <head>
@@ -29,6 +28,7 @@
       --wallpaper-img: none;
     }
 
+    /* 1. RAJZFILMES / KÉPREGÉNYES STÍLUS */
     body[data-theme="cartoon"] {
       --bg: #fef08a;
       --surface: #ffffff;
@@ -51,7 +51,9 @@
       background-image: radial-gradient(#111827 1.1px, transparent 1.1px);
       background-size: 18px 18px;
     }
-    body[data-theme="cartoon"] .dest-btn:nth-child(even) { transform: rotate(0.8deg); }
+    body[data-theme="cartoon"] .dest-btn:nth-child(even) {
+      transform: rotate(0.8deg);
+    }
     body[data-theme="cartoon"] .dest-btn:active,
     body[data-theme="cartoon"] .action-btn:active,
     body[data-theme="cartoon"] .icon-btn:active {
@@ -59,6 +61,7 @@
       box-shadow: 2px 2px 0px #111827;
     }
 
+    /* 2. GÓTIKUS STÍLUS */
     body[data-theme="gothic"] {
       --bg: #09070a;
       --surface: #161118;
@@ -91,6 +94,7 @@
       opacity: 0.7;
     }
 
+    /* 3. RENESZÁNSZ / MICHELANGELO-IHLETÉSŰ STÍLUS */
     body[data-theme="renaissance"] {
       --bg: #241911;
       --surface: #f4ead5;
@@ -115,9 +119,14 @@
     body[data-theme="renaissance"] .topbar,
     body[data-theme="renaissance"] .prompt-title,
     body[data-theme="renaissance"] .modal-title,
-    body[data-theme="renaissance"] .drawer-title { color: var(--text); }
-    body[data-theme="renaissance"] .topbar { background: #f4ead5; }
+    body[data-theme="renaissance"] .drawer-title {
+      color: var(--text);
+    }
+    body[data-theme="renaissance"] .topbar {
+      background: #f4ead5;
+    }
 
+    /* 4. PUNK STÍLUS */
     body[data-theme="punk"] {
       --bg: #111111;
       --surface: #1b1b1b;
@@ -140,6 +149,7 @@
       background-image: repeating-linear-gradient(-45deg, rgba(244,63,94,0.06) 0, rgba(244,63,94,0.06) 8px, transparent 8px, transparent 16px);
     }
 
+    /* 5. ÁTLÁTSZÓ (HÁTTÉRKÉPHEZ / KÉPERNYŐHÖZ IGAZODÓ) STÍLUS */
     body[data-theme="glass"] {
       --backdrop-blur: 14px;
       --btn-transform: none;
@@ -157,7 +167,9 @@
         linear-gradient(135deg, #e2e8f0 0%, #64748b 50%, #0f172a 100%);
     }
 
-    body[data-theme="glass"][data-has-wallpaper="true"] { background-image: var(--wallpaper-img); }
+    body[data-theme="glass"][data-has-wallpaper="true"] {
+      background-image: var(--wallpaper-img);
+    }
 
     body[data-theme="glass"][data-glass-polarity="dark-ui"] {
       --bg: #1e293b;
@@ -201,7 +213,10 @@
       -webkit-backdrop-filter: blur(var(--backdrop-blur));
     }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
     body {
       margin: 0;
@@ -238,8 +253,19 @@
       box-shadow: var(--shadow);
     }
 
-    .brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
-    .brand-icon { width: 28px; height: 28px; flex: 0 0 28px; }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      flex: 0 0 28px;
+    }
+
     .brand-title {
       font-family: var(--font-display);
       font-weight: 800;
@@ -249,9 +275,18 @@
       text-overflow: ellipsis;
     }
 
-    .top-controls { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
 
-    .threshold-select, .icon-btn, .action-btn, .dest-btn {
+    .threshold-select,
+    .icon-btn,
+    .action-btn,
+    .dest-btn {
       font-family: inherit;
       color: var(--text);
       background: var(--surface-2);
@@ -261,7 +296,11 @@
       transition: transform 0.12s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .threshold-select { padding: 7px 9px; font-size: 0.82rem; font-weight: 700; }
+    .threshold-select {
+      padding: 7px 9px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
 
     .icon-btn {
       width: 36px;
@@ -274,7 +313,11 @@
       box-shadow: var(--shadow);
     }
 
-    .icon-btn.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+    .icon-btn.active {
+      background: var(--accent);
+      color: var(--accent-text);
+      border-color: var(--accent);
+    }
 
     .prompt-title {
       margin: 2px 0 0;
@@ -285,7 +328,11 @@
       letter-spacing: -0.01em;
     }
 
-    .destinations-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .destinations-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
 
     .dest-btn {
       position: relative;
@@ -302,11 +349,36 @@
       transform: var(--btn-transform);
     }
 
-    .dest-btn:active, .action-btn:active, .icon-btn:active { transform: scale(0.98); }
-    .dest-btn.selected { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
-    .dest-index { font-size: 0.72rem; font-weight: 800; opacity: 0.72; }
-    .dest-name { font-family: var(--font-display); font-size: 1.05rem; font-weight: 800; line-height: 1.2; word-break: break-word; }
-    .dest-sub { font-size: 0.73rem; opacity: 0.85; }
+    .dest-btn:active,
+    .action-btn:active,
+    .icon-btn:active {
+      transform: scale(0.98);
+    }
+
+    .dest-btn.selected {
+      background: var(--accent);
+      color: var(--accent-text);
+      border-color: var(--accent);
+    }
+
+    .dest-index {
+      font-size: 0.72rem;
+      font-weight: 800;
+      opacity: 0.72;
+    }
+
+    .dest-name {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .dest-sub {
+      font-size: 0.73rem;
+      opacity: 0.85;
+    }
 
     .panel {
       position: relative;
@@ -320,15 +392,90 @@
       gap: 10px;
     }
 
-    .status-line { font-size: 0.9rem; font-weight: 700; line-height: 1.4; }
-    .status-detail { font-size: 0.8rem; color: var(--muted); line-height: 1.35; }
-    .action-row { display: flex; gap: 8px; flex-wrap: wrap; }
-    .action-btn { padding: 10px 14px; font-size: 0.88rem; font-weight: 800; box-shadow: var(--shadow); }
-    .action-btn.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
-    .action-btn.danger { background: var(--danger); color: #ffffff; border-color: var(--danger); }
-    .sound-controls { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
+    .status-line {
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1.4;
+    }
 
-    .sound-select, .text-input, .num-input {
+    .status-detail {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      box-shadow: var(--shadow);
+    }
+
+    .action-btn.primary {
+      background: var(--accent);
+      color: var(--accent-text);
+      border-color: var(--accent);
+    }
+
+    .action-btn.danger {
+      background: var(--danger);
+      color: #ffffff;
+      border-color: var(--danger);
+    }
+
+    .sound-controls {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .voice-persona-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-top: 2px;
+    }
+
+    .voice-persona-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .voice-persona-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .persona-btn {
+      padding: 8px 8px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .persona-btn.active {
+      background: var(--accent);
+      color: var(--accent-text);
+      border-color: var(--accent);
+    }
+
+    .sound-select,
+    .text-input,
+    .num-input {
       width: 100%;
       padding: 9px 10px;
       border-radius: 10px;
@@ -340,7 +487,14 @@
       font-weight: 600;
     }
 
-    .extra-audio-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between; font-size: 0.82rem; }
+    .extra-audio-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.82rem;
+    }
 
     .toggle-pill {
       display: inline-flex;
@@ -354,7 +508,25 @@
       cursor: pointer;
     }
 
-    .custom-file-badge { color: var(--muted); font-size: 0.78rem; word-break: break-all; }
+    .custom-file-badge {
+      color: var(--muted);
+      font-size: 0.78rem;
+      word-break: break-all;
+    }
+
+    .help-box {
+      border-top: 1px dashed var(--border);
+      padding-top: 8px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .help-box strong {
+      color: var(--text);
+      display: block;
+      margin-bottom: 2px;
+    }
 
     .drawer {
       display: none;
@@ -366,9 +538,23 @@
       gap: 10px;
     }
 
-    .drawer.open { display: flex; flex-direction: column; }
-    .drawer-title { font-family: var(--font-display); font-size: 0.96rem; font-weight: 800; margin: 0; }
-    .theme-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .drawer.open {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .drawer-title {
+      font-family: var(--font-display);
+      font-size: 0.96rem;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
 
     .theme-chip {
       padding: 9px 10px;
@@ -382,10 +568,31 @@
       text-align: left;
     }
 
-    .theme-chip.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
-    .glass-box { display: none; flex-direction: column; gap: 8px; padding-top: 6px; border-top: 1px dashed var(--border); }
-    .glass-box.visible { display: flex; }
-    .sim-box { display: flex; flex-direction: column; gap: 6px; padding-top: 4px; border-top: 1px dashed var(--border); }
+    .theme-chip.active {
+      background: var(--accent);
+      color: var(--accent-text);
+      border-color: var(--accent);
+    }
+
+    .glass-box {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      padding-top: 6px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .glass-box.visible {
+      display: flex;
+    }
+
+    .sim-box {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-top: 4px;
+      border-top: 1px dashed var(--border);
+    }
 
     .ad-slot {
       background: var(--surface);
@@ -394,6 +601,79 @@
       padding: 9px 12px;
       text-align: center;
       font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    /* 3 másodperces jel-állapot felugró panel (alul) */
+    .signal-toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%) translateY(20px);
+      width: min(92vw, 520px);
+      background: #0b1324;
+      color: #f8fafc;
+      border: 2px solid var(--accent);
+      border-radius: 14px;
+      padding: 12px 16px;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.55);
+      z-index: 95;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      font-family: var(--font-display);
+      font-size: 0.96rem;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .signal-toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* 5 másodperces búcsúképernyő */
+    .farewell-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(9, 13, 22, 0.94);
+      color: #ffffff;
+      z-index: 120;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .farewell-overlay.active {
+      display: flex;
+    }
+
+    .farewell-card {
+      max-width: 440px;
+      width: 100%;
+      background: var(--surface);
+      color: var(--text);
+      border: var(--btn-border-width) solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 18px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .farewell-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    .farewell-body {
+      font-size: 0.95rem;
+      line-height: 1.45;
       color: var(--muted);
     }
 
@@ -409,7 +689,9 @@
       overflow-y: auto;
     }
 
-    .modal-backdrop.open { display: flex; }
+    .modal-backdrop.open {
+      display: flex;
+    }
 
     .modal-card {
       width: 100%;
@@ -427,11 +709,38 @@
       overflow-y: auto;
     }
 
-    .modal-title { margin: 0; font-family: var(--font-display); font-size: 1.1rem; font-weight: 800; }
-    .field-group { display: flex; flex-direction: column; gap: 5px; }
-    .field-label { font-size: 0.8rem; font-weight: 700; color: var(--muted); }
-    .search-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
-    .search-results { display: flex; flex-direction: column; gap: 6px; max-height: 150px; overflow-y: auto; }
+    .modal-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .field-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .search-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+
+    .search-results {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
 
     .search-item-btn {
       width: 100%;
@@ -447,7 +756,9 @@
     }
 
     html[dir="rtl"] .search-item-btn,
-    html[dir="rtl"] .theme-chip { text-align: right; }
+    html[dir="rtl"] .theme-chip {
+      text-align: right;
+    }
 
     #mapContainer {
       width: 100%;
@@ -458,7 +769,11 @@
       z-index: 1;
     }
 
-    .coord-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .coord-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
 
     .alarm-overlay {
       position: fixed;
@@ -472,10 +787,28 @@
       padding: 20px 18px 24px;
     }
 
-    .alarm-overlay.active { display: flex; }
-    .alarm-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-    .alarm-heading { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; margin: 0 0 6px; }
-    .alarm-sub { font-size: 0.95rem; color: #cbd5e1; }
+    .alarm-overlay.active {
+      display: flex;
+    }
+
+    .alarm-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .alarm-heading {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin: 0 0 6px;
+    }
+
+    .alarm-sub {
+      font-size: 0.95rem;
+      color: #cbd5e1;
+    }
 
     .dismiss-tiny-btn {
       padding: 6px 9px;
@@ -509,98 +842,18 @@
       gap: 8px;
     }
 
-    .snooze-sub { font-family: var(--font-main); font-size: 1rem; font-weight: 700; opacity: 0.92; }
-    .alarm-footer-note { text-align: center; font-size: 0.78rem; color: #94a3b8; }
-  </style>
-
-  <!-- StopWay toldás stílusok -->
-  <style id="stopway-addon-styles">
-    .sw-addon-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(2, 6, 23, 0.78);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      z-index: 250;
-      overflow-y: auto;
-    }
-    .sw-addon-backdrop.open { display: flex; }
-    .sw-addon-card {
-      width: 100%;
-      max-width: 460px;
-      background: var(--surface, #1e293b);
-      color: var(--text, #f8fafc);
-      border: var(--btn-border-width, 1.5px) solid var(--border, #475569);
-      border-radius: var(--radius, 16px);
-      padding: 18px;
-      box-shadow: var(--shadow, 0 12px 28px rgba(0, 0, 0, 0.45));
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      max-height: 90dvh;
-      overflow-y: auto;
-    }
-    .sw-addon-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-    .sw-addon-title { margin: 0; font-family: var(--font-display, system-ui, sans-serif); font-size: 1.12rem; font-weight: 800; }
-    .sw-addon-date { font-size: 0.78rem; color: var(--muted, #94a3b8); font-weight: 700; }
-    .sw-addon-close {
-      width: 34px;
-      height: 34px;
-      border-radius: 999px;
-      border: 1.5px solid var(--border, #475569);
-      background: var(--surface-2, #334155);
-      color: var(--text, #f8fafc);
+    .snooze-sub {
+      font-family: var(--font-main);
       font-size: 1rem;
-      font-weight: 800;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-    .sw-help-list { display: flex; flex-direction: column; gap: 8px; font-size: 0.88rem; line-height: 1.48; }
-    .sw-help-entry {
-      padding: 10px 12px;
-      border-radius: 10px;
-      background: var(--surface-2, #334155);
-      border: 1px solid var(--border, #475569);
-    }
-    .sw-step-item {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 13px 14px;
-      border-radius: 12px;
-      border: 1.5px solid var(--border, #475569);
-      background: var(--surface-2, #334155);
-      color: var(--text, #f8fafc);
-      font-size: 0.92rem;
       font-weight: 700;
-      text-align: left;
-      cursor: pointer;
+      opacity: 0.92;
     }
-    .sw-step-item.done { border-color: #22c55e; background: rgba(34, 197, 94, 0.16); }
-    .sw-step-mark { font-size: 1.15rem; font-weight: 800; flex-shrink: 0; }
-    .sw-step-mark.ok { color: #22c55e; }
-    .sw-addon-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
-    .sw-addon-btn {
-      flex: 1;
-      min-width: 120px;
-      padding: 11px 14px;
-      border-radius: 10px;
-      border: 1.5px solid var(--border, #475569);
-      background: var(--surface-2, #334155);
-      color: var(--text, #f8fafc);
-      font-family: inherit;
-      font-size: 0.88rem;
-      font-weight: 800;
-      cursor: pointer;
+
+    .alarm-footer-note {
+      text-align: center;
+      font-size: 0.78rem;
+      color: #94a3b8;
     }
-    .sw-addon-btn.primary { background: var(--accent, #38bdf8); color: var(--accent-text, #04131d); border-color: var(--accent, #38bdf8); }
-    .sw-addon-btn.danger { background: var(--danger, #ef4444); color: #ffffff; border-color: var(--danger, #ef4444); }
-    .sw-goodbye-box { text-align: center; align-items: center; }
-    .sw-goodbye-flag { font-size: 2.5rem; line-height: 1; }
   </style>
 </head>
 <body data-theme="classic" data-glass-polarity="dark-ui">
@@ -627,7 +880,6 @@
           <option value="5000">5 km</option>
         </select>
         <button id="langBtn" class="icon-btn" type="button" title="Nyelv / Language">🌐</button>
-        <button id="sw-addon-help-btn" class="icon-btn" type="button" title="Súgó / Help">❓</button>
         <button id="voiceBtn" class="icon-btn" type="button" title="Hangvezérlés">🎤</button>
         <button id="themeBtn" class="icon-btn" type="button" title="Dizájn és szimuláció">🎨</button>
         <button id="editModeBtn" class="icon-btn" type="button" title="Helyek szerkesztése">✏️</button>
@@ -657,6 +909,16 @@
         <button id="previewSoundBtn" class="action-btn" type="button">Próbahang</button>
       </div>
 
+      <!-- Új sor a hangbeállításon belül: beszédhang-karakter választó (Robot alapértelmezett) -->
+      <div class="voice-persona-row">
+        <span id="voicePersonaLabel" class="voice-persona-label">Jelzés beszédhangja:</span>
+        <div class="voice-persona-buttons" role="group" aria-label="Beszédhang választása">
+          <button id="personaRobotBtn" class="persona-btn active" data-voice-persona="robot" type="button">✓ Robot (C-3PO)</button>
+          <button id="personaMaleBtn" class="persona-btn" data-voice-persona="male" type="button">Férfi</button>
+          <button id="personaFemaleBtn" class="persona-btn" data-voice-persona="female" type="button">Női</button>
+        </div>
+      </div>
+
       <div class="extra-audio-row">
         <label class="toggle-pill">
           <input id="loudModeToggle" type="checkbox" checked />
@@ -666,6 +928,12 @@
         <input id="customAudioInput" type="file" accept="audio/*" style="display:none;" />
       </div>
       <div id="customAudioInfo" class="custom-file-badge">Nincs külön betöltött hangfájl (beépített hangok aktívak).</div>
+
+      <!-- Súgó-hozzáfűzés: pincés / aluljárós vételmegszakadás és automata újracsatlakozás -->
+      <div id="basementHelpBox" class="help-box">
+        <strong id="basementHelpTitle">Súgó — Pince, aluljáró, metró</strong>
+        <span id="basementHelpText">Ne aggódj, ha lemész a pincébe és eltűnik a vétel, arról kapsz egy értesítést. Én egyfolytában igyekszem újra felvenni a kapcsolatot a GPS-szel, és ahogy sikerül, jelzek neked.</span>
+      </div>
     </section>
 
     <section id="themeDrawer" class="drawer" aria-label="Dizájn és szimuláció">
@@ -704,6 +972,18 @@
     </div>
   </div>
 
+  <!-- 3 másodperces alsó felugró panel: jelvesztés / jel visszatérése -->
+  <div id="signalToast" class="signal-toast" role="status" aria-live="polite"></div>
+
+  <!-- 5 másodperces búcsúképernyő -->
+  <div id="farewellOverlay" class="farewell-overlay" role="dialog" aria-modal="true" aria-live="polite">
+    <div class="farewell-card">
+      <h2 id="farewellTitle" class="farewell-title">Köszönjük az utazást!</h2>
+      <div id="farewellBody" class="farewell-body">Ha nincs már szükséged a helymeghatározásra, kapcsold ki a telefonon az akkumulátor kímélése érdekében.</div>
+    </div>
+  </div>
+
+  <!-- Hely szerkesztő modális ablak (címkereső + térkép) -->
   <div id="editModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
     <div class="modal-card">
       <h2 id="editModalTitle" class="modal-title">Célpont szerkesztése</h2>
@@ -743,6 +1023,7 @@
     </div>
   </div>
 
+  <!-- Ébresztő képernyő: óriási 20 mp Szundi + apró Végleges leállítás -->
   <div id="alarmOverlay" class="alarm-overlay" role="alertdialog" aria-modal="true" aria-live="assertive">
     <div class="alarm-top">
       <div>
@@ -762,79 +1043,17 @@
     </div>
   </div>
 
-  <!-- StopWay toldás ablakok -->
-  <div id="sw-addon-help-backdrop" class="sw-addon-backdrop" role="dialog" aria-modal="true" aria-labelledby="sw-addon-help-title">
-    <div class="sw-addon-card">
-      <div class="sw-addon-header">
-        <div>
-          <h2 id="sw-addon-help-title" class="sw-addon-title"></h2>
-          <div id="sw-addon-help-date" class="sw-addon-date"></div>
-        </div>
-        <button id="sw-addon-help-close" class="sw-addon-close" type="button" aria-label="Bezárás">✕</button>
-      </div>
-      <div id="sw-addon-help-list" class="sw-help-list"></div>
-    </div>
-  </div>
-
-  <div id="sw-addon-check-backdrop" class="sw-addon-backdrop" role="dialog" aria-modal="true" aria-labelledby="sw-addon-check-title">
-    <div class="sw-addon-card">
-      <div class="sw-addon-header">
-        <h2 id="sw-addon-check-title" class="sw-addon-title"></h2>
-        <button id="sw-addon-check-close" class="sw-addon-close" type="button" aria-label="Bezárás">✕</button>
-      </div>
-      <button id="sw-addon-step-1" class="sw-step-item" type="button">
-        <span id="sw-addon-step-1-text"></span>
-        <span id="sw-addon-step-1-mark" class="sw-step-mark">○</span>
-      </button>
-      <button id="sw-addon-step-2" class="sw-step-item" type="button">
-        <span id="sw-addon-step-2-text"></span>
-        <span id="sw-addon-step-2-mark" class="sw-step-mark">○</span>
-      </button>
-      <button id="sw-addon-step-3" class="sw-step-item" type="button">
-        <span id="sw-addon-step-3-text"></span>
-        <span id="sw-addon-step-3-mark" class="sw-step-mark">○</span>
-      </button>
-      <div class="sw-addon-actions">
-        <button id="sw-addon-go-btn" class="sw-addon-btn primary" type="button"></button>
-      </div>
-    </div>
-  </div>
-
-  <div id="sw-addon-bg-backdrop" class="sw-addon-backdrop" role="dialog" aria-modal="true" aria-labelledby="sw-addon-bg-title">
-    <div class="sw-addon-card">
-      <h3 id="sw-addon-bg-title" class="sw-addon-title"></h3>
-      <p id="sw-addon-bg-desc" style="margin:0; font-size:0.9rem; line-height:1.45;"></p>
-      <div class="sw-addon-actions">
-        <button id="sw-addon-bg-back" class="sw-addon-btn primary" type="button"></button>
-        <button id="sw-addon-bg-confirm" class="sw-addon-btn danger" type="button"></button>
-      </div>
-    </div>
-  </div>
-
-  <div id="sw-addon-idle-backdrop" class="sw-addon-backdrop" role="dialog" aria-modal="true" aria-labelledby="sw-addon-idle-title">
-    <div class="sw-addon-card">
-      <h3 id="sw-addon-idle-title" class="sw-addon-title"></h3>
-      <p id="sw-addon-idle-desc" style="margin:0; font-size:0.9rem; line-height:1.45;"></p>
-      <div class="sw-addon-actions">
-        <button id="sw-addon-idle-continue" class="sw-addon-btn primary" type="button"></button>
-        <button id="sw-addon-idle-stop" class="sw-addon-btn danger" type="button"></button>
-      </div>
-    </div>
-  </div>
-
-  <div id="sw-addon-goodbye-backdrop" class="sw-addon-backdrop" role="dialog" aria-modal="true" aria-live="polite">
-    <div class="sw-addon-card sw-goodbye-box">
-      <div class="sw-goodbye-flag" aria-hidden="true">🏁</div>
-      <h2 id="sw-addon-goodbye-title" class="sw-addon-title"></h2>
-      <p id="sw-addon-goodbye-desc" style="margin:0; font-size:0.9rem; line-height:1.45;"></p>
-    </div>
-  </div>
-
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script>
     try {
       const STORAGE_KEY = "stopway_v6";
       const LANG_STORAGE_KEY = "stopway_lang";
+      const RECONNECT_MS = 90000;
+      const STALE_AFTER_MS = 90000;
+      const TOAST_MS = 3000;
+      const FAREWELL_MS = 5000;
+      const STAGNATION_MS = 3600000; // 1 óra
+      const STAGNATION_METERS = 100; // 100 méter alatti elmozdulás
 
       const LANGUAGES = [
         { code: "hu", speech: "hu-HU", dir: "ltr", label: "Magyar" },
@@ -859,6 +1078,282 @@
         { code: "hi", speech: "hi-IN", dir: "ltr", label: "हिन्दी" },
         { code: "sw", speech: "sw-KE", dir: "ltr", label: "Kiswahili" }
       ];
+
+      const EXTRA_STRINGS = {
+        hu: {
+          voicePersonaLabel: "Jelzés beszédhangja:",
+          personaRobot: "Robot (C-3PO)",
+          personaMale: "Férfi",
+          personaFemale: "Női",
+          signalLostMsg: "Eltűnt a jel, keresem.",
+          signalFoundMsg: "Újra jelet találtam, folytatódik a figyelés.",
+          farewellTitle: "Köszönjük az utazást!",
+          farewellBody: "Ha nincs többé szükséged a helymeghatározásra, kapcsold ki a telefonon.",
+          stagnationPrompt: "Egy órája 100 méteren belül mozogsz. Folytatod a figyelést?",
+          helpTitle: "Súgó — Pince, aluljáró, metró",
+          helpBody: "Ne aggódj, ha lemész a pincébe és eltűnik a vétel, arról kapsz egy értesítést. Én egyfolytában igyekszem újra felvenni a kapcsolatot a GPS-szel, és ahogy sikerül, jelzek neked."
+        },
+        en: {
+          voicePersonaLabel: "Alert voice character:",
+          personaRobot: "Robot (C-3PO)",
+          personaMale: "Male",
+          personaFemale: "Female",
+          signalLostMsg: "Signal lost, searching.",
+          signalFoundMsg: "Signal found again, watching continues.",
+          farewellTitle: "Thanks for the trip!",
+          farewellBody: "If you no longer need location services, turn location off on your device.",
+          stagnationPrompt: "You moved under 100m for an hour. Continue watching?",
+          helpTitle: "Help — Basement, underpass, metro",
+          helpBody: "Don't worry if you go into a basement and reception drops, you'll get a notice. I keep trying to reconnect to GPS continuously and let you know as soon as it returns."
+        },
+        he: {
+          voicePersonaLabel: "דמות קול להתראה:",
+          personaRobot: "רובוט (C-3PO)",
+          personaMale: "גבר",
+          personaFemale: "אישה",
+          signalLostMsg: "האות אבד, מחפש.",
+          signalFoundMsg: "האות חזר, המעקב נמשך.",
+          farewellTitle: "תודה על הנסיעה!",
+          farewellBody: "אם אין צורך עוד במיקום, כבה את שירותי המיקום במכשיר.",
+          stagnationPrompt: "נשארת בטווח של 100 מטר במשך שעה. להמשיך במעקב?",
+          helpTitle: "עזרה — מרתף, מעבר תת-קרקעי, מטרו",
+          helpBody: "אל תדאג אם ירדת למרתף והקליטה אבדה — תקבל התראה. אמשיך לנסות להתחבר מחדש ל-GPS ואודיע לך כשהאות יחזור."
+        },
+        ar: {
+          voicePersonaLabel: "شخصية صوت التنبيه:",
+          personaRobot: "روبوت (C-3PO)",
+          personaMale: "ذكر",
+          personaFemale: "أنثى",
+          signalLostMsg: "فُقدت الإشارة، جاري البحث.",
+          signalFoundMsg: "عادت الإشارة، تستمر المتابعة.",
+          farewellTitle: "شكرًا للرحلة!",
+          farewellBody: "إذا لم تعد بحاجة إلى الموقع، أوقف تشغيل الموقع في هاتفك.",
+          stagnationPrompt: "تحركت أقل من 100 متر خلال ساعة. هل نواصل المتابعة؟",
+          helpTitle: "مساعدة — قبو، نفق، مترو",
+          helpBody: "لا تقلق إذا نزلت إلى قبو وانقطعت الإشارة فستصلك رسالة. سأستمر بمحاولة الاتصال بـ GPS وأعلمك عند عودتها."
+        },
+        ru: {
+          voicePersonaLabel: "Голос оповещения:",
+          personaRobot: "Робот (C-3PO)",
+          personaMale: "Мужской",
+          personaFemale: "Женский",
+          signalLostMsg: "Сигнал пропал, ищу.",
+          signalFoundMsg: "Сигнал найден снова, слежение продолжается.",
+          farewellTitle: "Спасибо за поездку!",
+          farewellBody: "Если геолокация больше не нужна, выключите её на устройстве.",
+          stagnationPrompt: "Вы оставались в пределах 100 м целый час. Продолжить слежение?",
+          helpTitle: "Справка — Подвал, переход, метро",
+          helpBody: "Не переживайте, если спуститесь в подвал и сигнал пропадёт — придёт уведомление. Я буду непрерывно пробовать восстановить GPS и сообщу при возврате."
+        },
+        am: {
+          voicePersonaLabel: "የማንቂያ ድምፅ ባህሪ:",
+          personaRobot: "ሮቦት (C-3PO)",
+          personaMale: "ወንድ",
+          personaFemale: "ሴት",
+          signalLostMsg: "ምልክት ጠፍቷል፣ በመፈለግ ላይ።",
+          signalFoundMsg: "ምልክት ተመልሷል፣ ክትትል ይቀጥላል።",
+          farewellTitle: "ስለ ጉዞዎ እናመሰግናለን!",
+          farewellBody: "አካባቢ ማሳወቂያ ከአሁን በኋላ ካላስፈለገዎ ያጥፉት።",
+          stagnationPrompt: "ለአንድ ሰዓት ከ100 ሜትር ያነሰ ተንቀሳቅሰዋል። ክትትሉ ይቀጥል?",
+          helpTitle: "እገዛ — ምድር ቤት፣ መተላለፊያ፣ ሜትሮ",
+          helpBody: "ወደ ምድር ቤት ገብተው ሲግናል ቢጠፋ አይጨነቁ፣ ማሳወቂያ ይደርስዎታል። GPS ለማገናኘት ያለማቋረጥ እሞክራለሁ ሲመለስም እነግርዎታለሁ።"
+        },
+        ti: {
+          voicePersonaLabel: "ባህሪ ድምጺ መጠንቀቒ:",
+          personaRobot: "ሮቦት (C-3PO)",
+          personaMale: "ተባዕታይ",
+          personaFemale: "ኣንስተይቲ",
+          signalLostMsg: "ምልክት ጠፊኡ፣ ይደሊ ኣሎ።",
+          signalFoundMsg: "ምልክት ተመሊሱ፣ ክትትል ይቕጽል ኣሎ።",
+          farewellTitle: "ንጉዕዞኹም የቐንየልና!",
+          farewellBody: "ቦታ ምፍላጥ ደጊም እንተ ዘየድልየኩም ኣጥፍእዎ።",
+          stagnationPrompt: "ንሓደ ሰዓት ትሕቲ 100 ሜተር ተንቀሳቒስኩም። ክትትል ይቀጥል?",
+          helpTitle: "ሓገዝ — ትሕቲ መሬት፣ መሕለፊ፣ ሜትሮ",
+          helpBody: "ናብ ትሕቲ መሬት ኣቲኹም ምልክት እንተ ጠፍአ ኣይትጨነቑ፣ መልእኽቲ ክትቅበሉ ኢኹም። ምስ GPS ንምርኻብ ብቐጻሊ ክፍትን እየ ምስ ተመልሰ ድማ ክሕብረኩም እየ።"
+        },
+        vi: {
+          voicePersonaLabel: "Giọng đọc cảnh báo:",
+          personaRobot: "Robot (C-3PO)",
+          personaMale: "Nam",
+          personaFemale: "Nữ",
+          signalLostMsg: "Mất tín hiệu, đang tìm lại.",
+          signalFoundMsg: "Đã có lại tín hiệu, tiếp tục theo dõi.",
+          farewellTitle: "Cảm ơn bạn đã đồng hành!",
+          farewellBody: "Nếu không cần định vị nữa, hãy tắt định vị trên thiết bị.",
+          stagnationPrompt: "Bạn di chuyển dưới 100m suốt 1 giờ. Tiếp tục theo dõi?",
+          helpTitle: "Trợ giúp — Tầng hầm, hầm đi bộ, tàu điện ngầm",
+          helpBody: "Đừng lo nếu xuống tầng hầm và mất sóng, bạn sẽ nhận thông báo. Tôi sẽ liên tục thử kết nối lại GPS và báo khi có tín hiệu lại."
+        },
+        fr: {
+          voicePersonaLabel: "Voix d'alerte :",
+          personaRobot: "Robot (C-3PO)",
+          personaMale: "Homme",
+          personaFemale: "Femme",
+          signalLostMsg: "Signal perdu, recherche en cours.",
+          signalFoundMsg: "Signal retrouvé, suivi en cours.",
+          farewellTitle: "Merci pour le trajet !",
+          farewellBody: "Si vous n'avez plus besoin de la localisation, désactivez-la.",
+          stagnationPrompt: "Déplacement sous 100 m pendant 1 h. Continuer le suivi ?",
+          helpTitle: "Aide — Sous-sol, passage souterrain, métro",
+          helpBody: "Ne vous inquiétez pas si vous entrez en sous-sol et perdez le signal, vous serez prévenu. Je réessaie en continu de joindre le GPS et vous préviens au retour."
+        },
+        es: {
+          voicePersonaLabel: "Voz de aviso:",
+          personaRobot: "Robot (C-3PO)",
+          personaMale: "Hombre",
+          personaFemale: "Mujer",
+          signalLostMsg: "Señal perdida, buscando.",
+          signalFoundMsg: "Señal recuperada, continúa el seguimiento.",
+          farewellTitle: "¡Gracias por el viaje!",
+          farewellBody: "Si ya no necesitas la ubicación, desactívala en tu dispositivo.",
+          stagnationPrompt: "Menos de 100 m durante 1 hora. ¿Continuar seguimiento?",
+          helpTitle: "Ayuda — Sótano, paso subterráneo, metro",
+          helpBody: "No te preocupes si bajas a un sótano y se pierde la señal, recibirás un aviso. Seguiré intentando reconectar el GPS y te avisaré al volver."
+        },
+        de: {
+          voicePersonaLabel: "Ansagestimme:",
+          personaRobot: "Roboter (C-3PO)",
+          personaMale: "Männlich",
+          personaFemale: "Weiblich",
+          signalLostMsg: "Signal verloren, suche.",
+          signalFoundMsg: "Signal wieder da, Überwachung läuft weiter.",
+          farewellTitle: "Danke für die Fahrt!",
+          farewellBody: "Wenn kein GPS mehr benötigt wird, schalte es bitte aus.",
+          stagnationPrompt: "Eine Stunde unter 100 m bewegt. Überwachung fortsetzen?",
+          helpTitle: "Hilfe — Keller, Unterführung, U-Bahn",
+          helpBody: "Keine Sorge, wenn im Keller der Empfang abreißt, erhältst du einen Hinweis. Ich versuche laufend, das GPS neu zu verbinden und melde mich, sobald es klappt."
+        },
+        zh: {
+          voicePersonaLabel: "提示音语音角色：",
+          personaRobot: "机器人 (C-3PO)",
+          personaMale: "男声",
+          personaFemale: "女声",
+          signalLostMsg: "信号丢失，正在搜索。",
+          signalFoundMsg: "已重新找到信号，继续监控。",
+          farewellTitle: "感谢您的行程！",
+          farewellBody: "如不再需要定位，请关闭设备上的定位服务。",
+          stagnationPrompt: "一小时内移动不足100米。是否继续监控？",
+          helpTitle: "帮助 — 地下室、地下通道、地铁",
+          helpBody: "进入地下室失去信号不必担心，你会收到提示。我会持续尝试重连 GPS，恢复后会通知你。"
+        },
+        ja: {
+          voicePersonaLabel: "通知音声キャラクター：",
+          personaRobot: "ロボット (C-3PO)",
+          personaMale: "男性",
+          personaFemale: "女性",
+          signalLostMsg: "電波が途切れました。検索中です。",
+          signalFoundMsg: "電波が戻りました。監視を続けます。",
+          farewellTitle: "ご利用ありがとうございました！",
+          farewellBody: "位置情報が不要になったら、端末の位置情報をオフにしてください。",
+          stagnationPrompt: "1時間100m未満の移動です。監視を続けますか？",
+          helpTitle: "ヘルプ — 地下、地下道、地下鉄",
+          helpBody: "地下に入って電波が切れても心配しないでください。通知でお知らせします。GPS再接続を続け、戻ったらお知らせします。"
+        },
+        ko: {
+          voicePersonaLabel: "알림 음성 캐릭터:",
+          personaRobot: "로봇 (C-3PO)",
+          personaMale: "남성",
+          personaFemale: "여성",
+          signalLostMsg: "신호가 끊겼습니다. 찾는 중입니다.",
+          signalFoundMsg: "신호가 다시 잡혔습니다. 감시를 계속합니다.",
+          farewellTitle: "이용해 주셔서 감사합니다!",
+          farewellBody: "위치 정보가 더 이상 필요하지 않으면 기기에서 끄세요.",
+          stagnationPrompt: "1시간 동안 100m 미만 이동했습니다. 계속 감시할까요?",
+          helpTitle: "도움말 — 지하, 지하도, 지하철",
+          helpBody: "지하로 들어가 신호가 끊겨도 걱정 마세요. 알림을 드립니다. GPS 재연결을 계속 시도하며 다시 연결되면 알려드립니다."
+        },
+        it: {
+          voicePersonaLabel: "Voce avviso:",
+          personaRobot: "Robot (C-3PO)",
+          personaMale: "Uomo",
+          personaFemale: "Donna",
+          signalLostMsg: "Segnale perso, ricerca in corso.",
+          signalFoundMsg: "Segnale ritrovato, controllo attivo.",
+          farewellTitle: "Grazie per il viaggio!",
+          farewellBody: "Se non ti serve più la posizione, disattivala sul dispositivo.",
+          stagnationPrompt: "Meno di 100 m per un'ora. Continuare il controllo?",
+          helpTitle: "Guida — Seminterrato, sottopasso, metro",
+          helpBody: "Non preoccuparti se entri in un seminterrato e manca il segnale, riceverai un avviso. Riprendo costantemente il GPS e ti avviso al ritorno."
+        },
+        pt: {
+          voicePersonaLabel: "Voz do aviso:",
+          personaRobot: "Robô (C-3PO)",
+          personaMale: "Masculino",
+          personaFemale: "Feminino",
+          signalLostMsg: "Sinal perdido, a procurar.",
+          signalFoundMsg: "Sinal recuperado, vigilância a continuar.",
+          farewellTitle: "Obrigado pela viagem!",
+          farewellBody: "Se já não precisar da localização, desligue-a no dispositivo.",
+          stagnationPrompt: "Menos de 100 m durante 1 hora. Continuar vigilância?",
+          helpTitle: "Ajuda — Cave, passagem subterrânea, metro",
+          helpBody: "Não se preocupe se entrar numa cave e perder o sinal, receberá um aviso. Tento continuamente religar o GPS e aviso quando regressar."
+        },
+        uk: {
+          voicePersonaLabel: "Голос сповіщення:",
+          personaRobot: "Робот (C-3PO)",
+          personaMale: "Чоловічий",
+          personaFemale: "Жіночий",
+          signalLostMsg: "Сигнал зник, шукаю.",
+          signalFoundMsg: "Сигнал знову знайдено, стеження триває.",
+          farewellTitle: "Дякуємо за поїздку!",
+          farewellBody: "Якщо геолокація більше не потрібна, вимкніть її.",
+          stagnationPrompt: "Рух менше 100 м протягом години. Продовжити стеження?",
+          helpTitle: "Довідка — Підвал, перехід, метро",
+          helpBody: "Не хвилюйтеся, якщо зайдете в підвал і сигнал зникне — надійде сповіщення. Я постійно намагатимусь відновити GPS і повідомлю."
+        },
+        pl: {
+          voicePersonaLabel: "Głos komunikatu:",
+          personaRobot: "Robot (C-3PO)",
+          personaMale: "Męski",
+          personaFemale: "Żeński",
+          signalLostMsg: "Utracono sygnał, szukam.",
+          signalFoundMsg: "Ponownie wykryto sygnał, śledzenie trwa.",
+          farewellTitle: "Dziękujemy za podróż!",
+          farewellBody: "Jeśli lokalizacja nie jest już potrzebna, wyłącz ją.",
+          stagnationPrompt: "Ruch poniżej 100 m przez godzinę. Kontynuować śledzenie?",
+          helpTitle: "Pomoc — Piwnica, przejście podziemne, metro",
+          helpBody: "Nie martw się, jeśli wejdziesz do piwnicy i zniknie zasięg — dostaniesz powiadomienie. Stale próbuję połączyć GPS i dam znać, gdy wróci."
+        },
+        tr: {
+          voicePersonaLabel: "Uyarı sesi karakteri:",
+          personaRobot: "Robot (C-3PO)",
+          personaMale: "Erkek",
+          personaFemale: "Kadın",
+          signalLostMsg: "Sinyal kayboldu, aranıyor.",
+          signalFoundMsg: "Sinyal yeniden bulundu, takip sürüyor.",
+          farewellTitle: "Yolculuk için teşekkürler!",
+          farewellBody: "Konuma artık ihtiyacınız yoksa cihazdan kapatın.",
+          stagnationPrompt: "Bir saat boyunca 100 m altında hareket. Takip sürsün mü?",
+          helpTitle: "Yardım — Bodrum, alt geçit, metro",
+          helpBody: "Bodruma girip sinyal kesilirse endişelenmeyin, bildirim alırsınız. GPS'i sürekli yeniden bağlamayı dener ve dönünce haber veririm."
+        },
+        hi: {
+          voicePersonaLabel: "सूचना आवाज़ चरित्र:",
+          personaRobot: "रोबोट (C-3PO)",
+          personaMale: "पुरुष",
+          personaFemale: "महिला",
+          signalLostMsg: "सिग्नल खो गया, खोज रहा हूँ।",
+          signalFoundMsg: "सिग्नल फिर मिल गया, निगरानी जारी है।",
+          farewellTitle: "यात्रा के लिए धन्यवाद!",
+          farewellBody: "यदि अब लोकेशन की ज़रूरत नहीं है तो इसे बंद कर दें।",
+          stagnationPrompt: "एक घंटे तक 100 मीटर से कम हलचल। निगरानी जारी रखें?",
+          helpTitle: "सहायता — तहखाना, अंडरपास, मेट्रो",
+          helpBody: "तहखाने में जाकर सिग्नल गुम हो तो चिंता न करें, सूचना मिलेगी। मैं लगातार GPS जोड़ने की कोशिश करूँगा और वापस आने पर बताऊँगा।"
+        },
+        sw: {
+          voicePersonaLabel: "Sauti ya arifa:",
+          personaRobot: "Roboti (C-3PO)",
+          personaMale: "Mwanaume",
+          personaFemale: "Mwanamke",
+          signalLostMsg: "Ishara imepotea, natafuta.",
+          signalFoundMsg: "Ishara imepatikana tena, ufuatiliaji unaendelea.",
+          farewellTitle: "Asante kwa safari!",
+          farewellBody: "Ikiwa huhitaji tena eneo, lizime kwenye kifaa chako.",
+          stagnationPrompt: "Umesogea chini ya mita 100 kwa saa moja. Uendelee kufuatilia?",
+          helpTitle: "Msaada — Chini ya ardhi, njia ya chini, metro",
+          helpBody: "Usijali ukiingia chini ya ardhi na ishara ikapotea, utapata arifa. Nitaendelea kujaribu kuunganisha GPS na kukujulisha ikirudi."
+        }
+      };
 
       const TRANSLATIONS = {
         hu: {
@@ -977,12 +1472,26 @@
           voiceNotFound: "Not recognized:",
           voiceUnavailable: "Speech recognition unavailable.",
           defaultPlaces: ["Home", "Work", "Place 3", "Place 4", "Place 5", "Place 6", "Place 7", "Place 8", "Place 9", "Place 10"],
-          themes: { classic: "Classic", glass: "Glass", cartoon: "Cartoon", gothic: "Gothic", renaissance: "Renaissance", punk: "Punk" },
+          themes: {
+            classic: "Classic",
+            glass: "Glass",
+            cartoon: "Cartoon",
+            gothic: "Gothic",
+            renaissance: "Renaissance",
+            punk: "Punk"
+          },
           sounds: {
-            roman_horn: "Roman war horn", clock_bell: "Classic alarm bell", ship_horn: "Ship horn",
-            train_whistle: "Train whistle", sonar_ping: "Sonar ping", fire_alarm: "Emergency alarm",
-            bronze_gong: "Bronze gong", bugle_call: "Bugle call", church_bell: "Church bell",
-            morse_sos: "Morse signal", digital_pulse: "Digital pulse"
+            roman_horn: "Roman war horn",
+            clock_bell: "Classic alarm bell",
+            ship_horn: "Ship horn",
+            train_whistle: "Train whistle",
+            sonar_ping: "Sonar ping",
+            fire_alarm: "Emergency alarm",
+            bronze_gong: "Bronze gong",
+            bugle_call: "Bugle call",
+            church_bell: "Church bell",
+            morse_sos: "Morse signal",
+            digital_pulse: "Digital pulse"
           }
         },
         he: {
@@ -1032,12 +1541,26 @@
           voiceNotFound: "לא זוהה:",
           voiceUnavailable: "זיהוי קולי אינו זמין.",
           defaultPlaces: ["בית", "עבודה", "מקום 3", "מקום 4", "מקום 5", "מקום 6", "מקום 7", "מקום 8", "מקום 9", "מקום 10"],
-          themes: { classic: "קלאסי", glass: "שקוף", cartoon: "קומיקס", gothic: "גותי", renaissance: "רנסאנס", punk: "פאנק" },
+          themes: {
+            classic: "קלאסי",
+            glass: "שקוף",
+            cartoon: "קומיקס",
+            gothic: "גותי",
+            renaissance: "רנסאנס",
+            punk: "פאנק"
+          },
           sounds: {
-            roman_horn: "קרן מלחמה רומית", clock_bell: "פעמון שעון קלאסי", ship_horn: "צופר אונייה",
-            train_whistle: "שריקת רכבת", sonar_ping: "סונאר", fire_alarm: "אזעקת חירום",
-            bronze_gong: "גונג ברונזה", bugle_call: "אות חצוצרה", church_bell: "פעמון כנסייה",
-            morse_sos: "אות מורס", digital_pulse: "פולס דיגיטלי"
+            roman_horn: "קרן מלחמה רומית",
+            clock_bell: "פעמון שעון קלאסי",
+            ship_horn: "צופר אונייה",
+            train_whistle: "שריקת רכבת",
+            sonar_ping: "סונאר",
+            fire_alarm: "אזעקת חירום",
+            bronze_gong: "גונג ברונזה",
+            bugle_call: "אות חצוצרה",
+            church_bell: "פעמון כנסייה",
+            morse_sos: "אות מורס",
+            digital_pulse: "פולס דיגיטלי"
           }
         },
         ar: {
@@ -1087,12 +1610,26 @@
           voiceNotFound: "لم يتم التعرف:",
           voiceUnavailable: "التعرف الصوتي غير متاح.",
           defaultPlaces: ["المنزل", "العمل", "مكان 3", "مكان 4", "مكان 5", "مكان 6", "مكان 7", "مكان 8", "مكان 9", "مكان 10"],
-          themes: { classic: "كلاسيكي", glass: "شفاف", cartoon: "كرتوني", gothic: "قوطي", renaissance: "عصر النهضة", punk: "بانك" },
+          themes: {
+            classic: "كلاسيكي",
+            glass: "شفاف",
+            cartoon: "كرتوني",
+            gothic: "قوطي",
+            renaissance: "عصر النهضة",
+            punk: "بانك"
+          },
           sounds: {
-            roman_horn: "بوق روماني", clock_bell: "جرس منبه كلاسيكي", ship_horn: "بوق سفينة",
-            train_whistle: "صافرة قطار", sonar_ping: "إشارة سونار", fire_alarm: "إنذار طوارئ",
-            bronze_gong: "جونغ برونزي", bugle_call: "نداء بوق", church_bell: "جرس كنيسة",
-            morse_sos: "إشارة مورس", digital_pulse: "نبض رقمي"
+            roman_horn: "بوق روماني",
+            clock_bell: "جرس منبه كلاسيكي",
+            ship_horn: "بوق سفينة",
+            train_whistle: "صافرة قطار",
+            sonar_ping: "إشارة سونار",
+            fire_alarm: "إنذار طوارئ",
+            bronze_gong: "جونغ برونزي",
+            bugle_call: "نداء بوق",
+            church_bell: "جرس كنيسة",
+            morse_sos: "إشارة مورس",
+            digital_pulse: "نبض رقمي"
           }
         },
         ru: {
@@ -1142,12 +1679,26 @@
           voiceNotFound: "Не распознано:",
           voiceUnavailable: "Голосовой ввод недоступен.",
           defaultPlaces: ["Дом", "Работа", "Место 3", "Место 4", "Место 5", "Место 6", "Место 7", "Место 8", "Место 9", "Место 10"],
-          themes: { classic: "Классика", glass: "Прозрачный", cartoon: "Комикс", gothic: "Готика", renaissance: "Ренессанс", punk: "Панк" },
+          themes: {
+            classic: "Классика",
+            glass: "Прозрачный",
+            cartoon: "Комикс",
+            gothic: "Готика",
+            renaissance: "Ренессанс",
+            punk: "Панк"
+          },
           sounds: {
-            roman_horn: "Римский горн", clock_bell: "Звонок будильника", ship_horn: "Гудок корабля",
-            train_whistle: "Гудок поезда", sonar_ping: "Сигнал сонара", fire_alarm: "Тревога",
-            bronze_gong: "Бронзовый гонг", bugle_call: "Сигнал горна", church_bell: "Колокол",
-            morse_sos: "Сигнал Морзе", digital_pulse: "Импульс"
+            roman_horn: "Римский горн",
+            clock_bell: "Звонок будильника",
+            ship_horn: "Гудок корабля",
+            train_whistle: "Гудок поезда",
+            sonar_ping: "Сигнал сонара",
+            fire_alarm: "Тревога",
+            bronze_gong: "Бронзовый гонг",
+            bugle_call: "Сигнал горна",
+            church_bell: "Колокол",
+            morse_sos: "Сигнал Морзе",
+            digital_pulse: "Импульс"
           }
         },
         am: {
@@ -1197,12 +1748,26 @@
           voiceNotFound: "አልታወቀም:",
           voiceUnavailable: "የድምፅ ማወቂያ የለም።",
           defaultPlaces: ["ቤት", "ሥራ", "ቦታ 3", "ቦታ 4", "ቦታ 5", "ቦታ 6", "ቦታ 7", "ቦታ 8", "ቦታ 9", "ቦታ 10"],
-          themes: { classic: "መደበኛ", glass: "ግልጽ", cartoon: "ካርቱን", gothic: "ጎቲክ", renaissance: "ህዳሴ", punk: "ፓንክ" },
+          themes: {
+            classic: "መደበኛ",
+            glass: "ግልጽ",
+            cartoon: "ካርቱን",
+            gothic: "ጎቲክ",
+            renaissance: "ህዳሴ",
+            punk: "ፓንክ"
+          },
           sounds: {
-            roman_horn: "የሮማ ቀንድ", clock_bell: "የሰዓት ደወል", ship_horn: "የመርከብ ጥሪ",
-            train_whistle: "የባቡር ፉጨት", sonar_ping: "ሶናር", fire_alarm: "የአደጋ ማንቂያ",
-            bronze_gong: "የነሐስ ጎንግ", bugle_call: "የመለከት ጥሪ", church_bell: "የቤተክርስቲያን ደወል",
-            morse_sos: "ሞርስ", digital_pulse: "ዲጂታል"
+            roman_horn: "የሮማ ቀንድ",
+            clock_bell: "የሰዓት ደወል",
+            ship_horn: "የመርከብ ጥሪ",
+            train_whistle: "የባቡር ፉጨት",
+            sonar_ping: "ሶናር",
+            fire_alarm: "የአደጋ ማንቂያ",
+            bronze_gong: "የነሐስ ጎንግ",
+            bugle_call: "የመለከት ጥሪ",
+            church_bell: "የቤተክርስቲያን ደወል",
+            morse_sos: "ሞርስ",
+            digital_pulse: "ዲጂታል"
           }
         },
         ti: {
@@ -1252,12 +1817,26 @@
           voiceNotFound: "ኣይተፈልጠን:",
           voiceUnavailable: "ምፍላይ ድምጺ የለን።",
           defaultPlaces: ["ገዛ", "ስራሕ", "ቦታ 3", "ቦታ 4", "ቦታ 5", "ቦታ 6", "ቦታ 7", "ቦታ 8", "ቦታ 9", "ቦታ 10"],
-          themes: { classic: "መሰረታዊ", glass: "ግልጺ", cartoon: "ካርቱን", gothic: "ጎቲክ", renaissance: "ህዳሴ", punk: "ፓንክ" },
+          themes: {
+            classic: "መሰረታዊ",
+            glass: "ግልጺ",
+            cartoon: "ካርቱን",
+            gothic: "ጎቲክ",
+            renaissance: "ህዳሴ",
+            punk: "ፓንክ"
+          },
           sounds: {
-            roman_horn: "ቀርኒ ሮማ", clock_bell: "ደወል ሰዓት", ship_horn: "ቀርኒ መርከብ",
-            train_whistle: "ፊሽካ ባቡር", sonar_ping: "ሶናር", fire_alarm: "መጠንቀቒ ሓደጋ",
-            bronze_gong: "ጎንግ", bugle_call: "ጸዊዒት መለኸት", church_bell: "ደወል ቤተክርስቲያን",
-            morse_sos: "ሞርስ", digital_pulse: "ዲጂታል"
+            roman_horn: "ቀርኒ ሮማ",
+            clock_bell: "ደወል ሰዓት",
+            ship_horn: "ቀርኒ መርከብ",
+            train_whistle: "ፊሽካ ባቡር",
+            sonar_ping: "ሶናር",
+            fire_alarm: "መጠንቀቒ ሓደጋ",
+            bronze_gong: "ጎንግ",
+            bugle_call: "ጸዊዒት መለኸት",
+            church_bell: "ደወል ቤተክርስቲያን",
+            morse_sos: "ሞርስ",
+            digital_pulse: "ዲጂታል"
           }
         },
         vi: {
@@ -1307,12 +1886,26 @@
           voiceNotFound: "Không nhận diện được:",
           voiceUnavailable: "Không hỗ trợ nhận diện giọng nói.",
           defaultPlaces: ["Nhà", "Nơi làm việc", "Điểm 3", "Điểm 4", "Điểm 5", "Điểm 6", "Điểm 7", "Điểm 8", "Điểm 9", "Điểm 10"],
-          themes: { classic: "Cơ bản", glass: "Trong suốt", cartoon: "Hoạt hình", gothic: "Gothic", renaissance: "Phục hưng", punk: "Punk" },
+          themes: {
+            classic: "Cơ bản",
+            glass: "Trong suốt",
+            cartoon: "Hoạt hình",
+            gothic: "Gothic",
+            renaissance: "Phục hưng",
+            punk: "Punk"
+          },
           sounds: {
-            roman_horn: "Tù và La Mã", clock_bell: "Chuông đồng hồ", ship_horn: "Còi tàu",
-            train_whistle: "Còi tàu hỏa", sonar_ping: "Sonar", fire_alarm: "Báo động khẩn cấp",
-            bronze_gong: "Cồng đồng", bugle_call: "Kèn hiệu", church_bell: "Chuông nhà thờ",
-            morse_sos: "Tín hiệu Morse", digital_pulse: "Xung số"
+            roman_horn: "Tù và La Mã",
+            clock_bell: "Chuông đồng hồ",
+            ship_horn: "Còi tàu",
+            train_whistle: "Còi tàu hỏa",
+            sonar_ping: "Sonar",
+            fire_alarm: "Báo động khẩn cấp",
+            bronze_gong: "Cồng đồng",
+            bugle_call: "Kèn hiệu",
+            church_bell: "Chuông nhà thờ",
+            morse_sos: "Tín hiệu Morse",
+            digital_pulse: "Xung số"
           }
         },
         fr: {
@@ -2033,15 +2626,26 @@
       };
 
       const SOUNDS = [
-        { id: "roman_horn" }, { id: "clock_bell" }, { id: "ship_horn" },
-        { id: "train_whistle" }, { id: "sonar_ping" }, { id: "fire_alarm" },
-        { id: "bronze_gong" }, { id: "bugle_call" }, { id: "church_bell" },
-        { id: "morse_sos" }, { id: "digital_pulse" }
+        { id: "roman_horn" },
+        { id: "clock_bell" },
+        { id: "ship_horn" },
+        { id: "train_whistle" },
+        { id: "sonar_ping" },
+        { id: "fire_alarm" },
+        { id: "bronze_gong" },
+        { id: "bugle_call" },
+        { id: "church_bell" },
+        { id: "morse_sos" },
+        { id: "digital_pulse" }
       ];
 
       let currentLang = "hu";
 
       function t(key) {
+        const extraCur = EXTRA_STRINGS[currentLang] || {};
+        const extraFb = EXTRA_STRINGS.en || EXTRA_STRINGS.hu || {};
+        if (extraCur[key] !== undefined) return extraCur[key];
+        if (extraFb[key] !== undefined) return extraFb[key];
         const cur = TRANSLATIONS[currentLang] || {};
         const fb = TRANSLATIONS.en || TRANSLATIONS.hu || {};
         return cur[key] !== undefined ? cur[key] : (fb[key] !== undefined ? fb[key] : "");
@@ -2081,7 +2685,8 @@
         soundId: "roman_horn",
         loudMode: true,
         theme: "classic",
-        glassPolarity: "dark-ui"
+        glassPolarity: "dark-ui",
+        voicePersona: "robot"
       };
 
       let editMode = false;
@@ -2097,6 +2702,17 @@
       let customAudioName = "";
       let customAudioPlayer = null;
       let wallpaperDataUrl = null;
+
+      // Jelkimaradás, 90 mp-es újraigénylés és stagnálás állapotok
+      let lastFixAt = 0;
+      let signalLostNotified = false;
+      let reconnectIntervalId = null;
+      let signalMonitorId = null;
+      let toastTimeoutId = null;
+      let farewellTimeoutId = null;
+      let anchorCoords = null;
+      let anchorSinceAt = 0;
+      let stagnationPromptShown = false;
 
       let leafletMap = null;
       let leafletMarker = null;
@@ -2124,15 +2740,26 @@
       const stopWatchBtn = document.getElementById("stopWatchBtn");
       const soundSelect = document.getElementById("soundSelect");
       const previewSoundBtn = document.getElementById("previewSoundBtn");
+      const voicePersonaLabel = document.getElementById("voicePersonaLabel");
+      const personaRobotBtn = document.getElementById("personaRobotBtn");
+      const personaMaleBtn = document.getElementById("personaMaleBtn");
+      const personaFemaleBtn = document.getElementById("personaFemaleBtn");
       const loudModeToggle = document.getElementById("loudModeToggle");
       const pickAudioBtn = document.getElementById("pickAudioBtn");
       const customAudioInput = document.getElementById("customAudioInput");
       const customAudioInfo = document.getElementById("customAudioInfo");
+      const basementHelpTitle = document.getElementById("basementHelpTitle");
+      const basementHelpText = document.getElementById("basementHelpText");
       const simDistanceRange = document.getElementById("simDistanceRange");
       const simDistanceLabel = document.getElementById("simDistanceLabel");
       const simDistanceLabelWrap = document.getElementById("simDistanceLabelWrap");
       const triggerSimAlarmBtn = document.getElementById("triggerSimAlarmBtn");
       const adBannerSlot = document.getElementById("adBannerSlot");
+
+      const signalToast = document.getElementById("signalToast");
+      const farewellOverlay = document.getElementById("farewellOverlay");
+      const farewellTitle = document.getElementById("farewellTitle");
+      const farewellBody = document.getElementById("farewellBody");
 
       const editModal = document.getElementById("editModal");
       const editModalTitle = document.getElementById("editModalTitle");
@@ -2156,6 +2783,132 @@
       const snoozeCountdownText = document.getElementById("snoozeCountdownText");
       const dismissForeverBtn = document.getElementById("dismissForeverBtn");
       const alarmFooterNote = document.getElementById("alarmFooterNote");
+
+      function dispatchNativeEvent(name, detail = {}) {
+        try {
+          window.dispatchEvent(new CustomEvent(name, { detail }));
+        } catch (e) {}
+        const payload = JSON.stringify({ event: name, detail, timestamp: Date.now() });
+        try {
+          if (window.ReactNativeWebView && typeof window.ReactNativeWebView.postMessage === "function") {
+            window.ReactNativeWebView.postMessage(payload);
+          }
+        } catch (e) {}
+        try {
+          if (window.StopWayNative && typeof window.StopWayNative.onEvent === "function") {
+            window.StopWayNative.onEvent(payload);
+          }
+        } catch (e) {}
+        try {
+          if (window.Android && typeof window.Android.onStopWayEvent === "function") {
+            window.Android.onStopWayEvent(payload);
+          }
+        } catch (e) {}
+        try {
+          if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.stopway) {
+            window.webkit.messageHandlers.stopway.postMessage({ event: name, detail });
+          }
+        } catch (e) {}
+      }
+
+      function getPersonaSpeechParams(persona) {
+        if (persona === "male") {
+          // Markánsabb, kalandor jellegű tónus
+          return { pitch: 0.78, rate: 1.03 };
+        }
+        if (persona === "female") {
+          // Lágy, enyhén elnyújtott tónus
+          return { pitch: 1.24, rate: 0.94 };
+        }
+        // Robot (C-3PO jellegű, kissé fémes/modulált tónus) - alapértelmezett
+        return { pitch: 1.56, rate: 1.08 };
+      }
+
+      function pickSpeechVoice(speechTag) {
+        if (!("speechSynthesis" in window) || typeof window.speechSynthesis.getVoices !== "function") {
+          return { voice: null, lang: speechTag || "en-US" };
+        }
+        const voices = window.speechSynthesis.getVoices() || [];
+        const normTarget = String(speechTag || "en-US").toLowerCase();
+        const shortTarget = normTarget.split("-")[0];
+
+        let match = voices.find(v => String(v.lang || "").toLowerCase() === normTarget);
+        if (!match) {
+          match = voices.find(v => String(v.lang || "").toLowerCase().startsWith(shortTarget + "-") || String(v.lang || "").toLowerCase() === shortTarget);
+        }
+        if (match) {
+          return { voice: match, lang: match.lang || speechTag };
+        }
+
+        // Angol tartalék, ha a kiválasztott nyelvre nincs hang az eszközön
+        const enVoice = voices.find(v => String(v.lang || "").toLowerCase().startsWith("en"));
+        return { voice: enVoice || null, lang: (enVoice && enVoice.lang) || "en-US" };
+      }
+
+      function speakSignalText(text) {
+        if (!text) return;
+        const langObj = LANGUAGES.find(l => l.code === currentLang) || LANGUAGES[0];
+        const persona = state.voicePersona || "robot";
+        const params = getPersonaSpeechParams(persona);
+        const chosen = pickSpeechVoice(langObj.speech || "en-US");
+
+        dispatchNativeEvent("stopway:speak-signal", {
+          text,
+          persona,
+          lang: chosen.lang,
+          pitch: params.pitch,
+          rate: params.rate
+        });
+
+        try {
+          if ("speechSynthesis" in window && typeof window.SpeechSynthesisUtterance === "function") {
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = chosen.lang;
+            if (chosen.voice) utter.voice = chosen.voice;
+            utter.pitch = params.pitch;
+            utter.rate = params.rate;
+            utter.volume = state.loudMode ? 1.0 : 0.75;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utter);
+          }
+        } catch (e) {}
+      }
+
+      function showSignalNotice(message) {
+        if (!signalToast) return;
+        signalToast.textContent = message;
+        signalToast.classList.add("visible");
+        if (toastTimeoutId) clearTimeout(toastTimeoutId);
+        toastTimeoutId = setTimeout(() => {
+          signalToast.classList.remove("visible");
+        }, TOAST_MS);
+        speakSignalText(message);
+      }
+
+      function syncVoicePersonaButtons() {
+        const activePersona = state.voicePersona || "robot";
+        const map = [
+          { btn: personaRobotBtn, id: "robot", labelKey: "personaRobot" },
+          { btn: personaMaleBtn, id: "male", labelKey: "personaMale" },
+          { btn: personaFemaleBtn, id: "female", labelKey: "personaFemale" }
+        ];
+        map.forEach(item => {
+          if (!item.btn) return;
+          const isSelected = item.id === activePersona;
+          item.btn.classList.toggle("active", isSelected);
+          const baseText = t(item.labelKey);
+          item.btn.textContent = isSelected ? `✓ ${baseText}` : baseText;
+        });
+      }
+
+      function setVoicePersona(personaId) {
+        if (!["robot", "male", "female"].includes(personaId)) return;
+        state.voicePersona = personaId;
+        saveState();
+        syncVoicePersonaButtons();
+        const sample = personaId === "robot" ? t("signalFoundMsg") : t("signalLostMsg");
+        speakSignalText(sample);
+      }
 
       function loadState() {
         try {
@@ -2181,6 +2934,9 @@
           if (typeof parsed.theme === "string") state.theme = parsed.theme;
           if (parsed.glassPolarity === "light-ui" || parsed.glassPolarity === "dark-ui") {
             state.glassPolarity = parsed.glassPolarity;
+          }
+          if (parsed.voicePersona === "robot" || parsed.voicePersona === "male" || parsed.voicePersona === "female") {
+            state.voicePersona = parsed.voicePersona;
           }
         } catch (err) {
           console.warn("State load error:", err);
@@ -2302,10 +3058,16 @@
         toggleWatchBtn.textContent = t("startWatch");
         stopWatchBtn.textContent = t("stopWatch");
         previewSoundBtn.textContent = t("previewSound");
+        if (voicePersonaLabel) voicePersonaLabel.textContent = t("voicePersonaLabel");
+        syncVoicePersonaButtons();
         const loudSpan = loudModeToggle.parentElement.querySelector("span");
         if (loudSpan) loudSpan.textContent = t("loudMode");
         pickAudioBtn.textContent = t("pickAudio");
         customAudioInfo.textContent = customAudioUrl ? (t("customAudioLoaded") + customAudioName) : t("noCustomAudio");
+        if (basementHelpTitle) basementHelpTitle.textContent = t("helpTitle");
+        if (basementHelpText) basementHelpText.textContent = t("helpBody");
+        if (farewellTitle) farewellTitle.textContent = t("farewellTitle");
+        if (farewellBody) farewellBody.textContent = t("farewellBody");
 
         themeDrawerTitle.textContent = t("themeDrawerTitle");
         pickWallpaperBtn.textContent = t("pickWallpaper");
@@ -2336,7 +3098,6 @@
         renderLangMenu();
         updateStatus();
         saveState();
-        window.dispatchEvent(new CustomEvent("stopway:lang-changed", { detail: { lang: currentLang } }));
       }
 
       function renderDestinations() {
@@ -2541,6 +3302,12 @@
         snoozeCountdownText.textContent = t("snoozeTap");
         alarmOverlay.classList.add("active");
 
+        dispatchNativeEvent("stopway:alarm-triggered", {
+          placeName: place.name,
+          detail: messageSub || formatDistance(state.thresholdMeters),
+          snoozeSeconds: 20
+        });
+
         if (navigator.vibrate) {
           navigator.vibrate([500, 250, 500, 250, 800]);
         }
@@ -2562,6 +3329,8 @@
         snoozeGiantBtn.disabled = true;
         snoozeCountdownText.textContent = `${snoozeRemaining} ${t("snoozeLeft")}`;
 
+        dispatchNativeEvent("stopway:alarm-snoozed", { seconds: 20 });
+
         if (snoozeInterval) clearInterval(snoozeInterval);
         snoozeInterval = setInterval(() => {
           snoozeRemaining -= 1;
@@ -2574,6 +3343,7 @@
             snoozeCountdownText.textContent = t("snoozeTap");
             if (alarmActive) {
               triggerSoundOnce(state.soundId);
+              dispatchNativeEvent("stopway:alarm-resumed", { afterSnoozeSeconds: 20 });
               alarmLoopInterval = setInterval(() => {
                 if (alarmActive && snoozeRemaining <= 0) {
                   triggerSoundOnce(state.soundId);
@@ -2582,6 +3352,17 @@
             }
           }
         }, 1000);
+      }
+
+      function showFarewellScreen() {
+        if (!farewellOverlay) return;
+        if (farewellTitle) farewellTitle.textContent = t("farewellTitle");
+        if (farewellBody) farewellBody.textContent = t("farewellBody");
+        farewellOverlay.classList.add("active");
+        if (farewellTimeoutId) clearTimeout(farewellTimeoutId);
+        farewellTimeoutId = setTimeout(() => {
+          farewellOverlay.classList.remove("active");
+        }, FAREWELL_MS);
       }
 
       function dismissAlarmForever() {
@@ -2594,23 +3375,115 @@
         stopAllSounds();
         alarmOverlay.classList.remove("active");
         stopWatching();
+        showFarewellScreen();
         updateStatus();
-        window.dispatchEvent(new CustomEvent("stopway:alarm-dismissed"));
       }
 
-      function evaluateCoordsAgainstTarget(coords) {
-        if (!watching || alarmActive || !coords) return;
+      function requestFreshPositionOnce() {
+        if (!watching || !navigator.geolocation) return;
+        dispatchNativeEvent("stopway:request-gps", { intervalMs: RECONNECT_MS });
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            if (!watching || !pos || !pos.coords) return;
+            handlePositionFix(pos.coords.latitude, pos.coords.longitude);
+          },
+          () => {},
+          { enableHighAccuracy: true, maximumAge: 0, timeout: 12000 }
+        );
+      }
+
+      function start90sReconnectLoop() {
+        stop90sReconnectLoop();
+        reconnectIntervalId = setInterval(() => {
+          if (!watching) {
+            stop90sReconnectLoop();
+            return;
+          }
+          requestFreshPositionOnce();
+        }, RECONNECT_MS);
+      }
+
+      function stop90sReconnectLoop() {
+        if (reconnectIntervalId !== null) {
+          clearInterval(reconnectIntervalId);
+          reconnectIntervalId = null;
+        }
+      }
+
+      function handlePositionFix(lat, lng) {
+        if (!watching) return;
+        const now = Date.now();
+        const hadSignalLoss = signalLostNotified;
+
+        lastFixAt = now;
+        signalLostNotified = false;
+
+        if (hadSignalLoss) {
+          showSignalNotice(t("signalFoundMsg"));
+        }
+
+        // 100 méteren belüli mozgás 1 órán át stagnálás-ellenőrzése
+        if (!anchorCoords) {
+          anchorCoords = { lat, lng };
+          anchorSinceAt = now;
+          stagnationPromptShown = false;
+        } else {
+          const moved = haversineMeters(anchorCoords.lat, anchorCoords.lng, lat, lng);
+          if (moved >= STAGNATION_METERS) {
+            anchorCoords = { lat, lng };
+            anchorSinceAt = now;
+            stagnationPromptShown = false;
+          } else if (!stagnationPromptShown && (now - anchorSinceAt) >= STAGNATION_MS) {
+            stagnationPromptShown = true;
+            dispatchNativeEvent("stopway:stagnation-check", {
+              meters: Math.round(moved),
+              durationMs: STAGNATION_MS
+            });
+            const keepWatching = window.confirm(t("stagnationPrompt"));
+            if (!keepWatching) {
+              stopWatching();
+              return;
+            }
+            anchorCoords = { lat, lng };
+            anchorSinceAt = Date.now();
+            stagnationPromptShown = false;
+          }
+        }
+
+        if (alarmActive) return;
         const place = state.places[state.selectedIndex];
         if (!place || typeof place.lat !== "number" || typeof place.lng !== "number") return;
-        if (typeof coords.latitude !== "number" || typeof coords.longitude !== "number") return;
-        const dist = haversineMeters(coords.latitude, coords.longitude, place.lat, place.lng);
+
+        const dist = haversineMeters(lat, lng, place.lat, place.lng);
         updateStatus(`${place.name}: ${Math.round(dist)} m`);
         if (dist <= state.thresholdMeters) {
           startAlarm(`${place.name}: ${Math.round(dist)} m`);
         }
       }
 
-      window.__stopwayEvaluateCoords = evaluateCoordsAgainstTarget;
+      function startSignalMonitor() {
+        stopSignalMonitor();
+        signalMonitorId = setInterval(() => {
+          if (!watching) return;
+          const now = Date.now();
+          if (!lastFixAt) {
+            lastFixAt = now;
+            return;
+          }
+          if ((now - lastFixAt) >= STALE_AFTER_MS && !signalLostNotified) {
+            signalLostNotified = true;
+            showSignalNotice(t("signalLostMsg"));
+            requestFreshPositionOnce();
+          }
+        }, 5000);
+      }
+
+      function stopSignalMonitor() {
+        if (signalMonitorId !== null) {
+          clearInterval(signalMonitorId);
+          signalMonitorId = null;
+        }
+      }
 
       function startWatching() {
         const place = state.places[state.selectedIndex];
@@ -2622,36 +3495,84 @@
 
         ensureAudioContext();
         watching = true;
+        lastFixAt = Date.now();
+        signalLostNotified = false;
+        anchorCoords = null;
+        anchorSinceAt = 0;
+        stagnationPromptShown = false;
+
         toggleWatchBtn.style.display = "none";
         stopWatchBtn.style.display = "inline-flex";
         updateStatus(t("watchingActive"));
-        window.dispatchEvent(new CustomEvent("stopway:watch-started"));
+
+        dispatchNativeEvent("stopway:watch-started", {
+          placeName: place.name,
+          lat: place.lat,
+          lng: place.lng,
+          thresholdMeters: state.thresholdMeters,
+          reconnectMs: RECONNECT_MS
+        });
+
+        startSignalMonitor();
+        start90sReconnectLoop();
+        requestFreshPositionOnce();
 
         watchId = navigator.geolocation.watchPosition(
           pos => {
-            if (!watching || alarmActive) return;
-            window.dispatchEvent(new CustomEvent("stopway:gps-position", { detail: { coords: pos.coords } }));
-            evaluateCoordsAgainstTarget(pos.coords);
+            if (!watching || !pos || !pos.coords) return;
+            handlePositionFix(pos.coords.latitude, pos.coords.longitude);
           },
           err => {
+            if (!watching) return;
+            if (!signalLostNotified) {
+              signalLostNotified = true;
+              showSignalNotice(t("signalLostMsg"));
+            }
             updateStatus(err.message || "GPS");
-            window.dispatchEvent(new CustomEvent("stopway:gps-error", { detail: { error: err } }));
           },
-          { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 }
+          { enableHighAccuracy: true, maximumAge: 3000, timeout: 10000 }
         );
       }
 
       function stopWatching() {
         watching = false;
+        stop90sReconnectLoop();
+        stopSignalMonitor();
         if (watchId !== null && navigator.geolocation) {
           navigator.geolocation.clearWatch(watchId);
           watchId = null;
         }
+        dispatchNativeEvent("stopway:watch-stopped", {});
         toggleWatchBtn.style.display = "inline-flex";
         stopWatchBtn.style.display = "none";
         updateStatus();
-        window.dispatchEvent(new CustomEvent("stopway:watch-stopped"));
       }
+
+      // Natív burkoló felől érkező háttér-koordináták fogadása
+      window.addEventListener("message", event => {
+        try {
+          const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+          if (!data || typeof data !== "object") return;
+          if (data.type === "STOPWAY_GPS_POSITION" && typeof data.lat === "number" && typeof data.lng === "number") {
+            handlePositionFix(data.lat, data.lng);
+          } else if (data.type === "STOPWAY_TRIGGER_ALARM") {
+            startAlarm(data.detail || "");
+          } else if (data.type === "STOPWAY_STOP_WATCH") {
+            dismissAlarmForever();
+          }
+        } catch (e) {}
+      });
+
+      document.addEventListener("visibilitychange", () => {
+        if (!watching) return;
+        dispatchNativeEvent("stopway:visibility-changed", {
+          hidden: document.hidden,
+          reconnectMs: RECONNECT_MS
+        });
+        if (!document.hidden) {
+          requestFreshPositionOnce();
+        }
+      });
 
       function ensureLeafletMap(lat, lng) {
         if (typeof window.L === "undefined") return;
@@ -2798,6 +3719,12 @@
         saveState();
       });
 
+      document.querySelectorAll(".persona-btn[data-voice-persona]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          setVoicePersona(btn.dataset.voicePersona);
+        });
+      });
+
       loudModeToggle.addEventListener("change", () => {
         state.loudMode = loudModeToggle.checked;
         saveState();
@@ -2913,6 +3840,10 @@
         rec.start();
       });
 
+      if ("speechSynthesis" in window && typeof window.speechSynthesis.addEventListener === "function") {
+        window.speechSynthesis.addEventListener("voiceschanged", () => {});
+      }
+
       loadState();
       thresholdSelect.value = String(state.thresholdMeters);
       loudModeToggle.checked = state.loudMode;
@@ -2921,759 +3852,5 @@
       document.body.innerHTML = `<div style="padding:20px;font-family:sans-serif;color:#111;background:#fff;"><h2>StopWay</h2><p>${String(fatalErr && fatalErr.message || fatalErr)}</p></div>`;
     }
   </script>
-
-  <!-- StopWay külső toldás logika + natív / háttér híd -->
-  <script id="stopway-addon-script">
-    (function () {
-      const ADDON_DATE_HU = "2026. november 22., 21:00";
-      const ADDON_DATE_EN = "November 22, 2026, 21:00";
-      const RECONNECT_MS = 90000;
-      const STAGNATION_METERS = 100;
-      const STAGNATION_MS = 60 * 60 * 1000;
-      const CONTINUOUS_POLL_MS = 8000;
-
-      const ADDON_TEXT = {
-        hu: {
-          helpTitle: "Gyakorlati súgó",
-          helpDate: "Keltezés: " + ADDON_DATE_HU,
-          helpItems: [
-            "📍 Célpontok és védelem: Add meg a célpontot pontos cím alapján vagy a térképre bökve (az otthon és a munka alapból elérhető, és további helyek is felvehetők), majd mentsd el. A már beállított, gombokon rögzített címek csak a ✏️ ikonra nyomva, a beállításoknál módosíthatók; máskülönben nem írhatók át.",
-            "🌐 Nyelvválasztás: A 🌐 ikonnal bármikor kiválaszthatod a kívánt nyelvet, és elmenthető a későbbi használathoz.",
-            "🎨 Megjelenési stílusok: A 🎨 ikonnal kiválaszthatod a tetszőleges vizuális témát.",
-            "🎤 Riasztási hangok és saját hang: A hangbeállításoknál és a 🎤 vezérlésnél állítható be a megfelelő riasztási hang, vagy tölthető fel saját hangfájl.",
-            "📏 Riasztási távolság: A képernyő tetején található választó gombbal állítható be a riasztási távolság: városban 300 m, 500 m vagy legfeljebb 1 km, vonaton, hosszabb utazáson vagy távolsági buszon pedig 5 km ajánlott.",
-            "✅ Háromlépéses indítási panel: A célállomás-figyelés indításakor — ha valami még hiányzik — jelenik meg a háromlépéses panel, ahol be kell jelölni a helymeghatározást, valamint engedélyezni kell a felszíni és a háttérműködést."
-          ],
-          checkTitle: "Indítás előtti ellenőrzés",
-          step1: "1. Helyzetjelző bekapcsolása",
-          step1Waiting: "1. Helyzetjelző bekapcsolása (kapcsold be a telefonon...)",
-          step2: "2. Helyhozzáférés engedélyezése",
-          step3: "3. Háttérben és nonstop működés engedélyezése",
-          goBtn: "Figyelés indítása",
-          bgTitle: "Biztos, hogy nem engedélyezed?",
-          bgDesc: "Ha nem engedélyezed a háttérben futást és a nonstop helyzetjelzést, zárolt képernyő vagy más alkalmazás (például filmnézés) közben megszakadhat a követés.",
-          bgBack: "Vissza az engedélyezéshez",
-          bgConfirm: "Igen, biztos",
-          idleTitle: "1 órája nincs 100 méteres mozgás",
-          idleDesc: "Az elmúlt 1 órában nem történt 100 métert elérő elmozdulás. Folytatjuk az utazást, vagy leállítjuk?",
-          idleContinue: "Folytatjuk",
-          idleStop: "Leállítjuk",
-          goodbyeTitle: "Köszönjük, hogy velünk utaztál",
-          goodbyeDesc: "Jó pihenést és biztonságos folytatást! Ha már nincs szükség a helymeghatározásra, ne felejtsd el kikapcsolni.",
-          reconnectingMsg: "GPS jel keresése (90 mp-es újracsatlakozás aktív)...",
-          nonstopActiveMsg: "Nonstop háttér-helyzetjelzés aktív."
-        },
-        en: {
-          helpTitle: "Practical Guide",
-          helpDate: "Date: " + ADDON_DATE_EN,
-          helpItems: [
-            "📍 Destinations & lock: Set your destination by exact address or tapping on the map (home and work are available by default, and you can add more), then save it. Already set addresses fixed on buttons can only be modified by tapping the ✏️ icon in settings; otherwise they cannot be overwritten.",
-            "🌐 Language selection: Use the 🌐 icon at any time to select your preferred language and save it for future use.",
-            "🎨 Appearance styles: Use the 🎨 icon to choose the visual style that suits you best.",
-            "🎤 Alarm sounds & custom audio: Set an alarm sound that works for you or upload your own custom sound.",
-            "📏 Alert distance: Use the top selector to set the alert distance: 300 m, 500 m, or up to 1 km in the city, and 5 km recommended on trains, longer trips, or intercity buses.",
-            "✅ Three-step start panel: When starting destination monitoring — if something is still missing — a three-step panel appears where you need to enable location as well as surface and background operation."
-          ],
-          checkTitle: "Pre-start check",
-          step1: "1. Turn on location service",
-          step1Waiting: "1. Turn on location service (enable on device...)",
-          step2: "2. Allow location access",
-          step3: "3. Allow background & nonstop location",
-          goBtn: "Start watching",
-          bgTitle: "Are you sure you don't allow it?",
-          bgDesc: "If you do not allow background execution and nonstop location, tracking may stop when the screen is locked or while watching media.",
-          bgBack: "Back to permission",
-          bgConfirm: "Yes, I'm sure",
-          idleTitle: "No 100 m movement for 1 hour",
-          idleDesc: "No movement of at least 100 meters has been detected in the past hour. Continue the trip or stop?",
-          idleContinue: "Continue trip",
-          idleStop: "Stop watching",
-          goodbyeTitle: "Thank you for traveling with us",
-          goodbyeDesc: "If you no longer need location services, don't forget to turn them off.",
-          reconnectingMsg: "Searching for GPS signal (90s reconnect active)...",
-          nonstopActiveMsg: "Nonstop background location active."
-        }
-      };
-
-      const perms = { gps: false, overlay: false, background: false };
-      let step1WaitingForUser = false;
-      let step1PollTimer = null;
-      let bypassStartOnce = false;
-      let explicitStopPending = false;
-      let reconnectInterval = null;
-      let continuousPollInterval = null;
-      let lastAnchorCoords = null;
-      let lastSignificantMoveAt = null;
-      let idlePromptOpen = false;
-      let watchSessionActive = false;
-
-      const helpBtn = document.getElementById("sw-addon-help-btn");
-      const helpBackdrop = document.getElementById("sw-addon-help-backdrop");
-      const helpCloseBtn = document.getElementById("sw-addon-help-close");
-      const helpTitleEl = document.getElementById("sw-addon-help-title");
-      const helpDateEl = document.getElementById("sw-addon-help-date");
-      const helpListEl = document.getElementById("sw-addon-help-list");
-
-      const checkBackdrop = document.getElementById("sw-addon-check-backdrop");
-      const checkCloseBtn = document.getElementById("sw-addon-check-close");
-      const checkTitleEl = document.getElementById("sw-addon-check-title");
-      const step1Btn = document.getElementById("sw-addon-step-1");
-      const step2Btn = document.getElementById("sw-addon-step-2");
-      const step3Btn = document.getElementById("sw-addon-step-3");
-      const goBtn = document.getElementById("sw-addon-go-btn");
-
-      const bgBackdrop = document.getElementById("sw-addon-bg-backdrop");
-      const bgTitleEl = document.getElementById("sw-addon-bg-title");
-      const bgDescEl = document.getElementById("sw-addon-bg-desc");
-      const bgBackBtn = document.getElementById("sw-addon-bg-back");
-      const bgConfirmBtn = document.getElementById("sw-addon-bg-confirm");
-
-      const idleBackdrop = document.getElementById("sw-addon-idle-backdrop");
-      const idleTitleEl = document.getElementById("sw-addon-idle-title");
-      const idleDescEl = document.getElementById("sw-addon-idle-desc");
-      const idleContinueBtn = document.getElementById("sw-addon-idle-continue");
-      const idleStopBtn = document.getElementById("sw-addon-idle-stop");
-
-      const goodbyeBackdrop = document.getElementById("sw-addon-goodbye-backdrop");
-      const goodbyeTitleEl = document.getElementById("sw-addon-goodbye-title");
-      const goodbyeDescEl = document.getElementById("sw-addon-goodbye-desc");
-
-      const watchStartBtn = document.getElementById("toggleWatchBtn");
-      const watchStopBtn = document.getElementById("stopWatchBtn");
-      const statusDetailEl = document.getElementById("statusDetail");
-
-      function getAddonLang() {
-        return document.documentElement.lang === "hu" ? ADDON_TEXT.hu : ADDON_TEXT.en;
-      }
-
-      function allPermsReady() {
-        return Boolean(perms.gps && perms.overlay && perms.background);
-      }
-
-      function distMeters(a, b) {
-        const R = 6371000;
-        const toRad = x => (x * Math.PI) / 180;
-        const dLat = toRad(b.lat - a.lat);
-        const dLon = toRad(b.lng - a.lng);
-        const s =
-          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) *
-          Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        return 2 * R * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
-      }
-
-      function sendNativeBridgeCommand(action, payload = {}) {
-        const message = Object.assign({ source: "stopway_v6", action }, payload);
-        try {
-          if (window.ReactNativeWebView && typeof window.ReactNativeWebView.postMessage === "function") {
-            window.ReactNativeWebView.postMessage(JSON.stringify(message));
-          }
-        } catch (e) {}
-        try {
-          if (window.StopWayNative && typeof window.StopWayNative[action] === "function") {
-            window.StopWayNative[action](JSON.stringify(message));
-          }
-        } catch (e) {}
-        try {
-          if (window.Android && typeof window.Android[action] === "function") {
-            window.Android[action](JSON.stringify(message));
-          }
-        } catch (e) {}
-        try {
-          if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.stopway) {
-            window.webkit.messageHandlers.stopway.postMessage(message);
-          }
-        } catch (e) {}
-        try {
-          window.parent.postMessage(message, "*");
-        } catch (e) {}
-        window.dispatchEvent(new CustomEvent("stopway:bridge-command", { detail: message }));
-      }
-
-      function refreshAddonUI() {
-        const txt = getAddonLang();
-        helpTitleEl.textContent = txt.helpTitle;
-        helpDateEl.textContent = txt.helpDate;
-        helpListEl.innerHTML = "";
-        txt.helpItems.forEach(itemText => {
-          const box = document.createElement("div");
-          box.className = "sw-help-entry";
-          box.textContent = itemText;
-          helpListEl.appendChild(box);
-        });
-
-        checkTitleEl.textContent = txt.checkTitle;
-        document.getElementById("sw-addon-step-1-text").textContent =
-          (!perms.gps && step1WaitingForUser) ? txt.step1Waiting : txt.step1;
-        document.getElementById("sw-addon-step-2-text").textContent = txt.step2;
-        document.getElementById("sw-addon-step-3-text").textContent = txt.step3;
-        goBtn.textContent = txt.goBtn;
-
-        const states = [
-          [step1Btn, document.getElementById("sw-addon-step-1-mark"), perms.gps],
-          [step2Btn, document.getElementById("sw-addon-step-2-mark"), perms.overlay],
-          [step3Btn, document.getElementById("sw-addon-step-3-mark"), perms.background]
-        ];
-        states.forEach(([btn, mark, ok]) => {
-          btn.classList.toggle("done", Boolean(ok));
-          mark.textContent = ok ? "✓" : "○";
-          mark.classList.toggle("ok", Boolean(ok));
-        });
-
-        bgTitleEl.textContent = txt.bgTitle;
-        bgDescEl.textContent = txt.bgDesc;
-        bgBackBtn.textContent = txt.bgBack;
-        bgConfirmBtn.textContent = txt.bgConfirm;
-
-        idleTitleEl.textContent = txt.idleTitle;
-        idleDescEl.textContent = txt.idleDesc;
-        idleContinueBtn.textContent = txt.idleContinue;
-        idleStopBtn.textContent = txt.idleStop;
-
-        goodbyeTitleEl.textContent = txt.goodbyeTitle;
-        goodbyeDescEl.textContent = txt.goodbyeDesc;
-      }
-
-      function stopStep1Polling() {
-        if (step1PollTimer) {
-          clearInterval(step1PollTimer);
-          step1PollTimer = null;
-        }
-      }
-
-      function verifyLocationServiceActive(onConfirmed) {
-        sendNativeBridgeCommand("checkLocationService");
-        if (!navigator.geolocation) return;
-        navigator.geolocation.getCurrentPosition(
-          pos => {
-            if (pos && pos.coords) {
-              perms.gps = true;
-              step1WaitingForUser = false;
-              stopStep1Polling();
-              refreshAddonUI();
-              if (typeof onConfirmed === "function") onConfirmed(pos.coords);
-            }
-          },
-          () => {},
-          { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
-        );
-      }
-
-      function openCheckPanelWithLiveProbe() {
-        refreshAddonUI();
-        checkBackdrop.classList.add("open");
-        verifyLocationServiceActive();
-      }
-
-      function showGoodbyeBanner() {
-        refreshAddonUI();
-        goodbyeBackdrop.classList.add("open");
-        setTimeout(() => {
-          goodbyeBackdrop.classList.remove("open");
-        }, 3000);
-      }
-
-      function clearReconnectLoop() {
-        if (reconnectInterval) {
-          clearInterval(reconnectInterval);
-          reconnectInterval = null;
-        }
-      }
-
-      function clearContinuousPoll() {
-        if (continuousPollInterval) {
-          clearInterval(continuousPollInterval);
-          continuousPollInterval = null;
-        }
-      }
-
-      function startContinuousTrackingLoop() {
-        clearContinuousPoll();
-        sendNativeBridgeCommand("startNonstopLocation", { background: Boolean(perms.background) });
-        continuousPollInterval = setInterval(() => {
-          if (!watchSessionActive) return;
-          sendNativeBridgeCommand("pollLocation", { background: Boolean(perms.background) });
-          if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-              pos => {
-                if (!watchSessionActive || !pos || !pos.coords) return;
-                handleCoordsUpdate(pos.coords);
-                if (typeof window.__stopwayEvaluateCoords === "function") {
-                  window.__stopwayEvaluateCoords(pos.coords);
-                }
-              },
-              () => {
-                if (watchSessionActive && !reconnectInterval) {
-                  startReconnectLoop();
-                }
-              },
-              { enableHighAccuracy: true, maximumAge: 1000, timeout: 7000 }
-            );
-          }
-        }, CONTINUOUS_POLL_MS);
-      }
-
-      function startReconnectLoop() {
-        clearReconnectLoop();
-        if (statusDetailEl) statusDetailEl.textContent = getAddonLang().reconnectingMsg;
-        sendNativeBridgeCommand("reconnectLocation");
-        verifyLocationServiceActive(() => {
-          clearReconnectLoop();
-        });
-        reconnectInterval = setInterval(() => {
-          if (!watchSessionActive) {
-            clearReconnectLoop();
-            return;
-          }
-          sendNativeBridgeCommand("reconnectLocation");
-          verifyLocationServiceActive(() => {
-            clearReconnectLoop();
-          });
-        }, RECONNECT_MS);
-      }
-
-      function handleCoordsUpdate(coords) {
-        if (!coords || typeof coords.latitude !== "number" || typeof coords.longitude !== "number") return;
-        perms.gps = true;
-        step1WaitingForUser = false;
-        stopStep1Polling();
-        clearReconnectLoop();
-
-        const now = Date.now();
-        const current = { lat: coords.latitude, lng: coords.longitude };
-
-        if (!lastAnchorCoords) {
-          lastAnchorCoords = current;
-          lastSignificantMoveAt = now;
-          return;
-        }
-
-        const moved = distMeters(lastAnchorCoords, current);
-        if (moved >= STAGNATION_METERS) {
-          lastAnchorCoords = current;
-          lastSignificantMoveAt = now;
-          return;
-        }
-
-        if (!lastSignificantMoveAt) {
-          lastSignificantMoveAt = now;
-          return;
-        }
-
-        if (!idlePromptOpen && now - lastSignificantMoveAt >= STAGNATION_MS) {
-          idlePromptOpen = true;
-          refreshAddonUI();
-          idleBackdrop.classList.add("open");
-        }
-      }
-
-      function triggerRealStart() {
-        if (!watchStartBtn) return;
-        stopStep1Polling();
-        checkBackdrop.classList.remove("open");
-        bgBackdrop.classList.remove("open");
-        bypassStartOnce = true;
-        watchStartBtn.click();
-      }
-
-      if (helpBtn) {
-        helpBtn.addEventListener("click", () => {
-          refreshAddonUI();
-          helpBackdrop.classList.add("open");
-        });
-      }
-      if (helpCloseBtn) {
-        helpCloseBtn.addEventListener("click", () => helpBackdrop.classList.remove("open"));
-      }
-
-      if (watchStartBtn) {
-        watchStartBtn.addEventListener("click", ev => {
-          if (bypassStartOnce) {
-            bypassStartOnce = false;
-            return;
-          }
-          if (!allPermsReady()) {
-            ev.preventDefault();
-            ev.stopImmediatePropagation();
-            openCheckPanelWithLiveProbe();
-          }
-        }, true);
-      }
-
-      if (checkCloseBtn) {
-        checkCloseBtn.addEventListener("click", () => {
-          stopStep1Polling();
-          step1WaitingForUser = false;
-          checkBackdrop.classList.remove("open");
-          refreshAddonUI();
-        });
-      }
-
-      if (step1Btn) {
-        step1Btn.addEventListener("click", () => {
-          if (perms.gps) return;
-          step1WaitingForUser = true;
-          refreshAddonUI();
-          sendNativeBridgeCommand("enableLocationService");
-          verifyLocationServiceActive();
-          stopStep1Polling();
-          step1PollTimer = setInterval(() => {
-            if (perms.gps || !checkBackdrop.classList.contains("open")) {
-              stopStep1Polling();
-              return;
-            }
-            verifyLocationServiceActive();
-          }, 1500);
-        });
-      }
-
-      if (step2Btn) {
-        step2Btn.addEventListener("click", () => {
-          sendNativeBridgeCommand("requestLocationPermission");
-          if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-              pos => {
-                perms.gps = true;
-                perms.overlay = true;
-                step1WaitingForUser = false;
-                stopStep1Polling();
-                refreshAddonUI();
-                if (pos && pos.coords && typeof window.__stopwayEvaluateCoords === "function") {
-                  window.__stopwayEvaluateCoords(pos.coords);
-                }
-              },
-              () => {
-                perms.overlay = true;
-                refreshAddonUI();
-              },
-              { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
-            );
-          } else {
-            perms.overlay = true;
-            refreshAddonUI();
-          }
-        });
-      }
-
-      function enableBackgroundAndNonstopStep() {
-        perms.background = true;
-        bgBackdrop.classList.remove("open");
-        refreshAddonUI();
-        sendNativeBridgeCommand("enableBackgroundAndNonstopGps", {
-          background: true,
-          nonstop: true
-        });
-        startContinuousTrackingLoop();
-        if (statusDetailEl && watchSessionActive) {
-          statusDetailEl.textContent = getAddonLang().nonstopActiveMsg;
-        }
-      }
-
-      if (step3Btn) {
-        step3Btn.addEventListener("click", enableBackgroundAndNonstopStep);
-      }
-
-      if (bgBackBtn) {
-        bgBackBtn.addEventListener("click", enableBackgroundAndNonstopStep);
-      }
-
-      if (bgConfirmBtn) {
-        bgConfirmBtn.addEventListener("click", () => {
-          perms.background = false;
-          bgBackdrop.classList.remove("open");
-          refreshAddonUI();
-          sendNativeBridgeCommand("disableBackgroundLocation", { background: false, nonstop: false });
-        });
-      }
-
-      if (goBtn) {
-        goBtn.addEventListener("click", () => {
-          if (!perms.gps) {
-            verifyLocationServiceActive(() => {
-              if (perms.overlay && perms.background) {
-                triggerRealStart();
-              }
-            });
-            if (!perms.gps) {
-              step1WaitingForUser = true;
-              refreshAddonUI();
-              sendNativeBridgeCommand("enableLocationService");
-              return;
-            }
-          }
-          if (!perms.overlay) perms.overlay = true;
-          if (!perms.background) {
-            perms.background = true;
-            sendNativeBridgeCommand("enableBackgroundAndNonstopGps", { background: true, nonstop: true });
-          }
-          refreshAddonUI();
-          triggerRealStart();
-        });
-      }
-
-      if (idleContinueBtn) {
-        idleContinueBtn.addEventListener("click", () => {
-          idlePromptOpen = false;
-          lastSignificantMoveAt = Date.now();
-          if (lastAnchorCoords) {
-            lastAnchorCoords = { lat: lastAnchorCoords.lat, lng: lastAnchorCoords.lng };
-          }
-          idleBackdrop.classList.remove("open");
-        });
-      }
-
-      if (idleStopBtn) {
-        idleStopBtn.addEventListener("click", () => {
-          idlePromptOpen = false;
-          idleBackdrop.classList.remove("open");
-          explicitStopPending = true;
-          if (watchStopBtn) watchStopBtn.click();
-        });
-      }
-
-      if (watchStopBtn) {
-        watchStopBtn.addEventListener("click", () => {
-          explicitStopPending = true;
-        });
-      }
-
-      window.addEventListener("stopway:watch-started", () => {
-        watchSessionActive = true;
-        explicitStopPending = false;
-        lastAnchorCoords = null;
-        lastSignificantMoveAt = Date.now();
-        clearReconnectLoop();
-        startContinuousTrackingLoop();
-      });
-
-      window.addEventListener("stopway:gps-position", ev => {
-        if (ev && ev.detail && ev.detail.coords) {
-          handleCoordsUpdate(ev.detail.coords);
-        }
-      });
-
-      window.addEventListener("stopway:gps-error", () => {
-        if (watchSessionActive && !reconnectInterval) {
-          startReconnectLoop();
-        }
-      });
-
-      window.addEventListener("stopway:watch-stopped", () => {
-        watchSessionActive = false;
-        clearReconnectLoop();
-        clearContinuousPoll();
-        stopStep1Polling();
-        sendNativeBridgeCommand("stopNonstopLocation");
-        lastAnchorCoords = null;
-        lastSignificantMoveAt = null;
-        idlePromptOpen = false;
-        if (explicitStopPending) {
-          explicitStopPending = false;
-          showGoodbyeBanner();
-        }
-      });
-
-      window.addEventListener("stopway:alarm-dismissed", () => {
-        watchSessionActive = false;
-        explicitStopPending = false;
-        clearReconnectLoop();
-        clearContinuousPoll();
-        stopStep1Polling();
-        sendNativeBridgeCommand("stopNonstopLocation");
-        showGoodbyeBanner();
-      });
-
-      document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "visible") {
-          verifyLocationServiceActive(() => {
-            if (watchSessionActive && perms.background) {
-              startContinuousTrackingLoop();
-            }
-          });
-          if (checkBackdrop.classList.contains("open")) {
-            verifyLocationServiceActive();
-          }
-        } else if (watchSessionActive && perms.background) {
-          sendNativeBridgeCommand("ensureBackgroundRunning", { background: true, nonstop: true });
-        }
-      });
-
-      window.addEventListener("message", ev => {
-        const data = ev && ev.data;
-        if (!data || typeof data !== "object") return;
-        if (data.type === "STOPWAY_PERM_STATE") {
-          if (typeof data.locationEnabled === "boolean") {
-            perms.gps = data.locationEnabled;
-            if (perms.gps) {
-              step1WaitingForUser = false;
-              stopStep1Polling();
-            }
-          }
-          if (typeof data.locationPermission === "boolean") {
-            perms.overlay = data.locationPermission;
-          }
-          if (typeof data.backgroundEnabled === "boolean") {
-            perms.background = data.backgroundEnabled;
-          }
-          refreshAddonUI();
-        } else if (data.type === "STOPWAY_GPS_POSITION" && data.coords) {
-          handleCoordsUpdate(data.coords);
-          if (typeof window.__stopwayEvaluateCoords === "function") {
-            window.__stopwayEvaluateCoords(data.coords);
-          }
-        }
-      });
-
-      window.addEventListener("stopway:lang-changed", refreshAddonUI);
-      refreshAddonUI();
-      verifyLocationServiceActive();
-    })();
-  </script>
 </body>
 </html>
-<!-- StopWay 90 másodperces jelkimaradás- és újraigénylés-toldalék -->
-<script id="stopway-90s-addon">
-  (function () {
-    const STALE_AFTER_MS = 30000;
-    const RECONNECT_INTERVAL_MS = 90000;
-    const WATCHDOG_TICK_MS = 10000;
-
-    let sessionActive = false;
-    let lastPosReceivedAt = 0;
-    let reconnectTimer = null;
-    let watchdogTimer = null;
-
-    function dispatchBridge(action, extra = {}) {
-      const msg = Object.assign({ source: "stopway_v6", action, intervalMs: RECONNECT_INTERVAL_MS }, extra);
-      try {
-        if (window.ReactNativeWebView && typeof window.ReactNativeWebView.postMessage === "function") {
-          window.ReactNativeWebView.postMessage(JSON.stringify(msg));
-        }
-      } catch (e) {}
-      try {
-        if (window.StopWayNative && typeof window.StopWayNative[action] === "function") {
-          window.StopWayNative[action](JSON.stringify(msg));
-        }
-      } catch (e) {}
-      try {
-        if (window.Android && typeof window.Android[action] === "function") {
-          window.Android[action](JSON.stringify(msg));
-        }
-      } catch (e) {}
-      try {
-        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.stopway) {
-          window.webkit.messageHandlers.stopway.postMessage(msg);
-        }
-      } catch (e) {}
-      try {
-        window.parent.postMessage(msg, "*");
-      } catch (e) {}
-      window.dispatchEvent(new CustomEvent("stopway:bridge-command", { detail: msg }));
-    }
-
-    function requestLocationNow() {
-      if (!sessionActive) return;
-      dispatchBridge("reconnectLocation", { reason: "90s_retry" });
-      dispatchBridge("pollLocation", { reason: "90s_retry" });
-
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          pos => {
-            if (!sessionActive || !pos || !pos.coords) return;
-            lastPosReceivedAt = Date.now();
-            window.dispatchEvent(new CustomEvent("stopway:gps-position", { detail: { coords: pos.coords } }));
-            if (typeof window.__stopwayEvaluateCoords === "function") {
-              window.__stopwayEvaluateCoords(pos.coords);
-            }
-          },
-          () => {},
-          { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
-        );
-      }
-    }
-
-    function start90sLoop() {
-      if (reconnectTimer !== null) return;
-      requestLocationNow();
-      reconnectTimer = setInterval(() => {
-        if (!sessionActive) {
-          stop90sLoop();
-          return;
-        }
-        requestLocationNow();
-      }, RECONNECT_INTERVAL_MS);
-    }
-
-    function stop90sLoop() {
-      if (reconnectTimer !== null) {
-        clearInterval(reconnectTimer);
-        reconnectTimer = null;
-      }
-    }
-
-    function startWatchdog() {
-      stopWatchdog();
-      watchdogTimer = setInterval(() => {
-        if (!sessionActive) return;
-        const elapsed = Date.now() - lastPosReceivedAt;
-        if (!lastPosReceivedAt || elapsed >= STALE_AFTER_MS) {
-          start90sLoop();
-        }
-      }, WATCHDOG_TICK_MS);
-    }
-
-    function stopWatchdog() {
-      if (watchdogTimer !== null) {
-        clearInterval(watchdogTimer);
-        watchdogTimer = null;
-      }
-    }
-
-    window.addEventListener("stopway:watch-started", () => {
-      sessionActive = true;
-      lastPosReceivedAt = 0;
-      startWatchdog();
-      start90sLoop();
-    });
-
-    window.addEventListener("stopway:gps-position", () => {
-      if (!sessionActive) return;
-      lastPosReceivedAt = Date.now();
-    });
-
-    window.addEventListener("stopway:gps-error", () => {
-      if (!sessionActive) return;
-      start90sLoop();
-    });
-
-    window.addEventListener("stopway:watch-stopped", () => {
-      sessionActive = false;
-      lastPosReceivedAt = 0;
-      stop90sLoop();
-      stopWatchdog();
-      dispatchBridge("stopReconnectLoop");
-    });
-
-    window.addEventListener("stopway:alarm-dismissed", () => {
-      sessionActive = false;
-      lastPosReceivedAt = 0;
-      stop90sLoop();
-      stopWatchdog();
-      dispatchBridge("stopReconnectLoop");
-    });
-
-    document.addEventListener("visibilitychange", () => {
-      if (!sessionActive) return;
-      if (document.visibilityState === "visible") {
-        requestLocationNow();
-      } else {
-        dispatchBridge("ensureBackgroundRunning", { background: true, nonstop: true, retry90s: true });
-      }
-    });
-  })();
-</script>
-
-
-
-
-
