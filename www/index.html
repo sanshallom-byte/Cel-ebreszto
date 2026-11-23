@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="hu" dir="ltr">
 <head>
@@ -319,6 +320,74 @@
       border-color: var(--accent);
     }
 
+    /* Felső súgóbuborék (x gombbal zárható, ujjal görgethető) */
+    .help-bubble {
+      position: relative;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      background: var(--surface);
+      border: var(--btn-border-width) solid var(--accent);
+      border-radius: 18px;
+      padding: 12px 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .help-bubble.open {
+      display: flex;
+    }
+
+    .help-bubble-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .help-bubble-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .help-close-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 800;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .help-bubble-scroll {
+      max-height: 230px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+      padding-right: 4px;
+      font-size: 0.85rem;
+      line-height: 1.48;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .help-bubble-scroll p {
+      margin: 0;
+    }
+
     .prompt-title {
       margin: 2px 0 0;
       text-align: center;
@@ -512,20 +581,6 @@
       color: var(--muted);
       font-size: 0.78rem;
       word-break: break-all;
-    }
-
-    .help-box {
-      border-top: 1px dashed var(--border);
-      padding-top: 8px;
-      font-size: 0.78rem;
-      color: var(--muted);
-      line-height: 1.4;
-    }
-
-    .help-box strong {
-      color: var(--text);
-      display: block;
-      margin-bottom: 2px;
     }
 
     .drawer {
@@ -883,8 +938,18 @@
         <button id="voiceBtn" class="icon-btn" type="button" title="Hangvezérlés">🎤</button>
         <button id="themeBtn" class="icon-btn" type="button" title="Dizájn és szimuláció">🎨</button>
         <button id="editModeBtn" class="icon-btn" type="button" title="Helyek szerkesztése">✏️</button>
+        <button id="helpBtn" class="icon-btn" type="button" title="Súgó">?</button>
       </div>
     </header>
+
+    <!-- Felső súgóbuborék (sarokban x gombbal zárható, ujjal görgethető) -->
+    <section id="helpBubble" class="help-bubble" aria-label="Súgó">
+      <div class="help-bubble-header">
+        <h2 id="helpBubbleTitle" class="help-bubble-title">Súgó</h2>
+        <button id="closeHelpBtn" class="help-close-btn" type="button" aria-label="Bezárás">×</button>
+      </div>
+      <div id="helpBubbleScroll" class="help-bubble-scroll"></div>
+    </section>
 
     <div id="langMenu" class="panel" style="display:none; gap:8px;">
       <div id="langMenuTitle" class="drawer-title">Nyelv kiválasztása</div>
@@ -909,7 +974,7 @@
         <button id="previewSoundBtn" class="action-btn" type="button">Próbahang</button>
       </div>
 
-      <!-- Új sor a hangbeállításon belül: beszédhang-karakter választó (Robot alapértelmezett) -->
+      <!-- Beszédhang-karakter választó (Robot alapértelmezett) -->
       <div class="voice-persona-row">
         <span id="voicePersonaLabel" class="voice-persona-label">Jelzés beszédhangja:</span>
         <div class="voice-persona-buttons" role="group" aria-label="Beszédhang választása">
@@ -928,12 +993,6 @@
         <input id="customAudioInput" type="file" accept="audio/*" style="display:none;" />
       </div>
       <div id="customAudioInfo" class="custom-file-badge">Nincs külön betöltött hangfájl (beépített hangok aktívak).</div>
-
-      <!-- Súgó-hozzáfűzés: pincés / aluljárós vételmegszakadás és automata újracsatlakozás -->
-      <div id="basementHelpBox" class="help-box">
-        <strong id="basementHelpTitle">Súgó — Pince, aluljáró, metró</strong>
-        <span id="basementHelpText">Ne aggódj, ha lemész a pincébe és eltűnik a vétel, arról kapsz egy értesítést. Én egyfolytában igyekszem újra felvenni a kapcsolatot a GPS-szel, és ahogy sikerül, jelzek neked.</span>
-      </div>
     </section>
 
     <section id="themeDrawer" class="drawer" aria-label="Dizájn és szimuláció">
@@ -1056,31 +1115,39 @@
       const STAGNATION_METERS = 100; // 100 méter alatti elmozdulás
 
       const LANGUAGES = [
-        { code: "hu", speech: "hu-HU", dir: "ltr", label: "Magyar" },
-        { code: "en", speech: "en-US", dir: "ltr", label: "English" },
-        { code: "he", speech: "he-IL", dir: "rtl", label: "עברית" },
-        { code: "ar", speech: "ar-SA", dir: "rtl", label: "العربية" },
-        { code: "ru", speech: "ru-RU", dir: "ltr", label: "Русский" },
-        { code: "am", speech: "am-ET", dir: "ltr", label: "አማርኛ" },
-        { code: "ti", speech: "ti-ET", dir: "ltr", label: "ትግርኛ" },
-        { code: "vi", speech: "vi-VN", dir: "ltr", label: "Tiếng Việt" },
-        { code: "fr", speech: "fr-FR", dir: "ltr", label: "Français" },
-        { code: "es", speech: "es-ES", dir: "ltr", label: "Español" },
-        { code: "de", speech: "de-DE", dir: "ltr", label: "Deutsch" },
-        { code: "zh", speech: "zh-CN", dir: "ltr", label: "中文" },
-        { code: "ja", speech: "ja-JP", dir: "ltr", label: "日本語" },
-        { code: "ko", speech: "ko-KR", dir: "ltr", label: "한국어" },
-        { code: "it", speech: "it-IT", dir: "ltr", label: "Italiano" },
-        { code: "pt", speech: "pt-PT", dir: "ltr", label: "Português" },
-        { code: "uk", speech: "uk-UA", dir: "ltr", label: "Українська" },
-        { code: "pl", speech: "pl-PL", dir: "ltr", label: "Polski" },
-        { code: "tr", speech: "tr-TR", dir: "ltr", label: "Türkçe" },
-        { code: "hi", speech: "hi-IN", dir: "ltr", label: "हिन्दी" },
-        { code: "sw", speech: "sw-KE", dir: "ltr", label: "Kiswahili" }
+        { code: "hu", speech: "hu-HU", dir: "ltr", label: "Magyar", greeting: "Szia" },
+        { code: "en", speech: "en-US", dir: "ltr", label: "English", greeting: "Hello" },
+        { code: "he", speech: "he-IL", dir: "rtl", label: "עברית", greeting: "שלום" },
+        { code: "ar", speech: "ar-SA", dir: "rtl", label: "العربية", greeting: "مرحبًا" },
+        { code: "ru", speech: "ru-RU", dir: "ltr", label: "Русский", greeting: "Привет" },
+        { code: "am", speech: "am-ET", dir: "ltr", label: "አማርኛ", greeting: "ሰላም" },
+        { code: "ti", speech: "ti-ET", dir: "ltr", label: "ትግርኛ", greeting: "ሰላም" },
+        { code: "vi", speech: "vi-VN", dir: "ltr", label: "Tiếng Việt", greeting: "Xin chào" },
+        { code: "fr", speech: "fr-FR", dir: "ltr", label: "Français", greeting: "Bonjour" },
+        { code: "es", speech: "es-ES", dir: "ltr", label: "Español", greeting: "Hola" },
+        { code: "de", speech: "de-DE", dir: "ltr", label: "Deutsch", greeting: "Hallo" },
+        { code: "zh", speech: "zh-CN", dir: "ltr", label: "中文", greeting: "你好" },
+        { code: "ja", speech: "ja-JP", dir: "ltr", label: "日本語", greeting: "こんにちは" },
+        { code: "ko", speech: "ko-KR", dir: "ltr", label: "한국어", greeting: "안녕하세요" },
+        { code: "it", speech: "it-IT", dir: "ltr", label: "Italiano", greeting: "Ciao" },
+        { code: "pt", speech: "pt-PT", dir: "ltr", label: "Português", greeting: "Olá" },
+        { code: "uk", speech: "uk-UA", dir: "ltr", label: "Українська", greeting: "Привіт" },
+        { code: "pl", speech: "pl-PL", dir: "ltr", label: "Polski", greeting: "Cześć" },
+        { code: "tr", speech: "tr-TR", dir: "ltr", label: "Türkçe", greeting: "Merhaba" },
+        { code: "hi", speech: "hi-IN", dir: "ltr", label: "हिन्दी", greeting: "नमस्ते" },
+        { code: "sw", speech: "sw-KE", dir: "ltr", label: "Kiswahili", greeting: "Jambo" }
       ];
 
       const EXTRA_STRINGS = {
         hu: {
+          helpTitle: "Súgó",
+          helpPoints: [
+            "Állítsd be az általad kívánt nyelvet a földgömb (🌐) ikonnál — itt választhatod ki, milyen nyelven szeretnéd használni az alkalmazást.",
+            "Állítsd be a megjelenési stílust a paletta (🎨) ikonnál, a hangokat (riasztási és beszédhang: robot, férfi, női) a hangbeállításoknál és a mikrofon (🎤) ikonnál.",
+            "Állítsd be a célpontokat térkép vagy pontos cím beírása segítségével, majd mentsd el őket. Ezeket csak akkor tudod a későbbiekben megváltoztatni, ha a ceruza (✏️) ikonra a szerkesztésre rákapcsolsz; enélkül csak váltogatni tudsz a címek között.",
+            "A keresést a Figyelés indítása gombbal tudod elindítani. Ha már csatlakoztál a telefonoddal a helymeghatározáshoz, a hármas ablakban az eleve kipipálva jön ki (ha nem, saját kezűleg kell bekapcsolnod), és még két gombot kell kipipálnod: hogy engedélyezed az alkalmazásnak a helymeghatározás használatát, illetve hogy a háttérben is használja.",
+            "A vételi jel esetleges eltűnése miatt (pince, metró, aluljáró stb.) a jel eltűnéséről a megadott hangon és felugró ablakban írva tájékoztatlak. Attól a pillanattól 90 másodpercenként igyekszem újra csatlakozni a helymeghatározóhoz, és ahogy sikerül újra csatlakozni, arról is felugró ablakban és a kiválasztott hangon értesítelek."
+          ],
           voicePersonaLabel: "Jelzés beszédhangja:",
           personaRobot: "Robot (C-3PO)",
           personaMale: "Férfi",
@@ -1089,11 +1156,17 @@
           signalFoundMsg: "Újra jelet találtam, folytatódik a figyelés.",
           farewellTitle: "Köszönjük az utazást!",
           farewellBody: "Ha nincs többé szükséged a helymeghatározásra, kapcsold ki a telefonon.",
-          stagnationPrompt: "Egy órája 100 méteren belül mozogsz. Folytatod a figyelést?",
-          helpTitle: "Súgó — Pince, aluljáró, metró",
-          helpBody: "Ne aggódj, ha lemész a pincébe és eltűnik a vétel, arról kapsz egy értesítést. Én egyfolytában igyekszem újra felvenni a kapcsolatot a GPS-szel, és ahogy sikerül, jelzek neked."
+          stagnationPrompt: "Egy órája 100 méteren belül mozogsz. Folytatod a figyelést?"
         },
         en: {
+          helpTitle: "Help",
+          helpPoints: [
+            "Set your preferred language at the globe (🌐) icon — choose the language you want to use in the app.",
+            "Set the appearance style at the palette (🎨) icon, and choose alarm and voice sounds (robot, male, female) in the sound settings and at the microphone (🎤) icon.",
+            "Set destinations using the map or by typing an exact address, then save them. You can change them later only when edit mode is turned on with the pencil (✏️) icon; otherwise you can only switch between saved places.",
+            "Start searching with the Start watching button. If your phone is already connected to location services, that item appears pre-checked in the three-part prompt (if not, turn it on yourself), and you also check two permissions: allowing the app to use your location and allowing background use.",
+            "If reception drops (basement, metro, underpass, etc.), you get a notice in writing in a popup and with the selected voice. From that moment I try to reconnect to location every 90 seconds, and as soon as reconnection succeeds, I notify you in a popup and with your chosen voice."
+          ],
           voicePersonaLabel: "Alert voice character:",
           personaRobot: "Robot (C-3PO)",
           personaMale: "Male",
@@ -1102,11 +1175,17 @@
           signalFoundMsg: "Signal found again, watching continues.",
           farewellTitle: "Thanks for the trip!",
           farewellBody: "If you no longer need location services, turn location off on your device.",
-          stagnationPrompt: "You moved under 100m for an hour. Continue watching?",
-          helpTitle: "Help — Basement, underpass, metro",
-          helpBody: "Don't worry if you go into a basement and reception drops, you'll get a notice. I keep trying to reconnect to GPS continuously and let you know as soon as it returns."
+          stagnationPrompt: "You moved under 100m for an hour. Continue watching?"
         },
         he: {
+          helpTitle: "עזרה",
+          helpPoints: [
+            "בחר את השפה הרצויה באייקון הגלובוס (🌐) — כאן בוחרים באיזו שפה להשתמש באפליקציה.",
+            "בחר סגנון תצוגה באייקון הפלטה (🎨), ובחר צלילי התראה וקול (רובוט, גבר, אישה) בהגדרות הקול ובאייקון המיקרופון (🎤).",
+            "הגדר יעדים באמצעות מפה או הזנת כתובת מדויקת ושמור אותם. ניתן לשנות אותם בהמשך רק לאחר הפעלת מצב עריכה באייקון העיפרון (✏️); אחרת אפשר רק לעבור בין המקומות.",
+            "התחל חיפוש באמצעות כפתור התחל מעקב. אם הטלפון כבר מחובר למיקום, הפריט מופיע מסומן מראש בחלון התלת-שלבי (אם לא, הפעל ידנית), ויש לסמן עוד שתי הרשאות: שימוש במיקום על ידי האפליקציה ושימוש ברקע.",
+            "אם הקליטה אובדת (מרתף, מטרו, מעבר תת-קרקעי וכו'), תקבל הודעה בחלון קופץ ובקול שבחרת. מרגע זה אנסה להתחבר מחדש למיקום כל 90 שניות, וכשהחיבור יחזור אודיע לך בחלון קופץ ובקול שבחרת."
+          ],
           voicePersonaLabel: "דמות קול להתראה:",
           personaRobot: "רובוט (C-3PO)",
           personaMale: "גבר",
@@ -1115,11 +1194,17 @@
           signalFoundMsg: "האות חזר, המעקב נמשך.",
           farewellTitle: "תודה על הנסיעה!",
           farewellBody: "אם אין צורך עוד במיקום, כבה את שירותי המיקום במכשיר.",
-          stagnationPrompt: "נשארת בטווח של 100 מטר במשך שעה. להמשיך במעקב?",
-          helpTitle: "עזרה — מרתף, מעבר תת-קרקעי, מטרו",
-          helpBody: "אל תדאג אם ירדת למרתף והקליטה אבדה — תקבל התראה. אמשיך לנסות להתחבר מחדש ל-GPS ואודיע לך כשהאות יחזור."
+          stagnationPrompt: "נשארת בטווח של 100 מטר במשך שעה. להמשיך במעקב?"
         },
         ar: {
+          helpTitle: "مساعدة",
+          helpPoints: [
+            "اختر اللغة المطلوبة من أيقونة الكرة الأرضية (🌐) لتحديد لغة التطبيق.",
+            "اختر نمط العرض من أيقونة اللوحة (🎨)، واختر أصوات التنبيه والصوت (روبوت، ذكر، أنثى) من إعدادات الصوت وأيقونة الميكروفون (🎤).",
+            "حدد الوجهات عبر الخريطة أو كتابة العنوان الدقيق ثم احفظها. لا يمكن تعديلها لاحقًا إلا بتفعيل وضع التعديل من أيقونة القلم (✏️)، وإلا يمكنك التنقل بينها فقط.",
+            "ابدأ البحث بزر بدء المتابعة. إذا كان الهاتف متصلاً بالموقع فسيظهر الخيار محددًا مسبقًا (وإلا فعّله يدويًا)، وهناك إذنان إضافيان: سماح التطبيق باستخدام الموقع واستخدامه في الخلفية.",
+            "عند انقطاع الإشارة (قبو، مترو، نفق، إلخ) يتم إعلامك كتابيًا في نافذة منبثقة وبالصوت المحدد. ومن تلك اللحظة أحاول إعادة الاتصال بالموقع كل 90 ثانية وعند العودة أُعلمك في نافذة منبثقة وبالصوت المختار."
+          ],
           voicePersonaLabel: "شخصية صوت التنبيه:",
           personaRobot: "روبوت (C-3PO)",
           personaMale: "ذكر",
@@ -1128,11 +1213,17 @@
           signalFoundMsg: "عادت الإشارة، تستمر المتابعة.",
           farewellTitle: "شكرًا للرحلة!",
           farewellBody: "إذا لم تعد بحاجة إلى الموقع، أوقف تشغيل الموقع في هاتفك.",
-          stagnationPrompt: "تحركت أقل من 100 متر خلال ساعة. هل نواصل المتابعة؟",
-          helpTitle: "مساعدة — قبو، نفق، مترو",
-          helpBody: "لا تقلق إذا نزلت إلى قبو وانقطعت الإشارة فستصلك رسالة. سأستمر بمحاولة الاتصال بـ GPS وأعلمك عند عودتها."
+          stagnationPrompt: "تحركت أقل من 100 متر خلال ساعة. هل نواصل المتابعة؟"
         },
         ru: {
+          helpTitle: "Справка",
+          helpPoints: [
+            "Выберите нужный язык на значке глобуса (🌐) — здесь задаётся язык приложения.",
+            "Выберите стиль оформления на значке палитры (🎨), а сигналы и голос (робот, мужской, женский) — в настройках звука и на значке микрофона (🎤).",
+            "Задайте цели на карте или по точному адресу и сохраните их. Изменить их позже можно только при включённом режиме редактирования (✏️); без него доступно только переключение между местами.",
+            "Запустите поиск кнопкой Начать слежение. Если геолокация на телефоне уже включена, пункт будет отмечен (если нет — включите вручную), а также нужно отметить два разрешения: использование локации приложением и в фоне.",
+            "При потере сигнала (подвал, метро, переход и т. п.) появится уведомление в окне и выбранным голосом. С этого момента попытки переподключения идут каждые 90 секунд, а при возврате сигнала придёт оповещение в окне и голосом."
+          ],
           voicePersonaLabel: "Голос оповещения:",
           personaRobot: "Робот (C-3PO)",
           personaMale: "Мужской",
@@ -1141,37 +1232,17 @@
           signalFoundMsg: "Сигнал найден снова, слежение продолжается.",
           farewellTitle: "Спасибо за поездку!",
           farewellBody: "Если геолокация больше не нужна, выключите её на устройстве.",
-          stagnationPrompt: "Вы оставались в пределах 100 м целый час. Продолжить слежение?",
-          helpTitle: "Справка — Подвал, переход, метро",
-          helpBody: "Не переживайте, если спуститесь в подвал и сигнал пропадёт — придёт уведомление. Я буду непрерывно пробовать восстановить GPS и сообщу при возврате."
-        },
-        am: {
-          voicePersonaLabel: "የማንቂያ ድምፅ ባህሪ:",
-          personaRobot: "ሮቦት (C-3PO)",
-          personaMale: "ወንድ",
-          personaFemale: "ሴት",
-          signalLostMsg: "ምልክት ጠፍቷል፣ በመፈለግ ላይ።",
-          signalFoundMsg: "ምልክት ተመልሷል፣ ክትትል ይቀጥላል።",
-          farewellTitle: "ስለ ጉዞዎ እናመሰግናለን!",
-          farewellBody: "አካባቢ ማሳወቂያ ከአሁን በኋላ ካላስፈለገዎ ያጥፉት።",
-          stagnationPrompt: "ለአንድ ሰዓት ከ100 ሜትር ያነሰ ተንቀሳቅሰዋል። ክትትሉ ይቀጥል?",
-          helpTitle: "እገዛ — ምድር ቤት፣ መተላለፊያ፣ ሜትሮ",
-          helpBody: "ወደ ምድር ቤት ገብተው ሲግናል ቢጠፋ አይጨነቁ፣ ማሳወቂያ ይደርስዎታል። GPS ለማገናኘት ያለማቋረጥ እሞክራለሁ ሲመለስም እነግርዎታለሁ።"
-        },
-        ti: {
-          voicePersonaLabel: "ባህሪ ድምጺ መጠንቀቒ:",
-          personaRobot: "ሮቦት (C-3PO)",
-          personaMale: "ተባዕታይ",
-          personaFemale: "ኣንስተይቲ",
-          signalLostMsg: "ምልክት ጠፊኡ፣ ይደሊ ኣሎ።",
-          signalFoundMsg: "ምልክት ተመሊሱ፣ ክትትል ይቕጽል ኣሎ።",
-          farewellTitle: "ንጉዕዞኹም የቐንየልና!",
-          farewellBody: "ቦታ ምፍላጥ ደጊም እንተ ዘየድልየኩም ኣጥፍእዎ።",
-          stagnationPrompt: "ንሓደ ሰዓት ትሕቲ 100 ሜተር ተንቀሳቒስኩም። ክትትል ይቀጥል?",
-          helpTitle: "ሓገዝ — ትሕቲ መሬት፣ መሕለፊ፣ ሜትሮ",
-          helpBody: "ናብ ትሕቲ መሬት ኣቲኹም ምልክት እንተ ጠፍአ ኣይትጨነቑ፣ መልእኽቲ ክትቅበሉ ኢኹም። ምስ GPS ንምርኻብ ብቐጻሊ ክፍትን እየ ምስ ተመልሰ ድማ ክሕብረኩም እየ።"
+          stagnationPrompt: "Вы оставались в пределах 100 м целый час. Продолжить слежение?"
         },
         vi: {
+          helpTitle: "Trợ giúp",
+          helpPoints: [
+            "Chọn ngôn ngữ mong muốn ở biểu tượng quả địa cầu (🌐) để dùng ứng dụng theo ngôn ngữ đó.",
+            "Chọn kiểu giao diện ở biểu tượng bảng màu (🎨), chọn âm báo và giọng đọc (robot, nam, nữ) trong cài đặt âm thanh và biểu tượng micro (🎤).",
+            "Đặt điểm đến trên bản đồ hoặc nhập địa chỉ chính xác rồi lưu lại. Chỉ có thể sửa sau này khi bật chế độ chỉnh sửa ở biểu tượng bút chì (✏️); nếu không chỉ chuyển đổi qua lại giữa các địa điểm.",
+            "Bắt đầu tìm kiếm bằng nút Bắt đầu theo dõi. Nếu điện thoại đã bật định vị, mục này sẽ được tích sẵn (nếu chưa thì tự bật), cùng hai quyền cho phép ứng dụng dùng vị trí và dùng ở chế độ nền.",
+            "Khi mất tín hiệu (tầng hầm, tàu điện ngầm, hầm đi bộ...), bạn sẽ nhận thông báo chữ trong ô nổi và bằng giọng đã chọn. Từ lúc đó hệ thống thử kết nối lại vị trí mỗi 90 giây và báo lại trong ô nổi cùng giọng đọc khi có tín hiệu."
+          ],
           voicePersonaLabel: "Giọng đọc cảnh báo:",
           personaRobot: "Robot (C-3PO)",
           personaMale: "Nam",
@@ -1180,178 +1251,7 @@
           signalFoundMsg: "Đã có lại tín hiệu, tiếp tục theo dõi.",
           farewellTitle: "Cảm ơn bạn đã đồng hành!",
           farewellBody: "Nếu không cần định vị nữa, hãy tắt định vị trên thiết bị.",
-          stagnationPrompt: "Bạn di chuyển dưới 100m suốt 1 giờ. Tiếp tục theo dõi?",
-          helpTitle: "Trợ giúp — Tầng hầm, hầm đi bộ, tàu điện ngầm",
-          helpBody: "Đừng lo nếu xuống tầng hầm và mất sóng, bạn sẽ nhận thông báo. Tôi sẽ liên tục thử kết nối lại GPS và báo khi có tín hiệu lại."
-        },
-        fr: {
-          voicePersonaLabel: "Voix d'alerte :",
-          personaRobot: "Robot (C-3PO)",
-          personaMale: "Homme",
-          personaFemale: "Femme",
-          signalLostMsg: "Signal perdu, recherche en cours.",
-          signalFoundMsg: "Signal retrouvé, suivi en cours.",
-          farewellTitle: "Merci pour le trajet !",
-          farewellBody: "Si vous n'avez plus besoin de la localisation, désactivez-la.",
-          stagnationPrompt: "Déplacement sous 100 m pendant 1 h. Continuer le suivi ?",
-          helpTitle: "Aide — Sous-sol, passage souterrain, métro",
-          helpBody: "Ne vous inquiétez pas si vous entrez en sous-sol et perdez le signal, vous serez prévenu. Je réessaie en continu de joindre le GPS et vous préviens au retour."
-        },
-        es: {
-          voicePersonaLabel: "Voz de aviso:",
-          personaRobot: "Robot (C-3PO)",
-          personaMale: "Hombre",
-          personaFemale: "Mujer",
-          signalLostMsg: "Señal perdida, buscando.",
-          signalFoundMsg: "Señal recuperada, continúa el seguimiento.",
-          farewellTitle: "¡Gracias por el viaje!",
-          farewellBody: "Si ya no necesitas la ubicación, desactívala en tu dispositivo.",
-          stagnationPrompt: "Menos de 100 m durante 1 hora. ¿Continuar seguimiento?",
-          helpTitle: "Ayuda — Sótano, paso subterráneo, metro",
-          helpBody: "No te preocupes si bajas a un sótano y se pierde la señal, recibirás un aviso. Seguiré intentando reconectar el GPS y te avisaré al volver."
-        },
-        de: {
-          voicePersonaLabel: "Ansagestimme:",
-          personaRobot: "Roboter (C-3PO)",
-          personaMale: "Männlich",
-          personaFemale: "Weiblich",
-          signalLostMsg: "Signal verloren, suche.",
-          signalFoundMsg: "Signal wieder da, Überwachung läuft weiter.",
-          farewellTitle: "Danke für die Fahrt!",
-          farewellBody: "Wenn kein GPS mehr benötigt wird, schalte es bitte aus.",
-          stagnationPrompt: "Eine Stunde unter 100 m bewegt. Überwachung fortsetzen?",
-          helpTitle: "Hilfe — Keller, Unterführung, U-Bahn",
-          helpBody: "Keine Sorge, wenn im Keller der Empfang abreißt, erhältst du einen Hinweis. Ich versuche laufend, das GPS neu zu verbinden und melde mich, sobald es klappt."
-        },
-        zh: {
-          voicePersonaLabel: "提示音语音角色：",
-          personaRobot: "机器人 (C-3PO)",
-          personaMale: "男声",
-          personaFemale: "女声",
-          signalLostMsg: "信号丢失，正在搜索。",
-          signalFoundMsg: "已重新找到信号，继续监控。",
-          farewellTitle: "感谢您的行程！",
-          farewellBody: "如不再需要定位，请关闭设备上的定位服务。",
-          stagnationPrompt: "一小时内移动不足100米。是否继续监控？",
-          helpTitle: "帮助 — 地下室、地下通道、地铁",
-          helpBody: "进入地下室失去信号不必担心，你会收到提示。我会持续尝试重连 GPS，恢复后会通知你。"
-        },
-        ja: {
-          voicePersonaLabel: "通知音声キャラクター：",
-          personaRobot: "ロボット (C-3PO)",
-          personaMale: "男性",
-          personaFemale: "女性",
-          signalLostMsg: "電波が途切れました。検索中です。",
-          signalFoundMsg: "電波が戻りました。監視を続けます。",
-          farewellTitle: "ご利用ありがとうございました！",
-          farewellBody: "位置情報が不要になったら、端末の位置情報をオフにしてください。",
-          stagnationPrompt: "1時間100m未満の移動です。監視を続けますか？",
-          helpTitle: "ヘルプ — 地下、地下道、地下鉄",
-          helpBody: "地下に入って電波が切れても心配しないでください。通知でお知らせします。GPS再接続を続け、戻ったらお知らせします。"
-        },
-        ko: {
-          voicePersonaLabel: "알림 음성 캐릭터:",
-          personaRobot: "로봇 (C-3PO)",
-          personaMale: "남성",
-          personaFemale: "여성",
-          signalLostMsg: "신호가 끊겼습니다. 찾는 중입니다.",
-          signalFoundMsg: "신호가 다시 잡혔습니다. 감시를 계속합니다.",
-          farewellTitle: "이용해 주셔서 감사합니다!",
-          farewellBody: "위치 정보가 더 이상 필요하지 않으면 기기에서 끄세요.",
-          stagnationPrompt: "1시간 동안 100m 미만 이동했습니다. 계속 감시할까요?",
-          helpTitle: "도움말 — 지하, 지하도, 지하철",
-          helpBody: "지하로 들어가 신호가 끊겨도 걱정 마세요. 알림을 드립니다. GPS 재연결을 계속 시도하며 다시 연결되면 알려드립니다."
-        },
-        it: {
-          voicePersonaLabel: "Voce avviso:",
-          personaRobot: "Robot (C-3PO)",
-          personaMale: "Uomo",
-          personaFemale: "Donna",
-          signalLostMsg: "Segnale perso, ricerca in corso.",
-          signalFoundMsg: "Segnale ritrovato, controllo attivo.",
-          farewellTitle: "Grazie per il viaggio!",
-          farewellBody: "Se non ti serve più la posizione, disattivala sul dispositivo.",
-          stagnationPrompt: "Meno di 100 m per un'ora. Continuare il controllo?",
-          helpTitle: "Guida — Seminterrato, sottopasso, metro",
-          helpBody: "Non preoccuparti se entri in un seminterrato e manca il segnale, riceverai un avviso. Riprendo costantemente il GPS e ti avviso al ritorno."
-        },
-        pt: {
-          voicePersonaLabel: "Voz do aviso:",
-          personaRobot: "Robô (C-3PO)",
-          personaMale: "Masculino",
-          personaFemale: "Feminino",
-          signalLostMsg: "Sinal perdido, a procurar.",
-          signalFoundMsg: "Sinal recuperado, vigilância a continuar.",
-          farewellTitle: "Obrigado pela viagem!",
-          farewellBody: "Se já não precisar da localização, desligue-a no dispositivo.",
-          stagnationPrompt: "Menos de 100 m durante 1 hora. Continuar vigilância?",
-          helpTitle: "Ajuda — Cave, passagem subterrânea, metro",
-          helpBody: "Não se preocupe se entrar numa cave e perder o sinal, receberá um aviso. Tento continuamente religar o GPS e aviso quando regressar."
-        },
-        uk: {
-          voicePersonaLabel: "Голос сповіщення:",
-          personaRobot: "Робот (C-3PO)",
-          personaMale: "Чоловічий",
-          personaFemale: "Жіночий",
-          signalLostMsg: "Сигнал зник, шукаю.",
-          signalFoundMsg: "Сигнал знову знайдено, стеження триває.",
-          farewellTitle: "Дякуємо за поїздку!",
-          farewellBody: "Якщо геолокація більше не потрібна, вимкніть її.",
-          stagnationPrompt: "Рух менше 100 м протягом години. Продовжити стеження?",
-          helpTitle: "Довідка — Підвал, перехід, метро",
-          helpBody: "Не хвилюйтеся, якщо зайдете в підвал і сигнал зникне — надійде сповіщення. Я постійно намагатимусь відновити GPS і повідомлю."
-        },
-        pl: {
-          voicePersonaLabel: "Głos komunikatu:",
-          personaRobot: "Robot (C-3PO)",
-          personaMale: "Męski",
-          personaFemale: "Żeński",
-          signalLostMsg: "Utracono sygnał, szukam.",
-          signalFoundMsg: "Ponownie wykryto sygnał, śledzenie trwa.",
-          farewellTitle: "Dziękujemy za podróż!",
-          farewellBody: "Jeśli lokalizacja nie jest już potrzebna, wyłącz ją.",
-          stagnationPrompt: "Ruch poniżej 100 m przez godzinę. Kontynuować śledzenie?",
-          helpTitle: "Pomoc — Piwnica, przejście podziemne, metro",
-          helpBody: "Nie martw się, jeśli wejdziesz do piwnicy i zniknie zasięg — dostaniesz powiadomienie. Stale próbuję połączyć GPS i dam znać, gdy wróci."
-        },
-        tr: {
-          voicePersonaLabel: "Uyarı sesi karakteri:",
-          personaRobot: "Robot (C-3PO)",
-          personaMale: "Erkek",
-          personaFemale: "Kadın",
-          signalLostMsg: "Sinyal kayboldu, aranıyor.",
-          signalFoundMsg: "Sinyal yeniden bulundu, takip sürüyor.",
-          farewellTitle: "Yolculuk için teşekkürler!",
-          farewellBody: "Konuma artık ihtiyacınız yoksa cihazdan kapatın.",
-          stagnationPrompt: "Bir saat boyunca 100 m altında hareket. Takip sürsün mü?",
-          helpTitle: "Yardım — Bodrum, alt geçit, metro",
-          helpBody: "Bodruma girip sinyal kesilirse endişelenmeyin, bildirim alırsınız. GPS'i sürekli yeniden bağlamayı dener ve dönünce haber veririm."
-        },
-        hi: {
-          voicePersonaLabel: "सूचना आवाज़ चरित्र:",
-          personaRobot: "रोबोट (C-3PO)",
-          personaMale: "पुरुष",
-          personaFemale: "महिला",
-          signalLostMsg: "सिग्नल खो गया, खोज रहा हूँ।",
-          signalFoundMsg: "सिग्नल फिर मिल गया, निगरानी जारी है।",
-          farewellTitle: "यात्रा के लिए धन्यवाद!",
-          farewellBody: "यदि अब लोकेशन की ज़रूरत नहीं है तो इसे बंद कर दें।",
-          stagnationPrompt: "एक घंटे तक 100 मीटर से कम हलचल। निगरानी जारी रखें?",
-          helpTitle: "सहायता — तहखाना, अंडरपास, मेट्रो",
-          helpBody: "तहखाने में जाकर सिग्नल गुम हो तो चिंता न करें, सूचना मिलेगी। मैं लगातार GPS जोड़ने की कोशिश करूँगा और वापस आने पर बताऊँगा।"
-        },
-        sw: {
-          voicePersonaLabel: "Sauti ya arifa:",
-          personaRobot: "Roboti (C-3PO)",
-          personaMale: "Mwanaume",
-          personaFemale: "Mwanamke",
-          signalLostMsg: "Ishara imepotea, natafuta.",
-          signalFoundMsg: "Ishara imepatikana tena, ufuatiliaji unaendelea.",
-          farewellTitle: "Asante kwa safari!",
-          farewellBody: "Ikiwa huhitaji tena eneo, lizime kwenye kifaa chako.",
-          stagnationPrompt: "Umesogea chini ya mita 100 kwa saa moja. Uendelee kufuatilia?",
-          helpTitle: "Msaada — Chini ya ardhi, njia ya chini, metro",
-          helpBody: "Usijali ukiingia chini ya ardhi na ishara ikapotea, utapata arifa. Nitaendelea kujaribu kuunganisha GPS na kukujulisha ikirudi."
+          stagnationPrompt: "Bạn di chuyển dưới 100m suốt 1 giờ. Tiếp tục theo dõi?"
         }
       };
 
@@ -1610,26 +1510,12 @@
           voiceNotFound: "لم يتم التعرف:",
           voiceUnavailable: "التعرف الصوتي غير متاح.",
           defaultPlaces: ["المنزل", "العمل", "مكان 3", "مكان 4", "مكان 5", "مكان 6", "مكان 7", "مكان 8", "مكان 9", "مكان 10"],
-          themes: {
-            classic: "كلاسيكي",
-            glass: "شفاف",
-            cartoon: "كرتوني",
-            gothic: "قوطي",
-            renaissance: "عصر النهضة",
-            punk: "بانك"
-          },
+          themes: { classic: "كلاسيكي", glass: "شفاف", cartoon: "كرتوني", gothic: "قوطي", renaissance: "عصر النهضة", punk: "بانك" },
           sounds: {
-            roman_horn: "بوق روماني",
-            clock_bell: "جرس منبه كلاسيكي",
-            ship_horn: "بوق سفينة",
-            train_whistle: "صافرة قطار",
-            sonar_ping: "إشارة سونار",
-            fire_alarm: "إنذار طوارئ",
-            bronze_gong: "جونغ برونزي",
-            bugle_call: "نداء بوق",
-            church_bell: "جرس كنيسة",
-            morse_sos: "إشارة مورس",
-            digital_pulse: "نبض رقمي"
+            roman_horn: "بوق روماني", clock_bell: "جرس منبه كلاسيكي", ship_horn: "بوق سفينة",
+            train_whistle: "صافرة قطار", sonar_ping: "إشارة سونار", fire_alarm: "إنذار طوارئ",
+            bronze_gong: "جونغ برونزي", bugle_call: "نداء بوق", church_bell: "جرس كنيسة",
+            morse_sos: "إشارة مورس", digital_pulse: "نبض رقمي"
           }
         },
         ru: {
@@ -1679,164 +1565,12 @@
           voiceNotFound: "Не распознано:",
           voiceUnavailable: "Голосовой ввод недоступен.",
           defaultPlaces: ["Дом", "Работа", "Место 3", "Место 4", "Место 5", "Место 6", "Место 7", "Место 8", "Место 9", "Место 10"],
-          themes: {
-            classic: "Классика",
-            glass: "Прозрачный",
-            cartoon: "Комикс",
-            gothic: "Готика",
-            renaissance: "Ренессанс",
-            punk: "Панк"
-          },
+          themes: { classic: "Классика", glass: "Прозрачный", cartoon: "Комикс", gothic: "Готика", renaissance: "Ренессанс", punk: "Панк" },
           sounds: {
-            roman_horn: "Римский горн",
-            clock_bell: "Звонок будильника",
-            ship_horn: "Гудок корабля",
-            train_whistle: "Гудок поезда",
-            sonar_ping: "Сигнал сонара",
-            fire_alarm: "Тревога",
-            bronze_gong: "Бронзовый гонг",
-            bugle_call: "Сигнал горна",
-            church_bell: "Колокол",
-            morse_sos: "Сигнал Морзе",
-            digital_pulse: "Импульс"
-          }
-        },
-        am: {
-          brandTitle: "የመድረሻ ማንቂያ",
-          promptTitle: "ወዴት እየሄዱ ነው?",
-          langMenuTitle: "ቋንቋ ይምረጡ",
-          startWatch: "ክትትል ጀምር",
-          stopWatch: "ክትትል አቁም",
-          previewSound: "ድምፅ ሞክር",
-          loudMode: "ከፍተኛ ድምፅ (ከሙዚቃ ጋር)",
-          pickAudio: "የራስዎን ድምፅ ይጫኑ",
-          noCustomAudio: "የተጫነ የራስ ድምፅ የለም።",
-          customAudioLoaded: "የራስ ድምፅ: ",
-          choosePlace: "ከ10 ቦታዎች አንዱን ይምረጡ።",
-          tapToWatch: "ለመከታተል ቦታ ይንኩ ወይም ✏️ ይጫኑ።",
-          editModeOn: "የማስተካከያ ሁነታ በርቷል።",
-          noCoordsYet: "ቦታ አልተመረጠም። በካርታ ይምረጡ ወይም አድራሻ ይፈልጉ።",
-          watchingActive: "የGPS ክትትል በርቷል።",
-          coordsReady: "መድረሻ ተቀምጧል። 'ክትትል ጀምር' ይጫኑ።",
-          beforeSuffix: "ቀደም ብሎ",
-          fixedPlace: "ቋሚ",
-          freePlace: "ነፃ",
-          setPlaceHint: "ቦታ ያስገቡ",
-          coordsSet: "ቦታ ተቀምጧል",
-          themeDrawerTitle: "ገጽታ",
-          pickWallpaper: "ዳራ ይጫኑ",
-          flipGlass: "ብሩህ / ጨለማ",
-          simPrefix: "የሙከራ ርቀት:",
-          triggerSim: "ማንቂያ ሞክር",
-          adBanner: "የማስታወቂያ ቦታ",
-          editModalTitle: "መድረሻ ያስተካክሉ",
-          editNameLabel: "የቦታ ስም",
-          addressSearchLabel: "አድራሻ ወይም ቦታ ይፈልጉ",
-          addressSearchPlaceholder: "አድራሻ ያስገቡ...",
-          searchBtn: "ፈልግ",
-          useCurrentGps: "የአሁኑ GPS",
-          savePlace: "አስቀምጥ / እሺ",
-          cancelEdit: "ሰርዝ",
-          alarmPrefix: "ማንቂያ:",
-          dismissForever: "ሙሉ በሙሉ አጥፋ",
-          snoozeMain: "አሸልብ (20 ሰከንድ)",
-          snoozeTap: "ለ20 ሰከንድ ጸጥታ",
-          snoozeLeft: "ሰ",
-          alarmFooter: "20 ሰከንድ ማሸለብ • በላይኛው ጥግ ሙሉ በሙሉ ያጥፉ።",
-          voiceListening: "እያዳመጥኩ ነው...",
-          voiceSelected: "ተመርጧል:",
-          voiceNotFound: "አልታወቀም:",
-          voiceUnavailable: "የድምፅ ማወቂያ የለም።",
-          defaultPlaces: ["ቤት", "ሥራ", "ቦታ 3", "ቦታ 4", "ቦታ 5", "ቦታ 6", "ቦታ 7", "ቦታ 8", "ቦታ 9", "ቦታ 10"],
-          themes: {
-            classic: "መደበኛ",
-            glass: "ግልጽ",
-            cartoon: "ካርቱን",
-            gothic: "ጎቲክ",
-            renaissance: "ህዳሴ",
-            punk: "ፓንክ"
-          },
-          sounds: {
-            roman_horn: "የሮማ ቀንድ",
-            clock_bell: "የሰዓት ደወል",
-            ship_horn: "የመርከብ ጥሪ",
-            train_whistle: "የባቡር ፉጨት",
-            sonar_ping: "ሶናር",
-            fire_alarm: "የአደጋ ማንቂያ",
-            bronze_gong: "የነሐስ ጎንግ",
-            bugle_call: "የመለከት ጥሪ",
-            church_bell: "የቤተክርስቲያን ደወል",
-            morse_sos: "ሞርስ",
-            digital_pulse: "ዲጂታል"
-          }
-        },
-        ti: {
-          brandTitle: "መጠንቀቒ መዓርፎ",
-          promptTitle: "ናበይ ትኸዱ ኣለኹም?",
-          langMenuTitle: "ቋንቋ ምረጽ",
-          startWatch: "ክትትል ጀምር",
-          stopWatch: "ክትትል ደው ኣብል",
-          previewSound: "ድምጺ ፈትን",
-          loudMode: "ዝለዓለ ድምጺ (ምስ ሙዚቃ)",
-          pickAudio: "ናይ ባዕልኻ ድምጺ ጽዓን",
-          noCustomAudio: "ዝተጻዕነ ናይ ባዕልኻ ድምጺ የለን።",
-          customAudioLoaded: "ናይ ባዕልኻ ድምጺ: ",
-          choosePlace: "ካብ 10 ቦታታት ሓደ ምረጽ።",
-          tapToWatch: "ንምክትታል ቦታ ጠውቕ ወይ ✏️ ጸቕጥ።",
-          editModeOn: "ምቅይያር ተኸፊቱ ኣሎ።",
-          noCoordsYet: "ቦታ ኣይተመደበን። ኣብ ካርታ ምረጽ ወይ ኣድራሻ ድለ።",
-          watchingActive: "GPS ክትትል ይሰርሕ ኣሎ።",
-          coordsReady: "መዓርፎ ተመዚጉ ኣሎ። 'ክትትል ጀምር' ጸቕጥ።",
-          beforeSuffix: "ቀደም",
-          fixedPlace: "ርጉጽ",
-          freePlace: "ናጻ",
-          setPlaceHint: "ቦታ ኣእቱ",
-          coordsSet: "ቦታ ተመዚጉ",
-          themeDrawerTitle: "ቅርጺ",
-          pickWallpaper: "ባይታ ጽዓን",
-          flipGlass: "ብሩህ / ጸልማት",
-          simPrefix: "ርሕቀት ፈተነ:",
-          triggerSim: "መጠንቀቒ ፈትን",
-          adBanner: "ቦታ ምልክታ",
-          editModalTitle: "መዓርፎ ኣስተኻኽል",
-          editNameLabel: "ስም ቦታ",
-          addressSearchLabel: "ኣድራሻ ወይ ቦታ ድለ",
-          addressSearchPlaceholder: "ኣድራሻ ጽሓፍ...",
-          searchBtn: "ድለ",
-          useCurrentGps: "ህሉው GPS",
-          savePlace: "ዓቅብ / ሕራይ",
-          cancelEdit: "ሰርዝ",
-          alarmPrefix: "መጠንቀቒ:",
-          dismissForever: "ፈጺምካ ኣጥፍእ",
-          snoozeMain: "ኣዕርፍ (20 ካልኢት)",
-          snoozeTap: "ን20 ካልኢት ህድእ",
-          snoozeLeft: "ካ",
-          alarmFooter: "20 ካልኢት ዕረፍቲ • ኣብ ላዕለዋይ መኣዝን ፈጺምካ ኣጥፍእ።",
-          voiceListening: "እሰምዕ ኣለኹ...",
-          voiceSelected: "ተመሪጹ:",
-          voiceNotFound: "ኣይተፈልጠን:",
-          voiceUnavailable: "ምፍላይ ድምጺ የለን።",
-          defaultPlaces: ["ገዛ", "ስራሕ", "ቦታ 3", "ቦታ 4", "ቦታ 5", "ቦታ 6", "ቦታ 7", "ቦታ 8", "ቦታ 9", "ቦታ 10"],
-          themes: {
-            classic: "መሰረታዊ",
-            glass: "ግልጺ",
-            cartoon: "ካርቱን",
-            gothic: "ጎቲክ",
-            renaissance: "ህዳሴ",
-            punk: "ፓንክ"
-          },
-          sounds: {
-            roman_horn: "ቀርኒ ሮማ",
-            clock_bell: "ደወል ሰዓት",
-            ship_horn: "ቀርኒ መርከብ",
-            train_whistle: "ፊሽካ ባቡር",
-            sonar_ping: "ሶናር",
-            fire_alarm: "መጠንቀቒ ሓደጋ",
-            bronze_gong: "ጎንግ",
-            bugle_call: "ጸዊዒት መለኸት",
-            church_bell: "ደወል ቤተክርስቲያን",
-            morse_sos: "ሞርስ",
-            digital_pulse: "ዲጂታል"
+            roman_horn: "Римский горн", clock_bell: "Звонок будильника", ship_horn: "Гудок корабля",
+            train_whistle: "Гудок поезда", sonar_ping: "Сигнал сонара", fire_alarm: "Тревога",
+            bronze_gong: "Бронзовый гонг", bugle_call: "Сигнал горна", church_bell: "Колокол",
+            morse_sos: "Сигнал Морзе", digital_pulse: "Импульс"
           }
         },
         vi: {
@@ -1886,741 +1620,12 @@
           voiceNotFound: "Không nhận diện được:",
           voiceUnavailable: "Không hỗ trợ nhận diện giọng nói.",
           defaultPlaces: ["Nhà", "Nơi làm việc", "Điểm 3", "Điểm 4", "Điểm 5", "Điểm 6", "Điểm 7", "Điểm 8", "Điểm 9", "Điểm 10"],
-          themes: {
-            classic: "Cơ bản",
-            glass: "Trong suốt",
-            cartoon: "Hoạt hình",
-            gothic: "Gothic",
-            renaissance: "Phục hưng",
-            punk: "Punk"
-          },
+          themes: { classic: "Cơ bản", glass: "Trong suốt", cartoon: "Hoạt hình", gothic: "Gothic", renaissance: "Phục hưng", punk: "Punk" },
           sounds: {
-            roman_horn: "Tù và La Mã",
-            clock_bell: "Chuông đồng hồ",
-            ship_horn: "Còi tàu",
-            train_whistle: "Còi tàu hỏa",
-            sonar_ping: "Sonar",
-            fire_alarm: "Báo động khẩn cấp",
-            bronze_gong: "Cồng đồng",
-            bugle_call: "Kèn hiệu",
-            church_bell: "Chuông nhà thờ",
-            morse_sos: "Tín hiệu Morse",
-            digital_pulse: "Xung số"
-          }
-        },
-        fr: {
-          brandTitle: "Réveil destination",
-          promptTitle: "Où allez-vous ?",
-          langMenuTitle: "Choisir la langue",
-          startWatch: "Démarrer le suivi",
-          stopWatch: "Arrêter le suivi",
-          previewSound: "Tester le son",
-          loudMode: "Volume élevé (avec musique)",
-          pickAudio: "Charger un son",
-          noCustomAudio: "Aucun son personnalisé chargé.",
-          customAudioLoaded: "Son personnalisé : ",
-          choosePlace: "Choisissez l'une des 10 destinations.",
-          tapToWatch: "Touchez un lieu ou appuyez sur ✏️ pour modifier.",
-          editModeOn: "Mode édition actif.",
-          noCoordsYet: "Aucun lieu défini.",
-          watchingActive: "Suivi GPS actif.",
-          coordsReady: "Destination prête.",
-          beforeSuffix: "avant",
-          fixedPlace: "Fixe",
-          freePlace: "Libre",
-          setPlaceHint: "Définir le lieu",
-          coordsSet: "Lieu défini",
-          themeDrawerTitle: "Apparence",
-          pickWallpaper: "Charger un fond",
-          flipGlass: "Clair / Sombre",
-          simPrefix: "Distance test :",
-          triggerSim: "Tester l'alarme",
-          adBanner: "Emplacement pub",
-          editModalTitle: "Modifier la destination",
-          editNameLabel: "Nom du lieu",
-          addressSearchLabel: "Rechercher une adresse",
-          addressSearchPlaceholder: "Saisir l'adresse...",
-          searchBtn: "Chercher",
-          useCurrentGps: "GPS actuel",
-          savePlace: "Enregistrer",
-          cancelEdit: "Annuler",
-          alarmPrefix: "ALARME :",
-          dismissForever: "Arrêter définitivement",
-          snoozeMain: "RAPPEL (20 S)",
-          snoozeTap: "Couper 20 s",
-          snoozeLeft: "s",
-          alarmFooter: "Rappel 20 s • Arrêt définitif en haut à droite.",
-          voiceListening: "Écoute...",
-          voiceSelected: "Sélectionné :",
-          voiceNotFound: "Non reconnu :",
-          voiceUnavailable: "Reconnaissance vocale indisponible.",
-          defaultPlaces: ["Maison", "Travail", "Lieu 3", "Lieu 4", "Lieu 5", "Lieu 6", "Lieu 7", "Lieu 8", "Lieu 9", "Lieu 10"],
-          themes: { classic: "Classique", glass: "Verre", cartoon: "BD", gothic: "Gothique", renaissance: "Renaissance", punk: "Punk" },
-          sounds: {
-            roman_horn: "Cor romain", clock_bell: "Cloche réveil", ship_horn: "Corne de brume",
-            train_whistle: "Sifflet de train", sonar_ping: "Sonar", fire_alarm: "Alarme",
-            bronze_gong: "Gong", bugle_call: "Clairon", church_bell: "Cloche d'église",
-            morse_sos: "Morse", digital_pulse: "Impulsion"
-          }
-        },
-        es: {
-          brandTitle: "Alarma de destino",
-          promptTitle: "¿A dónde vas?",
-          langMenuTitle: "Seleccionar idioma",
-          startWatch: "Iniciar seguimiento",
-          stopWatch: "Detener seguimiento",
-          previewSound: "Probar sonido",
-          loudMode: "Subir volumen (con música)",
-          pickAudio: "Cargar audio",
-          noCustomAudio: "Sin audio personalizado.",
-          customAudioLoaded: "Audio personalizado: ",
-          choosePlace: "Elige uno de los 10 destinos.",
-          tapToWatch: "Toca un lugar o pulsa ✏️ para editar.",
-          editModeOn: "Modo edición activo.",
-          noCoordsYet: "Sin ubicación configurada.",
-          watchingActive: "Seguimiento GPS activo.",
-          coordsReady: "Destino listo.",
-          beforeSuffix: "antes",
-          fixedPlace: "Fijo",
-          freePlace: "Libre",
-          setPlaceHint: "Definir lugar",
-          coordsSet: "Lugar definido",
-          themeDrawerTitle: "Estilo",
-          pickWallpaper: "Cargar fondo",
-          flipGlass: "Claro / Oscuro",
-          simPrefix: "Distancia prueba:",
-          triggerSim: "Probar alarma",
-          adBanner: "Espacio publicitario",
-          editModalTitle: "Editar destino",
-          editNameLabel: "Nombre del lugar",
-          addressSearchLabel: "Buscar dirección o lugar",
-          addressSearchPlaceholder: "Escribe la dirección...",
-          searchBtn: "Buscar",
-          useCurrentGps: "GPS actual",
-          savePlace: "Guardar",
-          cancelEdit: "Cancelar",
-          alarmPrefix: "ALARMA:",
-          dismissForever: "Detener del todo",
-          snoozeMain: "POSPONER (20 S)",
-          snoozeTap: "Silenciar 20 s",
-          snoozeLeft: "s",
-          alarmFooter: "Posponer 20 s • Detener arriba a la derecha.",
-          voiceListening: "Escuchando...",
-          voiceSelected: "Seleccionado:",
-          voiceNotFound: "No reconocido:",
-          voiceUnavailable: "Voz no disponible.",
-          defaultPlaces: ["Casa", "Trabajo", "Lugar 3", "Lugar 4", "Lugar 5", "Lugar 6", "Lugar 7", "Lugar 8", "Lugar 9", "Lugar 10"],
-          themes: { classic: "Clásico", glass: "Cristal", cartoon: "Cómic", gothic: "Gótico", renaissance: "Renacimiento", punk: "Punk" },
-          sounds: {
-            roman_horn: "Cuerno romano", clock_bell: "Campana despertador", ship_horn: "Bocina de barco",
-            train_whistle: "Silbato de tren", sonar_ping: "Sonar", fire_alarm: "Alarma",
-            bronze_gong: "Gong", bugle_call: "Clarín", church_bell: "Campana de iglesia",
-            morse_sos: "Morse", digital_pulse: "Pulso digital"
-          }
-        },
-        de: {
-          brandTitle: "Zielwecker",
-          promptTitle: "Wohin geht es?",
-          langMenuTitle: "Sprache wählen",
-          startWatch: "Überwachung starten",
-          stopWatch: "Überwachung stoppen",
-          previewSound: "Ton testen",
-          loudMode: "Lautstärke erhöhen (mit Musik)",
-          pickAudio: "Eigenen Ton laden",
-          noCustomAudio: "Kein eigener Ton geladen.",
-          customAudioLoaded: "Eigener Ton: ",
-          choosePlace: "Wähle eines der 10 Ziele.",
-          tapToWatch: "Ort antippen oder ✏️ zum Bearbeiten drücken.",
-          editModeOn: "Bearbeitungsmodus aktiv.",
-          noCoordsYet: "Noch kein Ort festgelegt.",
-          watchingActive: "GPS-Überwachung aktiv.",
-          coordsReady: "Ziel bereit.",
-          beforeSuffix: "vorher",
-          fixedPlace: "Fest",
-          freePlace: "Frei",
-          setPlaceHint: "Ort festlegen",
-          coordsSet: "Ort festgelegt",
-          themeDrawerTitle: "Design",
-          pickWallpaper: "Hintergrund laden",
-          flipGlass: "Hell / Dunkel",
-          simPrefix: "Testdistanz:",
-          triggerSim: "Alarm testen",
-          adBanner: "Werbebereich",
-          editModalTitle: "Ziel bearbeiten",
-          editNameLabel: "Ortsname",
-          addressSearchLabel: "Adresse oder Ort suchen",
-          addressSearchPlaceholder: "Adresse eingeben...",
-          searchBtn: "Suchen",
-          useCurrentGps: "Aktuelles GPS",
-          savePlace: "Speichern",
-          cancelEdit: "Abbrechen",
-          alarmPrefix: "ALARM:",
-          dismissForever: "Endgültig stoppen",
-          snoozeMain: "SCHLUMMERN (20 S)",
-          snoozeTap: "20 s stumm",
-          snoozeLeft: "s",
-          alarmFooter: "20 s Schlummern • Endgültig oben rechts stoppen.",
-          voiceListening: "Höre zu...",
-          voiceSelected: "Ausgewählt:",
-          voiceNotFound: "Nicht erkannt:",
-          voiceUnavailable: "Spracherkennung nicht verfügbar.",
-          defaultPlaces: ["Zuhause", "Arbeit", "Ort 3", "Ort 4", "Ort 5", "Ort 6", "Ort 7", "Ort 8", "Ort 9", "Ort 10"],
-          themes: { classic: "Klassisch", glass: "Glas", cartoon: "Comic", gothic: "Gotik", renaissance: "Renaissance", punk: "Punk" },
-          sounds: {
-            roman_horn: "Römisches Horn", clock_bell: "Weckerglocke", ship_horn: "Schiffshorn",
-            train_whistle: "Zugpfiff", sonar_ping: "Sonar", fire_alarm: "Alarm",
-            bronze_gong: "Bronzegong", bugle_call: "Signalhorn", church_bell: "Kirchenglocke",
-            morse_sos: "Morse", digital_pulse: "Digitalpuls"
-          }
-        },
-        zh: {
-          brandTitle: "到站闹钟",
-          promptTitle: "你要去哪里？",
-          langMenuTitle: "选择语言",
-          startWatch: "开始监控",
-          stopWatch: "停止监控",
-          previewSound: "试听铃声",
-          loudMode: "增强音量（播放音乐时）",
-          pickAudio: "加载自定义铃声",
-          noCustomAudio: "未加载自定义铃声。",
-          customAudioLoaded: "自定义铃声：",
-          choosePlace: "从10个地点中选择一个。",
-          tapToWatch: "点击地点开始监控，或按 ✏️ 编辑。",
-          editModeOn: "编辑模式已开启。",
-          noCoordsYet: "尚未设置位置。",
-          watchingActive: "GPS 监控中。",
-          coordsReady: "目标已设置。",
-          beforeSuffix: "前",
-          fixedPlace: "固定",
-          freePlace: "自选",
-          setPlaceHint: "设置位置",
-          coordsSet: "已设位置",
-          themeDrawerTitle: "外观主题",
-          pickWallpaper: "加载背景",
-          flipGlass: "浅色 / 深色",
-          simPrefix: "测试距离：",
-          triggerSim: "测试闹钟",
-          adBanner: "广告位",
-          editModalTitle: "编辑目的地",
-          editNameLabel: "地点名称",
-          addressSearchLabel: "搜索地址或地点",
-          addressSearchPlaceholder: "输入地址...",
-          searchBtn: "搜索",
-          useCurrentGps: "当前 GPS",
-          savePlace: "保存",
-          cancelEdit: "取消",
-          alarmPrefix: "闹钟：",
-          dismissForever: "彻底停止",
-          snoozeMain: "稍后提醒 (20秒)",
-          snoozeTap: "静音 20 秒",
-          snoozeLeft: "秒",
-          alarmFooter: "20秒贪睡 • 右上角彻底停止。",
-          voiceListening: "正在聆听...",
-          voiceSelected: "已选择：",
-          voiceNotFound: "未识别：",
-          voiceUnavailable: "语音识别不可用。",
-          defaultPlaces: ["家", "公司", "地点 3", "地点 4", "地点 5", "地点 6", "地点 7", "地点 8", "地点 9", "地点 10"],
-          themes: { classic: "经典", glass: "毛玻璃", cartoon: "卡通", gothic: "哥特", renaissance: "文艺复兴", punk: "朋克" },
-          sounds: {
-            roman_horn: "罗马号角", clock_bell: "闹钟铃声", ship_horn: "轮船汽笛",
-            train_whistle: "火车汽笛", sonar_ping: "声呐", fire_alarm: "警报",
-            bronze_gong: "铜锣", bugle_call: "军号", church_bell: "教堂钟声",
-            morse_sos: "莫尔斯", digital_pulse: "数字脉冲"
-          }
-        },
-        ja: {
-          brandTitle: "到着アラーム",
-          promptTitle: "どこへ向かいますか？",
-          langMenuTitle: "言語を選択",
-          startWatch: "監視を開始",
-          stopWatch: "監視を停止",
-          previewSound: "音を試す",
-          loudMode: "音量を上げる（音楽再生中）",
-          pickAudio: "カスタム音声を読み込む",
-          noCustomAudio: "カスタム音声はありません。",
-          customAudioLoaded: "カスタム音声：",
-          choosePlace: "10件の目的地から選択してください。",
-          tapToWatch: "場所をタップして監視、または ✏️ で編集。",
-          editModeOn: "編集モード中。",
-          noCoordsYet: "位置が未設定です。",
-          watchingActive: "GPS監視中。",
-          coordsReady: "目的地が設定されました。",
-          beforeSuffix: "手前",
-          fixedPlace: "固定",
-          freePlace: "自由",
-          setPlaceHint: "場所を設定",
-          coordsSet: "場所設定済み",
-          themeDrawerTitle: "テーマ",
-          pickWallpaper: "背景を読み込む",
-          flipGlass: "ライト / ダーク",
-          simPrefix: "テスト距離：",
-          triggerSim: "アラームテスト",
-          adBanner: "広告枠",
-          editModalTitle: "目的地の編集",
-          editNameLabel: "場所の名前",
-          addressSearchLabel: "住所や場所を検索",
-          addressSearchPlaceholder: "住所を入力...",
-          searchBtn: "検索",
-          useCurrentGps: "現在地GPS",
-          savePlace: "保存",
-          cancelEdit: "キャンセル",
-          alarmPrefix: "アラーム：",
-          dismissForever: "完全停止",
-          snoozeMain: "スヌーズ (20秒)",
-          snoozeTap: "20秒消音",
-          snoozeLeft: "秒",
-          alarmFooter: "20秒スヌーズ • 右上で完全停止。",
-          voiceListening: "聞いています...",
-          voiceSelected: "選択済み：",
-          voiceNotFound: "認識できませんでした：",
-          voiceUnavailable: "音声認識は利用できません。",
-          defaultPlaces: ["自宅", "職場", "場所 3", "場所 4", "場所 5", "場所 6", "場所 7", "場所 8", "場所 9", "場所 10"],
-          themes: { classic: "クラシック", glass: "グラス", cartoon: "カートゥーン", gothic: "ゴシック", renaissance: "ルネサンス", punk: "パンク" },
-          sounds: {
-            roman_horn: "ローマの角笛", clock_bell: "目覚ましベル", ship_horn: "船の汽笛",
-            train_whistle: "汽車の汽笛", sonar_ping: "ソナー", fire_alarm: "警報",
-            bronze_gong: "銅鑼", bugle_call: "ラッパ", church_bell: "教会の鐘",
-            morse_sos: "モールス", digital_pulse: "デジタル"
-          }
-        },
-        ko: {
-          brandTitle: "목적지 알람",
-          promptTitle: "어디로 가시나요?",
-          langMenuTitle: "언어 선택",
-          startWatch: "감시 시작",
-          stopWatch: "감시 중지",
-          previewSound: "소리 미리듣기",
-          loudMode: "볼륨 강화(음악 재생 시)",
-          pickAudio: "사용자 오디오 불러오기",
-          noCustomAudio: "불러온 사용자 오디오가 없습니다.",
-          customAudioLoaded: "사용자 오디오: ",
-          choosePlace: "10개 장소 중 하나를 선택하세요.",
-          tapToWatch: "장소를 탭해 감시하거나 ✏️로 편집하세요.",
-          editModeOn: "편집 모드 활성.",
-          noCoordsYet: "위치가 설정되지 않았습니다.",
-          watchingActive: "GPS 감시 중.",
-          coordsReady: "목표 설정됨.",
-          beforeSuffix: "전",
-          fixedPlace: "고정",
-          freePlace: "사용자",
-          setPlaceHint: "위치 설정",
-          coordsSet: "위치 설정됨",
-          themeDrawerTitle: "테마",
-          pickWallpaper: "배경 불러오기",
-          flipGlass: "밝게 / 어둡게",
-          simPrefix: "테스트 거리:",
-          triggerSim: "알람 테스트",
-          adBanner: "광고 영역",
-          editModalTitle: "목적지 편집",
-          editNameLabel: "장소 이름",
-          addressSearchLabel: "주소 또는 장소 검색",
-          addressSearchPlaceholder: "주소 입력...",
-          searchBtn: "검색",
-          useCurrentGps: "현재 GPS",
-          savePlace: "저장",
-          cancelEdit: "취소",
-          alarmPrefix: "알람:",
-          dismissForever: "완전 끄기",
-          snoozeMain: "스누즈 (20초)",
-          snoozeTap: "20초 음소거",
-          snoozeLeft: "초",
-          alarmFooter: "20초 스누즈 • 우측 상단에서 완전 끄기.",
-          voiceListening: "듣는 중...",
-          voiceSelected: "선택됨:",
-          voiceNotFound: "인식 못함:",
-          voiceUnavailable: "음성 인식을 사용할 수 없습니다.",
-          defaultPlaces: ["집", "직장", "장소 3", "장소 4", "장소 5", "장소 6", "장소 7", "장소 8", "장소 9", "장소 10"],
-          themes: { classic: "기본", glass: "투명", cartoon: "만화", gothic: "고딕", renaissance: "르네상스", punk: "펑크" },
-          sounds: {
-            roman_horn: "로마 뿔나팔", clock_bell: "자명종", ship_horn: "뱃고동",
-            train_whistle: "기차 경적", sonar_ping: "소나", fire_alarm: "경보",
-            bronze_gong: "청동 징", bugle_call: "나팔 신호", church_bell: "교회 종소리",
-            morse_sos: "모스 부호", digital_pulse: "디지털 펄스"
-          }
-        },
-        it: {
-          brandTitle: "Sveglia destinazione",
-          promptTitle: "Dove stai andando?",
-          langMenuTitle: "Seleziona lingua",
-          startWatch: "Avvia controllo",
-          stopWatch: "Ferma controllo",
-          previewSound: "Prova suono",
-          loudMode: "Volume alto (con musica)",
-          pickAudio: "Carica audio",
-          noCustomAudio: "Nessun audio personalizzato.",
-          customAudioLoaded: "Audio personalizzato: ",
-          choosePlace: "Scegli una delle 10 destinazioni.",
-          tapToWatch: "Tocca un luogo o premi ✏️ per modificare.",
-          editModeOn: "Modalità modifica attiva.",
-          noCoordsYet: "Nessuna posizione impostata.",
-          watchingActive: "Controllo GPS attivo.",
-          coordsReady: "Destinazione pronta.",
-          beforeSuffix: "prima",
-          fixedPlace: "Fisso",
-          freePlace: "Libero",
-          setPlaceHint: "Imposta luogo",
-          coordsSet: "Luogo impostato",
-          themeDrawerTitle: "Stile",
-          pickWallpaper: "Carica sfondo",
-          flipGlass: "Chiaro / Scuro",
-          simPrefix: "Distanza test:",
-          triggerSim: "Prova sveglia",
-          adBanner: "Spazio pubblicitario",
-          editModalTitle: "Modifica destinazione",
-          editNameLabel: "Nome luogo",
-          addressSearchLabel: "Cerca indirizzo o luogo",
-          addressSearchPlaceholder: "Scrivi indirizzo...",
-          searchBtn: "Cerca",
-          useCurrentGps: "GPS attuale",
-          savePlace: "Salva",
-          cancelEdit: "Annulla",
-          alarmPrefix: "SVEGLIA:",
-          dismissForever: "Ferma del tutto",
-          snoozeMain: "POSTICIPA (20 S)",
-          snoozeTap: "Muto 20 s",
-          snoozeLeft: "s",
-          alarmFooter: "Posticipa 20 s • Stop definitivo in alto a destra.",
-          voiceListening: "In ascolto...",
-          voiceSelected: "Selezionato:",
-          voiceNotFound: "Non riconosciuto:",
-          voiceUnavailable: "Riconoscimento vocale non disponibile.",
-          defaultPlaces: ["Casa", "Lavoro", "Luogo 3", "Luogo 4", "Luogo 5", "Luogo 6", "Luogo 7", "Luogo 8", "Luogo 9", "Luogo 10"],
-          themes: { classic: "Classico", glass: "Vetro", cartoon: "Fumetto", gothic: "Gotico", renaissance: "Rinascimento", punk: "Punk" },
-          sounds: {
-            roman_horn: "Corno romano", clock_bell: "Campana sveglia", ship_horn: "Sirena nave",
-            train_whistle: "Fischio treno", sonar_ping: "Sonar", fire_alarm: "Allarme",
-            bronze_gong: "Gong", bugle_call: "Clarino", church_bell: "Campana chiesa",
-            morse_sos: "Morse", digital_pulse: "Impulso digitale"
-          }
-        },
-        pt: {
-          brandTitle: "Alarme de destino",
-          promptTitle: "Para onde vai?",
-          langMenuTitle: "Selecionar idioma",
-          startWatch: "Iniciar vigilância",
-          stopWatch: "Parar vigilância",
-          previewSound: "Testar som",
-          loudMode: "Aumentar volume (com música)",
-          pickAudio: "Carregar áudio",
-          noCustomAudio: "Sem áudio personalizado.",
-          customAudioLoaded: "Áudio personalizado: ",
-          choosePlace: "Escolha um dos 10 destinos.",
-          tapToWatch: "Toque num local ou em ✏️ para editar.",
-          editModeOn: "Modo de edição ativo.",
-          noCoordsYet: "Sem localização definida.",
-          watchingActive: "Vigilância GPS ativa.",
-          coordsReady: "Destino pronto.",
-          beforeSuffix: "antes",
-          fixedPlace: "Fixo",
-          freePlace: "Livre",
-          setPlaceHint: "Definir local",
-          coordsSet: "Local definido",
-          themeDrawerTitle: "Aparência",
-          pickWallpaper: "Carregar fundo",
-          flipGlass: "Claro / Escuro",
-          simPrefix: "Distância teste:",
-          triggerSim: "Testar alarme",
-          adBanner: "Espaço de anúncio",
-          editModalTitle: "Editar destino",
-          editNameLabel: "Nome do local",
-          addressSearchLabel: "Pesquisar morada ou local",
-          addressSearchPlaceholder: "Digite a morada...",
-          searchBtn: "Pesquisar",
-          useCurrentGps: "GPS atual",
-          savePlace: "Guardar",
-          cancelEdit: "Cancelar",
-          alarmPrefix: "ALARME:",
-          dismissForever: "Parar de vez",
-          snoozeMain: "SONECA (20 S)",
-          snoozeTap: "Silenciar 20 s",
-          snoozeLeft: "s",
-          alarmFooter: "Soneca 20 s • Parar em cima à direita.",
-          voiceListening: "A ouvir...",
-          voiceSelected: "Selecionado:",
-          voiceNotFound: "Não reconhecido:",
-          voiceUnavailable: "Reconhecimento de voz indisponível.",
-          defaultPlaces: ["Casa", "Trabalho", "Local 3", "Local 4", "Local 5", "Local 6", "Local 7", "Local 8", "Local 9", "Local 10"],
-          themes: { classic: "Clássico", glass: "Vidro", cartoon: "Banda desenhada", gothic: "Gótico", renaissance: "Renascentista", punk: "Punk" },
-          sounds: {
-            roman_horn: "Corno romano", clock_bell: "Sino despertador", ship_horn: "Buzina navio",
-            train_whistle: "Apito comboio", sonar_ping: "Sonar", fire_alarm: "Alarme",
-            bronze_gong: "Gongo", bugle_call: "Cornetim", church_bell: "Sino igreja",
-            morse_sos: "Morse", digital_pulse: "Pulso digital"
-          }
-        },
-        uk: {
-          brandTitle: "Будильник мети",
-          promptTitle: "Куди їдемо?",
-          langMenuTitle: "Вибір мови",
-          startWatch: "Почати стеження",
-          stopWatch: "Зупинити стеження",
-          previewSound: "Перевірити звук",
-          loudMode: "Посилити звук (з музикою)",
-          pickAudio: "Завантажити свій звук",
-          noCustomAudio: "Свій звук не завантажено.",
-          customAudioLoaded: "Свій звук: ",
-          choosePlace: "Оберіть місце з 10 варіантів.",
-          tapToWatch: "Натисніть на місце або ✏️ для редагування.",
-          editModeOn: "Режим редагування увімкнено.",
-          noCoordsYet: "Місце не вказано.",
-          watchingActive: "GPS-стеження активне.",
-          coordsReady: "Мету задано.",
-          beforeSuffix: "до мети",
-          fixedPlace: "Фікс.",
-          freePlace: "Свій",
-          setPlaceHint: "Вказати місце",
-          coordsSet: "Місце задано",
-          themeDrawerTitle: "Оформлення",
-          pickWallpaper: "Завантажити фон",
-          flipGlass: "Світла / Темна",
-          simPrefix: "Тест дистанції:",
-          triggerSim: "Тест сигналу",
-          adBanner: "Рекламний блок",
-          editModalTitle: "Редагувати місце",
-          editNameLabel: "Назва місця",
-          addressSearchLabel: "Пошук адреси або місця",
-          addressSearchPlaceholder: "Введіть адресу...",
-          searchBtn: "Знайти",
-          useCurrentGps: "Поточний GPS",
-          savePlace: "Зберегти",
-          cancelEdit: "Скасувати",
-          alarmPrefix: "СИГНАЛ:",
-          dismissForever: "Вимкнути зовсім",
-          snoozeMain: "ВІДКЛАСТИ (20 С)",
-          snoozeTap: "Тиша на 20 с",
-          snoozeLeft: "с",
-          alarmFooter: "Відкласти на 20 с • Повне вимкнення у верхньому куті.",
-          voiceListening: "Слухаю...",
-          voiceSelected: "Обрано:",
-          voiceNotFound: "Не розпізнано:",
-          voiceUnavailable: "Голосове введення недоступне.",
-          defaultPlaces: ["Дім", "Робота", "Місце 3", "Місце 4", "Місце 5", "Місце 6", "Місце 7", "Місце 8", "Місце 9", "Місце 10"],
-          themes: { classic: "Класика", glass: "Прозорий", cartoon: "Комікс", gothic: "Готика", renaissance: "Ренесанс", punk: "Панк" },
-          sounds: {
-            roman_horn: "Римський горн", clock_bell: "Дзвінок будильника", ship_horn: "Гудок корабля",
-            train_whistle: "Гудок поїзда", sonar_ping: "Сонар", fire_alarm: "Тривога",
-            bronze_gong: "Бронзовий гонг", bugle_call: "Сигнал горна", church_bell: "Дзвін",
-            morse_sos: "Морзе", digital_pulse: "Імпульс"
-          }
-        },
-        pl: {
-          brandTitle: "Budzik celu",
-          promptTitle: "Dokąd jedziesz?",
-          langMenuTitle: "Wybierz język",
-          startWatch: "Rozpocznij śledzenie",
-          stopWatch: "Zatrzymaj śledzenie",
-          previewSound: "Test dźwięku",
-          loudMode: "Większa głośność (z muzyką)",
-          pickAudio: "Wczytaj własny dźwięk",
-          noCustomAudio: "Brak własnego dźwięku.",
-          customAudioLoaded: "Własny dźwięk: ",
-          choosePlace: "Wybierz jedno z 10 miejsc.",
-          tapToWatch: "Stuknij miejsce lub ✏️, aby edytować.",
-          editModeOn: "Tryb edycji aktywny.",
-          noCoordsYet: "Nie ustawiono lokalizacji.",
-          watchingActive: "Śledzenie GPS aktywne.",
-          coordsReady: "Cel ustawiony.",
-          beforeSuffix: "przed",
-          fixedPlace: "Stałe",
-          freePlace: "Własne",
-          setPlaceHint: "Ustaw miejsce",
-          coordsSet: "Miejsce ustawione",
-          themeDrawerTitle: "Wygląd",
-          pickWallpaper: "Wczytaj tło",
-          flipGlass: "Jasny / Ciemny",
-          simPrefix: "Dystans testowy:",
-          triggerSim: "Testuj alarm",
-          adBanner: "Miejsce na reklamę",
-          editModalTitle: "Edytuj cel",
-          editNameLabel: "Nazwa miejsca",
-          addressSearchLabel: "Szukaj adresu lub miejsca",
-          addressSearchPlaceholder: "Wpisz adres...",
-          searchBtn: "Szukaj",
-          useCurrentGps: "Bieżący GPS",
-          savePlace: "Zapisz",
-          cancelEdit: "Anuluj",
-          alarmPrefix: "ALARM:",
-          dismissForever: "Wyłącz na stałe",
-          snoozeMain: "DRZEMKA (20 S)",
-          snoozeTap: "Wycisz na 20 s",
-          snoozeLeft: "s",
-          alarmFooter: "Drzemka 20 s • Wyłącz w prawym górnym rogu.",
-          voiceListening: "Słucham...",
-          voiceSelected: "Wybrano:",
-          voiceNotFound: "Nie rozpoznano:",
-          voiceUnavailable: "Rozpoznawanie mowy niedostępne.",
-          defaultPlaces: ["Dom", "Praca", "Miejsce 3", "Miejsce 4", "Miejsce 5", "Miejsce 6", "Miejsce 7", "Miejsce 8", "Miejsce 9", "Miejsce 10"],
-          themes: { classic: "Klasyczny", glass: "Szkło", cartoon: "Komiks", gothic: "Gotyk", renaissance: "Renesans", punk: "Punk" },
-          sounds: {
-            roman_horn: "Rzymski róg", clock_bell: "Dzwonek budzika", ship_horn: "Sygnał statku",
-            train_whistle: "Gwizdek pociągu", sonar_ping: "Sonar", fire_alarm: "Alarm",
-            bronze_gong: "Gong", bugle_call: "Pobudka", church_bell: "Dzwon kościelny",
-            morse_sos: "Morse", digital_pulse: "Puls cyfrowy"
-          }
-        },
-        tr: {
-          brandTitle: "Hedef Alarmı",
-          promptTitle: "Nereye gidiyorsun?",
-          langMenuTitle: "Dil seçin",
-          startWatch: "Takibi başlat",
-          stopWatch: "Takibi durdur",
-          previewSound: "Sesi dene",
-          loudMode: "Yüksek ses (müzikle)",
-          pickAudio: "Özel ses yükle",
-          noCustomAudio: "Özel ses yüklenmedi.",
-          customAudioLoaded: "Özel ses: ",
-          choosePlace: "10 yerden birini seçin.",
-          tapToWatch: "Takip için yere dokunun veya ✏️ ile düzenleyin.",
-          editModeOn: "Düzenleme modu aktif.",
-          noCoordsYet: "Henüz konum ayarlanmadı.",
-          watchingActive: "GPS takibi aktif.",
-          coordsReady: "Hedef hazır.",
-          beforeSuffix: "önce",
-          fixedPlace: "Sabit",
-          freePlace: "Özel",
-          setPlaceHint: "Konum ayarla",
-          coordsSet: "Konum ayarlandı",
-          themeDrawerTitle: "Görünüm",
-          pickWallpaper: "Arka plan yükle",
-          flipGlass: "Açık / Koyu",
-          simPrefix: "Test mesafesi:",
-          triggerSim: "Alarmı test et",
-          adBanner: "Reklam alanı",
-          editModalTitle: "Hedefi düzenle",
-          editNameLabel: "Yer adı",
-          addressSearchLabel: "Adres veya yer ara",
-          addressSearchPlaceholder: "Adres yazın...",
-          searchBtn: "Ara",
-          useCurrentGps: "Mevcut GPS",
-          savePlace: "Kaydet",
-          cancelEdit: "İptal",
-          alarmPrefix: "ALARM:",
-          dismissForever: "Tamamen kapat",
-          snoozeMain: "ERTELE (20 SN)",
-          snoozeTap: "20 sn sessiz",
-          snoozeLeft: "sn",
-          alarmFooter: "20 sn erteleme • Sağ üstten tamamen kapat.",
-          voiceListening: "Dinliyorum...",
-          voiceSelected: "Seçildi:",
-          voiceNotFound: "Tanınmadı:",
-          voiceUnavailable: "Ses tanıma kullanılamıyor.",
-          defaultPlaces: ["Ev", "İş", "Yer 3", "Yer 4", "Yer 5", "Yer 6", "Yer 7", "Yer 8", "Yer 9", "Yer 10"],
-          themes: { classic: "Klasik", glass: "Cam", cartoon: "Çizgi", gothic: "Gotik", renaissance: "Rönesans", punk: "Punk" },
-          sounds: {
-            roman_horn: "Roma kornası", clock_bell: "Çalar saat", ship_horn: "Gemi kornası",
-            train_whistle: "Tren düdüğü", sonar_ping: "Sonar", fire_alarm: "Alarm",
-            bronze_gong: "Gong", bugle_call: "Boru sesi", church_bell: "Kilise çanı",
-            morse_sos: "Mors", digital_pulse: "Dijital nabız"
-          }
-        },
-        hi: {
-          brandTitle: "गंतव्य अलार्म",
-          promptTitle: "आप कहाँ जा रहे हैं?",
-          langMenuTitle: "भाषा चुनें",
-          startWatch: "निगरानी शुरू करें",
-          stopWatch: "निगरानी रोकें",
-          previewSound: "ध्वनि जांचें",
-          loudMode: "तेज़ आवाज़ (संगीत के साथ)",
-          pickAudio: "कस्टम ध्वनि लोड करें",
-          noCustomAudio: "कोई कस्टम ध्वनि लोड नहीं है।",
-          customAudioLoaded: "कस्टम ध्वनि: ",
-          choosePlace: "10 स्थानों में से चुनें।",
-          tapToWatch: "निगरानी के लिए स्थान टैप करें या ✏️ दबाएं।",
-          editModeOn: "संपादन मोड सक्रिय।",
-          noCoordsYet: "कोई स्थान सेट नहीं है।",
-          watchingActive: "GPS निगरानी सक्रिय।",
-          coordsReady: "लक्ष्य तैयार है।",
-          beforeSuffix: "पहले",
-          fixedPlace: "निश्चित",
-          freePlace: "कस्टम",
-          setPlaceHint: "स्थान सेट करें",
-          coordsSet: "स्थान सेट है",
-          themeDrawerTitle: "रूप-रंग",
-          pickWallpaper: "पृष्ठभूमि लोड करें",
-          flipGlass: "हल्का / गहरा",
-          simPrefix: "परीक्षण दूरी:",
-          triggerSim: "अलार्म जांचें",
-          adBanner: "विज्ञापन स्थान",
-          editModalTitle: "गंतव्य संपादित करें",
-          editNameLabel: "स्थान का नाम",
-          addressSearchLabel: "पता या स्थान खोजें",
-          addressSearchPlaceholder: "पता लिखें...",
-          searchBtn: "खोजें",
-          useCurrentGps: "वर्तमान GPS",
-          savePlace: "सहेजें",
-          cancelEdit: "रद्द करें",
-          alarmPrefix: "अलार्म:",
-          dismissForever: "पूरी तरह बंद करें",
-          snoozeMain: "स्नूज़ (20 सेकंड)",
-          snoozeTap: "20 सेकंड शांत",
-          snoozeLeft: "से",
-          alarmFooter: "20 सेकंड स्नूज़ • ऊपर दाएं से पूरी तरह बंद करें।",
-          voiceListening: "सुन रहा हूँ...",
-          voiceSelected: "चयनित:",
-          voiceNotFound: "पहचाना नहीं गया:",
-          voiceUnavailable: "आवाज़ पहचान उपलब्ध नहीं है।",
-          defaultPlaces: ["घर", "काम", "स्थान 3", "स्थान 4", "स्थान 5", "स्थान 6", "स्थान 7", "स्थान 8", "स्थान 9", "स्थान 10"],
-          themes: { classic: "क्लासिक", glass: "ग्लास", cartoon: "कार्टून", gothic: "गॉथिक", renaissance: "पुनर्जागरण", punk: "पंक" },
-          sounds: {
-            roman_horn: "रोमन हॉर्न", clock_bell: "अलार्म घंटी", ship_horn: "जहाज़ हॉर्न",
-            train_whistle: "ट्रेन सीटी", sonar_ping: "सोनार", fire_alarm: "अलार्म",
-            bronze_gong: "कांस्य गोंग", bugle_call: "बिगुल", church_bell: "चर्च की घंटी",
-            morse_sos: "मोर्स", digital_pulse: "डिजिटल पल्स"
-          }
-        },
-        sw: {
-          brandTitle: "Kengele ya lengo",
-          promptTitle: "Unaenda wapi?",
-          langMenuTitle: "Chagua lugha",
-          startWatch: "Anza kufuatilia",
-          stopWatch: "Simamisha ufuatiliaji",
-          previewSound: "Jaribu sauti",
-          loudMode: "Sauti kubwa (na muziki)",
-          pickAudio: "Pakia sauti yako",
-          noCustomAudio: "Hakuna sauti maalum iliyopakiwa.",
-          customAudioLoaded: "Sauti maalum: ",
-          choosePlace: "Chagua mojawapo ya maeneo 10.",
-          tapToWatch: "Gusa mahali kufuatilia au ✏️ kuhariri.",
-          editModeOn: "Hali ya kuhariri imewashwa.",
-          noCoordsYet: "Hakuna eneo lililowekwa.",
-          watchingActive: "Ufuatiliaji wa GPS unafanya kazi.",
-          coordsReady: "Lengo liko tayari.",
-          beforeSuffix: "kabla",
-          fixedPlace: "Maalum",
-          freePlace: "Huru",
-          setPlaceHint: "Weka eneo",
-          coordsSet: "Eneo limewekwa",
-          themeDrawerTitle: "Muonekano",
-          pickWallpaper: "Pakia mandharinyuma",
-          flipGlass: "Mwanga / Giza",
-          simPrefix: "Umbali wa jaribio:",
-          triggerSim: "Jaribu kengele",
-          adBanner: "Nafasi ya tangazo",
-          editModalTitle: "Hariri lengo",
-          editNameLabel: "Jina la mahali",
-          addressSearchLabel: "Tafuta anwani au mahali",
-          addressSearchPlaceholder: "Andika anwani...",
-          searchBtn: "Tafuta",
-          useCurrentGps: "GPS ya sasa",
-          savePlace: "Hifadhi",
-          cancelEdit: "Ghairi",
-          alarmPrefix: "KENGELE:",
-          dismissForever: "Zima kabisa",
-          snoozeMain: "AHIRISHA (SEKUNDE 20)",
-          snoozeTap: "Nyamaza sekunde 20",
-          snoozeLeft: "s",
-          alarmFooter: "Ahirisha 20s • Zima kabisa juu kulia.",
-          voiceListening: "Ninasikiliza...",
-          voiceSelected: "Imechaguliwa:",
-          voiceNotFound: "Haikutambuliwa:",
-          voiceUnavailable: "Utambuzi wa sauti haupatikani.",
-          defaultPlaces: ["Nyumbani", "Kazini", "Mahali 3", "Mahali 4", "Mahali 5", "Mahali 6", "Mahali 7", "Mahali 8", "Mahali 9", "Mahali 10"],
-          themes: { classic: "Kawaida", glass: "Kioo", cartoon: "Katuni", gothic: "Gothiki", renaissance: "Ufufuo", punk: "Panki" },
-          sounds: {
-            roman_horn: "Pembe ya Kirumi", clock_bell: "Kengele ya saa", ship_horn: "Pembe ya meli",
-            train_whistle: "Firimbi ya treni", sonar_ping: "Sona", fire_alarm: "Tahadhari",
-            bronze_gong: "Gongi", bugle_call: "Tarumbeta", church_bell: "Kengele ya kanisa",
-            morse_sos: "Mosi", digital_pulse: "Mapigo ya kidijitali"
+            roman_horn: "Tù và La Mã", clock_bell: "Chuông đồng hồ", ship_horn: "Còi tàu",
+            train_whistle: "Còi tàu hỏa", sonar_ping: "Sonar", fire_alarm: "Báo động khẩn cấp",
+            bronze_gong: "Cồng đồng", bugle_call: "Kèn hiệu", church_bell: "Chuông nhà thờ",
+            morse_sos: "Tín hiệu Morse", digital_pulse: "Xung số"
           }
         }
       };
@@ -2703,7 +1708,6 @@
       let customAudioPlayer = null;
       let wallpaperDataUrl = null;
 
-      // Jelkimaradás, 90 mp-es újraigénylés és stagnálás állapotok
       let lastFixAt = 0;
       let signalLostNotified = false;
       let reconnectIntervalId = null;
@@ -2726,6 +1730,11 @@
       const voiceBtn = document.getElementById("voiceBtn");
       const themeBtn = document.getElementById("themeBtn");
       const editModeBtn = document.getElementById("editModeBtn");
+      const helpBtn = document.getElementById("helpBtn");
+      const helpBubble = document.getElementById("helpBubble");
+      const helpBubbleTitle = document.getElementById("helpBubbleTitle");
+      const closeHelpBtn = document.getElementById("closeHelpBtn");
+      const helpBubbleScroll = document.getElementById("helpBubbleScroll");
       const themeDrawer = document.getElementById("themeDrawer");
       const themeDrawerTitle = document.getElementById("themeDrawerTitle");
       const glassBox = document.getElementById("glassBox");
@@ -2748,8 +1757,6 @@
       const pickAudioBtn = document.getElementById("pickAudioBtn");
       const customAudioInput = document.getElementById("customAudioInput");
       const customAudioInfo = document.getElementById("customAudioInfo");
-      const basementHelpTitle = document.getElementById("basementHelpTitle");
-      const basementHelpText = document.getElementById("basementHelpText");
       const simDistanceRange = document.getElementById("simDistanceRange");
       const simDistanceLabel = document.getElementById("simDistanceLabel");
       const simDistanceLabelWrap = document.getElementById("simDistanceLabelWrap");
@@ -2811,16 +1818,19 @@
         } catch (e) {}
       }
 
+      function getGreetingForCurrentLang() {
+        const langObj = LANGUAGES.find(l => l.code === currentLang);
+        if (langObj && langObj.greeting) return langObj.greeting;
+        return "Hello";
+      }
+
       function getPersonaSpeechParams(persona) {
         if (persona === "male") {
-          // Markánsabb, kalandor jellegű tónus
           return { pitch: 0.78, rate: 1.03 };
         }
         if (persona === "female") {
-          // Lágy, enyhén elnyújtott tónus
           return { pitch: 1.24, rate: 0.94 };
         }
-        // Robot (C-3PO jellegű, kissé fémes/modulált tónus) - alapértelmezett
         return { pitch: 1.56, rate: 1.08 };
       }
 
@@ -2840,15 +1850,14 @@
           return { voice: match, lang: match.lang || speechTag };
         }
 
-        // Angol tartalék, ha a kiválasztott nyelvre nincs hang az eszközön
         const enVoice = voices.find(v => String(v.lang || "").toLowerCase().startsWith("en"));
         return { voice: enVoice || null, lang: (enVoice && enVoice.lang) || "en-US" };
       }
 
-      function speakSignalText(text) {
+      function speakInCurrentLang(text, personaOverride = null) {
         if (!text) return;
         const langObj = LANGUAGES.find(l => l.code === currentLang) || LANGUAGES[0];
-        const persona = state.voicePersona || "robot";
+        const persona = personaOverride || state.voicePersona || "robot";
         const params = getPersonaSpeechParams(persona);
         const chosen = pickSpeechVoice(langObj.speech || "en-US");
 
@@ -2882,7 +1891,7 @@
         toastTimeoutId = setTimeout(() => {
           signalToast.classList.remove("visible");
         }, TOAST_MS);
-        speakSignalText(message);
+        speakInCurrentLang(message);
       }
 
       function syncVoicePersonaButtons() {
@@ -2906,8 +1915,32 @@
         state.voicePersona = personaId;
         saveState();
         syncVoicePersonaButtons();
-        const sample = personaId === "robot" ? t("signalFoundMsg") : t("signalLostMsg");
-        speakSignalText(sample);
+        speakInCurrentLang(getGreetingForCurrentLang(), personaId);
+      }
+
+      function renderHelpBubble() {
+        if (!helpBubbleTitle || !helpBubbleScroll) return;
+        helpBubbleTitle.textContent = t("helpTitle");
+        const points = t("helpPoints");
+        helpBubbleScroll.innerHTML = "";
+        if (Array.isArray(points)) {
+          points.forEach(pt => {
+            const p = document.createElement("p");
+            p.textContent = pt;
+            helpBubbleScroll.appendChild(p);
+          });
+        }
+      }
+
+      function toggleHelpBubble(forceState = null) {
+        if (!helpBubble || !helpBtn) return;
+        const nextOpen = forceState !== null ? Boolean(forceState) : !helpBubble.classList.contains("open");
+        helpBubble.classList.toggle("open", nextOpen);
+        helpBtn.classList.toggle("active", nextOpen);
+        if (nextOpen) {
+          langMenu.style.display = "none";
+          renderHelpBubble();
+        }
       }
 
       function loadState() {
@@ -3064,8 +2097,6 @@
         if (loudSpan) loudSpan.textContent = t("loudMode");
         pickAudioBtn.textContent = t("pickAudio");
         customAudioInfo.textContent = customAudioUrl ? (t("customAudioLoaded") + customAudioName) : t("noCustomAudio");
-        if (basementHelpTitle) basementHelpTitle.textContent = t("helpTitle");
-        if (basementHelpText) basementHelpText.textContent = t("helpBody");
         if (farewellTitle) farewellTitle.textContent = t("farewellTitle");
         if (farewellBody) farewellBody.textContent = t("farewellBody");
 
@@ -3092,6 +2123,7 @@
         }
         alarmFooterNote.textContent = t("alarmFooter");
 
+        renderHelpBubble();
         applyTheme(state.theme);
         populateSounds();
         renderDestinations();
@@ -3422,7 +2454,6 @@
           showSignalNotice(t("signalFoundMsg"));
         }
 
-        // 100 méteren belüli mozgás 1 órán át stagnálás-ellenőrzése
         if (!anchorCoords) {
           anchorCoords = { lat, lng };
           anchorSinceAt = now;
@@ -3548,7 +2579,6 @@
         updateStatus();
       }
 
-      // Natív burkoló felől érkező háttér-koordináták fogadása
       window.addEventListener("message", event => {
         try {
           const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
@@ -3677,8 +2707,14 @@
       langBtn.addEventListener("click", () => {
         const isOpen = langMenu.style.display !== "none";
         langMenu.style.display = isOpen ? "none" : "flex";
-        if (!isOpen) renderLangMenu();
+        if (!isOpen) {
+          toggleHelpBubble(false);
+          renderLangMenu();
+        }
       });
+
+      helpBtn.addEventListener("click", () => toggleHelpBubble());
+      closeHelpBtn.addEventListener("click", () => toggleHelpBubble(false));
 
       editModeBtn.addEventListener("click", () => {
         editMode = !editMode;
