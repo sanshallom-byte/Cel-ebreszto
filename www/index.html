@@ -3976,10 +3976,14 @@
   </script>
 
   <!-- Ideiglenes diagnosztikai naplózó (később törölhető) -->
+  <!-- Ideiglenes diagnosztikai naplózó (később törölhető) -->
   <script id="stopway-debug-log">
     (function () {
       const LOG_KEY = "stopway_debug_logs_v1";
       const MAX_LOGS = 120;
+      let renderTimer = null;
+      let userScrolling = false;
+      let scrollReleaseTimer = null;
 
       function readLogs() {
         try {
@@ -3996,17 +4000,28 @@
       }
 
       function addLog(tag, detail = "") {
+        if (tag === "NATIVE_PERM") return;
         const now = new Date();
         const time = now.toTimeString().split(" ")[0] + "." + String(now.getMilliseconds()).padStart(3, "0");
         const vis = document.visibilityState;
         const entry = `[${time}] (${vis}) ${tag}${detail ? " — " + detail : ""}`;
         const list = readLogs();
+        const last = list[list.length - 1];
+        if (last && last.slice(15) === entry.slice(15)) return;
         list.push(entry);
         writeLogs(list);
-        renderLogBox();
+        scheduleRender();
       }
 
       window.__swDebugLog = addLog;
+
+      function scheduleRender() {
+        if (renderTimer) return;
+        renderTimer = setTimeout(() => {
+          renderTimer = null;
+          renderLogBox();
+        }, 500);
+      }
 
       function createLogUi() {
         if (document.getElementById("sw-debug-panel")) return;
@@ -4025,22 +4040,41 @@
         document.body.appendChild(wrap);
 
         const out = document.getElementById("sw-dbg-output");
+        out.addEventListener("touchstart", () => {
+          userScrolling = true;
+          if (scrollReleaseTimer) clearTimeout(scrollReleaseTimer);
+        }, { passive: true });
+
+        out.addEventListener("scroll", () => {
+          userScrolling = true;
+          if (scrollReleaseTimer) clearTimeout(scrollReleaseTimer);
+          scrollReleaseTimer = setTimeout(() => {
+            userScrolling = false;
+          }, 2500);
+        }, { passive: true });
+
         document.getElementById("sw-dbg-toggle").addEventListener("click", () => {
           out.style.display = out.style.display === "none" ? "block" : "none";
-          renderLogBox();
+          renderLogBox(true);
         });
 
         document.getElementById("sw-dbg-clear").addEventListener("click", () => {
           localStorage.removeItem(LOG_KEY);
-          renderLogBox();
+          renderLogBox(true);
         });
       }
 
-      function renderLogBox() {
+      function renderLogBox(forceScroll = false) {
         const out = document.getElementById("sw-dbg-output");
-        if (!out) return;
+        if (!out || out.style.display === "none") return;
+        const prevScrollTop = out.scrollTop;
         const list = readLogs();
         out.textContent = list.length ? list.join("\n") : "(Még nincs bejegyzés)";
+        if (forceScroll) {
+          out.scrollTop = out.scrollHeight;
+        } else if (userScrolling) {
+          out.scrollTop = prevScrollTop;
+        }
       }
 
       function hookAppFunctions() {
@@ -4083,11 +4117,9 @@
         addLog("ALARM_DISMISSED");
       });
 
-      const origAlert = window.alert;
       createLogUi();
       hookAppFunctions();
       addLog("INIT", "Naplózó betöltve");
-      void origAlert;
     })();
   </script>
 </body>
