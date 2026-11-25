@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="hu" dir="ltr">
 <head>
@@ -828,6 +829,7 @@
       <p id="sw-addon-goodbye-desc" style="margin:0; font-size:0.9rem; line-height:1.45;"></p>
     </div>
   </div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script>
     try {
@@ -2029,122 +2031,93 @@
           }
         }
       };
-      const SOUND_KEYS = [
-        "roman_horn", "clock_bell", "ship_horn", "train_whistle", "sonar_ping",
-        "fire_alarm", "bronze_gong", "bugle_call", "church_bell", "morse_sos", "digital_pulse"
+
+      const SOUNDS = [
+        { id: "roman_horn" }, { id: "clock_bell" }, { id: "ship_horn" },
+        { id: "train_whistle" }, { id: "sonar_ping" }, { id: "fire_alarm" },
+        { id: "bronze_gong" }, { id: "bugle_call" }, { id: "church_bell" },
+        { id: "morse_sos" }, { id: "digital_pulse" }
       ];
 
-      function createDefaultPlaces(lang) {
-        const t = TRANSLATIONS[lang] || TRANSLATIONS.hu;
-        return t.defaultPlaces.map((name, idx) => ({
-          id: idx + 1,
-          name,
+      let currentLang = "hu";
+
+      function t(key) {
+        const cur = TRANSLATIONS[currentLang] || {};
+        const fb = TRANSLATIONS.en || TRANSLATIONS.hu || {};
+        return cur[key] !== undefined ? cur[key] : (fb[key] !== undefined ? fb[key] : "");
+      }
+
+      function getSoundLabel(id) {
+        const curSounds = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].sounds) || {};
+        const fbSounds = (TRANSLATIONS.en && TRANSLATIONS.en.sounds) || {};
+        return curSounds[id] || fbSounds[id] || id;
+      }
+
+      function getThemeLabel(id) {
+        const curThemes = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].themes) || {};
+        const fbThemes = (TRANSLATIONS.en && TRANSLATIONS.en.themes) || {};
+        return curThemes[id] || fbThemes[id] || id;
+      }
+
+      function getDefaultPlaceName(idx) {
+        const curList = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].defaultPlaces) || [];
+        const fbList = (TRANSLATIONS.en && TRANSLATIONS.en.defaultPlaces) || [];
+        return curList[idx] || fbList[idx] || `${idx + 1}`;
+      }
+
+      function makeDefaultPlaces() {
+        return Array.from({ length: 10 }, (_, idx) => ({
+          name: getDefaultPlaceName(idx),
+          isDefaultName: true,
           lat: null,
-          lng: null,
-          isFixed: idx === 0 || idx === 1
+          lng: null
         }));
       }
 
-      function loadState() {
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (raw) {
-            const parsed = JSON.parse(raw);
-            if (parsed && Array.isArray(parsed.places) && parsed.places.length === 10) {
-              return {
-                selectedIndex: typeof parsed.selectedIndex === "number" ? parsed.selectedIndex : 0,
-                thresholdMeters: typeof parsed.thresholdMeters === "number" ? parsed.thresholdMeters : 1000,
-                theme: parsed.theme || "classic",
-                glassPolarity: parsed.glassPolarity || "dark-ui",
-                hasWallpaper: Boolean(parsed.hasWallpaper),
-                sound: parsed.sound || "roman_horn",
-                loudMode: parsed.loudMode !== false,
-                simDistance: typeof parsed.simDistance === "number" ? parsed.simDistance : 2500,
-                places: parsed.places
-              };
-            }
-          }
-        } catch (err) {
-          console.warn("Load state fallback:", err);
-        }
-        return {
-          selectedIndex: 0,
-          thresholdMeters: 1000,
-          theme: "classic",
-          glassPolarity: "dark-ui",
-          hasWallpaper: false,
-          sound: "roman_horn",
-          loudMode: true,
-          simDistance: 2500,
-          places: createDefaultPlaces("hu")
-        };
-      }
+      let state = {
+        places: makeDefaultPlaces(),
+        selectedIndex: 0,
+        thresholdMeters: 1000,
+        soundId: "roman_horn",
+        loudMode: true,
+        theme: "classic",
+        glassPolarity: "dark-ui"
+      };
 
-      let currentLang = localStorage.getItem(LANG_STORAGE_KEY) || "hu";
-      if (!TRANSLATIONS[currentLang]) currentLang = "hu";
-
-      let state = loadState();
       let editMode = false;
       let editingIndex = null;
       let watching = false;
       let watchId = null;
-      let continuousPollTimer = null;
       let alarmActive = false;
-      let alarmDismissedForCurrentLeg = false;
-      let snoozeTimer = null;
       let snoozeRemaining = 0;
+      let snoozeInterval = null;
+      let alarmLoopInterval = null;
+      let audioCtx = null;
       let customAudioUrl = null;
       let customAudioName = "";
-      let customAudioEl = null;
-      let audioCtx = null;
-      let alarmLoopTimer = null;
-      let previewTimer = null;
-      let mapInstance = null;
-      let mapMarker = null;
-      let alarmWakeLock = null;
-      let alarmVibrationTimer = null;
-      let lastKnownLat = null;
-      let lastKnownLng = null;
+      let customAudioPlayer = null;
+      let wallpaperDataUrl = null;
 
-      function getT() {
-        return TRANSLATIONS[currentLang] || TRANSLATIONS.hu;
-      }
+      let leafletMap = null;
+      let leafletMarker = null;
 
-      function saveState() {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        } catch (err) {
-          console.warn("Save state warning:", err);
-        }
-      }
-
-      function formatDistance(meters) {
-        if (typeof meters !== "number" || !isFinite(meters)) return "";
-        if (meters >= 1000) return `${(meters / 1000).toFixed(1).replace(".", ",")} km`;
-        return `${Math.round(meters)} m`;
-      }
-
-      function haversineMeters(lat1, lng1, lat2, lng2) {
-        const R = 6371000;
-        const toRad = (deg) => (deg * Math.PI) / 180;
-        const dLat = toRad(lat2 - lat1);
-        const dLng = toRad(lng2 - lng1);
-        const a =
-          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      }
-
+      const destinationsGrid = document.getElementById("destinationsGrid");
+      const thresholdSelect = document.getElementById("thresholdSelect");
       const langBtn = document.getElementById("langBtn");
       const langMenu = document.getElementById("langMenu");
       const langMenuTitle = document.getElementById("langMenuTitle");
       const langList = document.getElementById("langList");
-      const thresholdSelect = document.getElementById("thresholdSelect");
       const voiceBtn = document.getElementById("voiceBtn");
       const themeBtn = document.getElementById("themeBtn");
       const editModeBtn = document.getElementById("editModeBtn");
-      const promptTitle = document.getElementById("promptTitle");
-      const destinationsGrid = document.getElementById("destinationsGrid");
+      const themeDrawer = document.getElementById("themeDrawer");
+      const themeDrawerTitle = document.getElementById("themeDrawerTitle");
+      const glassBox = document.getElementById("glassBox");
+      const glassPolarityInfo = document.getElementById("glassPolarityInfo");
+      const pickWallpaperBtn = document.getElementById("pickWallpaperBtn");
+      const flipGlassPolarityBtn = document.getElementById("flipGlassPolarityBtn");
+      const wallpaperInput = document.getElementById("wallpaperInput");
+
       const statusLine = document.getElementById("statusLine");
       const statusDetail = document.getElementById("statusDetail");
       const toggleWatchBtn = document.getElementById("toggleWatchBtn");
@@ -2155,14 +2128,9 @@
       const pickAudioBtn = document.getElementById("pickAudioBtn");
       const customAudioInput = document.getElementById("customAudioInput");
       const customAudioInfo = document.getElementById("customAudioInfo");
-      const themeDrawer = document.getElementById("themeDrawer");
-      const themeDrawerTitle = document.getElementById("themeDrawerTitle");
-      const glassBox = document.getElementById("glassBox");
-      const pickWallpaperBtn = document.getElementById("pickWallpaperBtn");
-      const flipGlassPolarityBtn = document.getElementById("flipGlassPolarityBtn");
-      const wallpaperInput = document.getElementById("wallpaperInput");
-      const simDistanceLabelWrap = document.getElementById("simDistanceLabelWrap");
       const simDistanceRange = document.getElementById("simDistanceRange");
+      const simDistanceLabel = document.getElementById("simDistanceLabel");
+      const simDistanceLabelWrap = document.getElementById("simDistanceLabelWrap");
       const triggerSimAlarmBtn = document.getElementById("triggerSimAlarmBtn");
       const adBannerSlot = document.getElementById("adBannerSlot");
 
@@ -2183,35 +2151,295 @@
       const alarmOverlay = document.getElementById("alarmOverlay");
       const alarmHeading = document.getElementById("alarmHeading");
       const alarmSub = document.getElementById("alarmSub");
-      const dismissForeverBtn = document.getElementById("dismissForeverBtn");
       const snoozeGiantBtn = document.getElementById("snoozeGiantBtn");
       const snoozeMainLabel = document.getElementById("snoozeMainLabel");
       const snoozeCountdownText = document.getElementById("snoozeCountdownText");
+      const dismissForeverBtn = document.getElementById("dismissForeverBtn");
       const alarmFooterNote = document.getElementById("alarmFooterNote");
 
-      function getAudioContext() {
-        const Ctx = window.AudioContext || window.webkitAudioContext;
-        if (!Ctx) return null;
-        if (!audioCtx) audioCtx = new Ctx();
-        if (audioCtx.state === "suspended") audioCtx.resume().catch(() => {});
+      function loadState() {
+        try {
+          const savedLang = localStorage.getItem(LANG_STORAGE_KEY);
+          if (savedLang && LANGUAGES.some(l => l.code === savedLang)) {
+            currentLang = savedLang;
+          }
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed.places) && parsed.places.length === 10) {
+            state.places = parsed.places.map((p, idx) => ({
+              name: p.name || getDefaultPlaceName(idx),
+              isDefaultName: Boolean(p.isDefaultName),
+              lat: typeof p.lat === "number" ? p.lat : null,
+              lng: typeof p.lng === "number" ? p.lng : null
+            }));
+          }
+          if (typeof parsed.selectedIndex === "number") state.selectedIndex = parsed.selectedIndex;
+          if (typeof parsed.thresholdMeters === "number") state.thresholdMeters = parsed.thresholdMeters;
+          if (typeof parsed.soundId === "string") state.soundId = parsed.soundId;
+          if (typeof parsed.loudMode === "boolean") state.loudMode = parsed.loudMode;
+          if (typeof parsed.theme === "string") state.theme = parsed.theme;
+          if (parsed.glassPolarity === "light-ui" || parsed.glassPolarity === "dark-ui") {
+            state.glassPolarity = parsed.glassPolarity;
+          }
+        } catch (err) {
+          console.warn("State load error:", err);
+        }
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          localStorage.setItem(LANG_STORAGE_KEY, currentLang);
+        } catch (err) {
+          console.warn("State save error:", err);
+        }
+      }
+
+      function syncGlassPolarityLabel() {
+        glassPolarityInfo.textContent = `${t("flipGlass")}: ${getThemeLabel("glass")}`;
+      }
+
+      function applyTheme(themeName) {
+        const validThemes = ["classic", "glass", "cartoon", "gothic", "renaissance", "punk"];
+        const chosen = validThemes.includes(themeName) ? themeName : "classic";
+        state.theme = chosen;
+        document.body.setAttribute("data-theme", chosen);
+        document.body.setAttribute("data-glass-polarity", state.glassPolarity);
+        if (wallpaperDataUrl) {
+          document.body.setAttribute("data-has-wallpaper", "true");
+          document.body.style.setProperty("--wallpaper-img", `url("${wallpaperDataUrl}")`);
+        } else {
+          document.body.removeAttribute("data-has-wallpaper");
+          document.body.style.setProperty("--wallpaper-img", "none");
+        }
+
+        document.querySelectorAll(".theme-chip[data-theme-choice]").forEach(chip => {
+          const id = chip.dataset.themeChoice;
+          chip.textContent = getThemeLabel(id);
+          chip.classList.toggle("active", id === chosen);
+        });
+        glassBox.classList.toggle("visible", chosen === "glass");
+        syncGlassPolarityLabel();
+        saveState();
+      }
+
+      function detectImageLuminanceAndApply(imgSrc) {
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const canvas = document.createElement("canvas");
+            const size = 48;
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, size, size);
+            const data = ctx.getImageData(0, 0, size, size).data;
+            let sum = 0;
+            const pixels = data.length / 4;
+            for (let i = 0; i < data.length; i += 4) {
+              sum += 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+            }
+            const avg = sum / pixels;
+            state.glassPolarity = avg > 135 ? "dark-ui" : "light-ui";
+            applyTheme("glass");
+          } catch (e) {
+            applyTheme("glass");
+          }
+        };
+        img.src = imgSrc;
+      }
+
+      function populateSounds() {
+        soundSelect.innerHTML = "";
+        SOUNDS.forEach(s => {
+          const opt = document.createElement("option");
+          opt.value = s.id;
+          opt.textContent = getSoundLabel(s.id);
+          if (s.id === state.soundId) opt.selected = true;
+          soundSelect.appendChild(opt);
+        });
+        if (customAudioUrl) {
+          const customOpt = document.createElement("option");
+          customOpt.value = "__custom__";
+          customOpt.textContent = t("customAudioLoaded") + customAudioName;
+          if (state.soundId === "__custom__") customOpt.selected = true;
+          soundSelect.appendChild(customOpt);
+        }
+      }
+
+      function renderLangMenu() {
+        if (!langList) return;
+        if (langMenuTitle) langMenuTitle.textContent = t("langMenuTitle");
+        langList.innerHTML = "";
+        LANGUAGES.forEach(lang => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "theme-chip" + (lang.code === currentLang ? " active" : "");
+          btn.textContent = lang.label;
+          btn.addEventListener("click", () => {
+            applyLanguage(lang.code);
+            langMenu.style.display = "none";
+          });
+          langList.appendChild(btn);
+        });
+      }
+
+      function applyLanguage(langCode) {
+        const langObj = LANGUAGES.find(l => l.code === langCode) || LANGUAGES[0];
+        currentLang = langObj.code;
+        document.documentElement.lang = langObj.code;
+        document.documentElement.dir = langObj.dir || "ltr";
+
+        state.places.forEach((p, idx) => {
+          if (p.isDefaultName) {
+            p.name = getDefaultPlaceName(idx);
+          }
+        });
+
+        document.querySelector(".brand-title").textContent = t("brandTitle");
+        document.querySelector(".prompt-title").textContent = t("promptTitle");
+        toggleWatchBtn.textContent = t("startWatch");
+        stopWatchBtn.textContent = t("stopWatch");
+        previewSoundBtn.textContent = t("previewSound");
+        const loudSpan = loudModeToggle.parentElement.querySelector("span");
+        if (loudSpan) loudSpan.textContent = t("loudMode");
+        pickAudioBtn.textContent = t("pickAudio");
+        customAudioInfo.textContent = customAudioUrl ? (t("customAudioLoaded") + customAudioName) : t("noCustomAudio");
+
+        themeDrawerTitle.textContent = t("themeDrawerTitle");
+        pickWallpaperBtn.textContent = t("pickWallpaper");
+        flipGlassPolarityBtn.textContent = t("flipGlass");
+        simDistanceLabelWrap.innerHTML = `${t("simPrefix")} <strong id="simDistanceLabel">${simDistanceRange.value} m</strong>`;
+        triggerSimAlarmBtn.textContent = t("triggerSim");
+        adBannerSlot.textContent = t("adBanner");
+
+        editModalTitle.textContent = t("editModalTitle");
+        editNameLabel.textContent = t("editNameLabel");
+        addressSearchLabel.textContent = t("addressSearchLabel");
+        addressSearchInput.placeholder = t("addressSearchPlaceholder");
+        searchAddressBtn.textContent = t("searchBtn");
+        useCurrentGpsBtn.textContent = t("useCurrentGps");
+        savePlaceBtn.textContent = t("savePlace");
+        cancelEditBtn.textContent = t("cancelEdit");
+
+        dismissForeverBtn.textContent = t("dismissForever");
+        snoozeMainLabel.textContent = t("snoozeMain");
+        if (!alarmActive || snoozeRemaining <= 0) {
+          snoozeCountdownText.textContent = t("snoozeTap");
+        }
+        alarmFooterNote.textContent = t("alarmFooter");
+
+        applyTheme(state.theme);
+        populateSounds();
+        renderDestinations();
+        renderLangMenu();
+        updateStatus();
+        saveState();
+        window.dispatchEvent(new CustomEvent("stopway:lang-changed", { detail: { lang: currentLang } }));
+      }
+
+      function renderDestinations() {
+        destinationsGrid.innerHTML = "";
+        state.places.forEach((place, idx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "dest-btn" + (idx === state.selectedIndex ? " selected" : "");
+          const hasCoords = typeof place.lat === "number" && typeof place.lng === "number";
+          const roleTag = idx < 2 ? t("fixedPlace") : t("freePlace");
+          btn.innerHTML = `
+            <span class="dest-index">${idx + 1}. • ${escapeHtml(roleTag)}</span>
+            <span class="dest-name">${escapeHtml(place.name)}</span>
+            <span class="dest-sub">${escapeHtml(hasCoords ? t("coordsSet") : t("setPlaceHint"))}</span>
+          `;
+          btn.addEventListener("click", () => {
+            state.selectedIndex = idx;
+            saveState();
+            renderDestinations();
+            if (editMode || !hasCoords) {
+              openEditModal(idx);
+            } else {
+              updateStatus();
+            }
+          });
+          destinationsGrid.appendChild(btn);
+        });
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function formatDistance(meters) {
+        const suffix = t("beforeSuffix");
+        if (meters >= 1000) {
+          const km = (meters / 1000).toFixed(meters % 1000 === 0 ? 0 : 1).replace(".", ",");
+          return `${km} km ${suffix}`;
+        }
+        return `${meters} m ${suffix}`;
+      }
+
+      function updateStatus(extraText = "") {
+        const place = state.places[state.selectedIndex] || state.places[0];
+        const hasCoords = typeof place.lat === "number" && typeof place.lng === "number";
+        statusLine.textContent = `${place.name} • ${formatDistance(state.thresholdMeters)}`;
+        if (extraText) {
+          statusDetail.textContent = extraText;
+        } else if (!hasCoords) {
+          statusDetail.textContent = t("noCoordsYet");
+        } else if (watching) {
+          statusDetail.textContent = t("watchingActive");
+        } else {
+          statusDetail.textContent = `${place.lat.toFixed(5)}, ${place.lng.toFixed(5)} • ${t("coordsReady")}`;
+        }
+      }
+
+      function haversineMeters(lat1, lon1, lat2, lon2) {
+        const R = 6371000;
+        const toRad = d => d * Math.PI / 180;
+        const dLat = toRad(lat2 - lat1);
+        const dLon = toRad(lon2 - lon1);
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      }
+
+      function ensureAudioContext() {
+        if (!audioCtx) {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (Ctx) audioCtx = new Ctx();
+        }
+        if (audioCtx && audioCtx.state === "suspended") {
+          audioCtx.resume().catch(() => {});
+        }
         return audioCtx;
       }
 
-      function playTone(freq, duration, type = "sawtooth", gainPeak = 0.25, delay = 0, slideToFreq = null) {
-        const ctx = getAudioContext();
+      function getGainMultiplier() {
+        return state.loudMode ? 1.8 : 1.0;
+      }
+
+      function playTone(freq, duration, type = "sawtooth", delay = 0, peak = 0.28, endFreq = null) {
+        const ctx = ensureAudioContext();
         if (!ctx) return;
         const start = ctx.currentTime + delay;
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        const boost = state.loudMode ? 1.35 : 0.85;
-        const peak = Math.min(0.85, gainPeak * boost);
-
         osc.type = type;
         osc.frequency.setValueAtTime(freq, start);
-        if (slideToFreq) osc.frequency.exponentialRampToValueAtTime(Math.max(40, slideToFreq), start + duration);
+        if (endFreq !== null) {
+          osc.frequency.exponentialRampToValueAtTime(Math.max(40, endFreq), start + duration);
+        }
 
+        const scaledPeak = Math.min(0.75, peak * getGainMultiplier());
         gain.gain.setValueAtTime(0.0001, start);
-        gain.gain.linearRampToValueAtTime(peak, start + 0.02);
+        gain.gain.linearRampToValueAtTime(scaledPeak, start + 0.02);
         gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
 
         osc.connect(gain);
@@ -2220,509 +2448,257 @@
         osc.stop(start + duration + 0.03);
       }
 
-      function triggerBuiltInSoundPattern(soundKey) {
-        switch (soundKey) {
+      function stopAllSounds() {
+        if (alarmLoopInterval) {
+          clearInterval(alarmLoopInterval);
+          alarmLoopInterval = null;
+        }
+        if (customAudioPlayer) {
+          customAudioPlayer.pause();
+          customAudioPlayer.currentTime = 0;
+        }
+      }
+
+      function triggerSoundOnce(soundId) {
+        if (soundId === "__custom__" && customAudioUrl) {
+          if (!customAudioPlayer) {
+            customAudioPlayer = new Audio(customAudioUrl);
+          } else if (customAudioPlayer.src !== customAudioUrl) {
+            customAudioPlayer.src = customAudioUrl;
+          }
+          customAudioPlayer.volume = 1.0;
+          customAudioPlayer.currentTime = 0;
+          customAudioPlayer.play().catch(() => {});
+          return;
+        }
+
+        switch (soundId) {
           case "roman_horn":
-            playTone(146.8, 0.55, "sawtooth", 0.34, 0, 138.6);
-            playTone(220.0, 0.75, "sawtooth", 0.3, 0.12, 196.0);
+            playTone(146.8, 0.9, "sawtooth", 0.0, 0.36, 152);
+            playTone(146.8, 0.9, "triangle", 0.0, 0.26, 152);
+            playTone(220.0, 1.15, "sawtooth", 0.55, 0.36, 214);
             break;
           case "clock_bell":
-            for (let i = 0; i < 6; i++) playTone(i % 2 === 0 ? 1760 : 1975, 0.09, "square", 0.24, i * 0.11);
+            for (let i = 0; i < 6; i++) {
+              playTone(1850, 0.09, "square", i * 0.12, 0.26);
+            }
             break;
           case "ship_horn":
-            playTone(98.0, 0.9, "sawtooth", 0.36, 0, 92.5);
-            playTone(146.8, 0.9, "triangle", 0.22, 0.05, 138.6);
+            playTone(110, 1.3, "sawtooth", 0, 0.32, 104);
+            playTone(112.5, 1.3, "triangle", 0, 0.24, 106);
             break;
           case "train_whistle":
-            playTone(587.3, 0.28, "triangle", 0.32, 0);
-            playTone(740.0, 0.28, "triangle", 0.32, 0.3);
-            playTone(880.0, 0.55, "sawtooth", 0.28, 0.6);
+            playTone(620, 0.35, "sawtooth", 0, 0.28, 660);
+            playTone(840, 0.55, "sawtooth", 0.36, 0.3, 790);
             break;
           case "sonar_ping":
-            playTone(1318.5, 0.45, "sine", 0.36, 0, 1244.5);
-            playTone(1318.5, 0.35, "sine", 0.22, 0.55, 1244.5);
+            playTone(1320, 0.45, "sine", 0, 0.34);
+            playTone(1320, 0.45, "sine", 0.65, 0.3);
             break;
           case "fire_alarm":
-            playTone(620, 0.35, "sawtooth", 0.34, 0, 960);
-            playTone(960, 0.35, "sawtooth", 0.34, 0.35, 620);
+            for (let i = 0; i < 4; i++) {
+              playTone(760 + i * 160, 0.18, "sawtooth", i * 0.2, 0.3);
+            }
             break;
           case "bronze_gong":
-            playTone(130.8, 1.1, "triangle", 0.38, 0, 123.5);
-            playTone(261.6, 0.85, "sine", 0.22, 0.02, 246.9);
+            playTone(140, 1.5, "sine", 0, 0.34, 132);
+            playTone(352, 1.2, "triangle", 0, 0.2, 340);
             break;
           case "bugle_call":
-            playTone(523.25, 0.18, "sawtooth", 0.28, 0);
-            playTone(659.25, 0.18, "sawtooth", 0.28, 0.2);
-            playTone(783.99, 0.22, "sawtooth", 0.3, 0.4);
-            playTone(1046.5, 0.55, "sawtooth", 0.32, 0.65);
+            playTone(440, 0.22, "sawtooth", 0, 0.26);
+            playTone(554.37, 0.22, "sawtooth", 0.24, 0.26);
+            playTone(659.25, 0.45, "sawtooth", 0.48, 0.3);
             break;
           case "church_bell":
-            playTone(440, 0.85, "sine", 0.32, 0, 436);
-            playTone(659.25, 0.75, "triangle", 0.2, 0.04, 654);
+            playTone(392, 1.1, "sine", 0, 0.28, 388);
+            playTone(784, 0.9, "triangle", 0.02, 0.16);
             break;
           case "morse_sos":
-            [0, 0.16, 0.32, 0.56, 0.76, 0.96, 1.2, 1.36, 1.52].forEach((t, idx) => {
-              const isDash = idx >= 3 && idx <= 5;
-              playTone(880, isDash ? 0.16 : 0.08, "square", 0.28, t);
+            [0, 0.22, 0.44, 0.72, 1.02, 1.32, 1.62, 1.84, 2.06].forEach((t0, idx) => {
+              const dur = (idx >= 3 && idx <= 5) ? 0.24 : 0.11;
+              playTone(880, dur, "square", t0, 0.24);
             });
             break;
           case "digital_pulse":
           default:
-            playTone(784, 0.14, "square", 0.25, 0);
-            playTone(1046.5, 0.14, "square", 0.25, 0.16);
-            playTone(784, 0.14, "square", 0.25, 0.32);
+            playTone(980, 0.16, "square", 0, 0.24);
+            playTone(1240, 0.16, "square", 0.2, 0.24);
             break;
         }
       }
 
-      function stopAllAudio() {
-        if (alarmLoopTimer) { clearInterval(alarmLoopTimer); alarmLoopTimer = null; }
-        if (previewTimer) { clearTimeout(previewTimer); previewTimer = null; }
-        if (customAudioEl) {
-          try { customAudioEl.pause(); customAudioEl.currentTime = 0; } catch (e) {}
-        }
-      }
-
-      function playAlarmCycle() {
-        stopAllAudio();
-        if (customAudioUrl) {
-          if (!customAudioEl) customAudioEl = new Audio();
-          customAudioEl.src = customAudioUrl;
-          customAudioEl.loop = true;
-          customAudioEl.volume = state.loudMode ? 1.0 : 0.65;
-          customAudioEl.play().catch(() => triggerBuiltInSoundPattern(state.sound));
-          return;
-        }
-        triggerBuiltInSoundPattern(state.sound);
-        alarmLoopTimer = setInterval(() => {
-          if (alarmActive && snoozeRemaining <= 0) triggerBuiltInSoundPattern(state.sound);
-        }, 1650);
-      }
-
-      async function requestAlarmWakeLock() {
-        try {
-          if ("wakeLock" in navigator && navigator.wakeLock && !alarmWakeLock) {
-            alarmWakeLock = await navigator.wakeLock.request("screen");
-          }
-        } catch (err) {}
-      }
-
-      function releaseAlarmWakeLock() {
-        try {
-          if (alarmWakeLock) { alarmWakeLock.release().catch(() => {}); alarmWakeLock = null; }
-        } catch (err) {}
-      }
-
-      function startAlarmVibration() {
-        stopAlarmVibration();
-        if ("vibrate" in navigator) {
-          try { navigator.vibrate([700, 300, 700, 300]); } catch (e) {}
-          alarmVibrationTimer = setInterval(() => {
-            if (alarmActive && snoozeRemaining <= 0) {
-              try { navigator.vibrate([700, 300, 700, 300]); } catch (e) {}
-            }
-          }, 2100);
-        }
-      }
-
-      function stopAlarmVibration() {
-        if (alarmVibrationTimer) { clearInterval(alarmVibrationTimer); alarmVibrationTimer = null; }
-        if ("vibrate" in navigator) {
-          try { navigator.vibrate(0); } catch (e) {}
-        }
-      }
-
-      function notifyNativeBridge(eventName, payload = {}) {
-        try {
-          const msg = JSON.stringify({ source: "StopWay", event: eventName, ...payload });
-          if (window.AndroidBridge && typeof window.AndroidBridge.onStopWayEvent === "function") {
-            window.AndroidBridge.onStopWayEvent(msg);
-          } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.stopway) {
-            window.webkit.messageHandlers.stopway.postMessage(msg);
-          }
-        } catch (e) {}
-      }
-
-      function updateAdVisibility() {
-        if (!adBannerSlot) return;
-        adBannerSlot.style.display = alarmActive ? "none" : "block";
-      }
-
-      function applyTheme() {
-        document.body.setAttribute("data-theme", state.theme);
-        document.body.setAttribute("data-glass-polarity", state.glassPolarity);
-        document.body.setAttribute("data-has-wallpaper", state.hasWallpaper ? "true" : "false");
-        glassBox.classList.toggle("visible", state.theme === "glass");
-        document.querySelectorAll(".theme-chip").forEach((chip) => {
-          chip.classList.toggle("active", chip.getAttribute("data-theme-choice") === state.theme);
-        });
-      }
-
-      function applyLanguage() {
-        const t = getT();
-        const langObj = LANGUAGES.find((l) => l.code === currentLang) || LANGUAGES[0];
-        document.documentElement.lang = langObj.code;
-        document.documentElement.dir = langObj.dir;
-        document.title = t.brandTitle;
-
-        document.querySelector(".brand-title").textContent = t.brandTitle;
-        promptTitle.textContent = t.promptTitle;
-        langMenuTitle.textContent = t.langMenuTitle;
-        toggleWatchBtn.textContent = t.startWatch;
-        stopWatchBtn.textContent = t.stopWatch;
-        previewSoundBtn.textContent = t.previewSound;
-        loudModeToggle.nextElementSibling.textContent = t.loudMode;
-        pickAudioBtn.textContent = t.pickAudio;
-        customAudioInfo.textContent = customAudioName ? `${t.customAudioLoaded}${customAudioName}` : t.noCustomAudio;
-        themeDrawerTitle.textContent = t.themeDrawerTitle;
-        pickWallpaperBtn.textContent = t.pickWallpaper;
-        flipGlassPolarityBtn.textContent = t.flipGlass;
-        triggerSimAlarmBtn.textContent = t.triggerSim;
-        adBannerSlot.textContent = t.adBanner;
-        editModalTitle.textContent = t.editModalTitle;
-        editNameLabel.textContent = t.editNameLabel;
-        addressSearchLabel.textContent = t.addressSearchLabel;
-        addressSearchInput.placeholder = t.addressSearchPlaceholder;
-        searchAddressBtn.textContent = t.searchBtn;
-        useCurrentGpsBtn.textContent = t.useCurrentGps;
-        savePlaceBtn.textContent = t.savePlace;
-        cancelEditBtn.textContent = t.cancelEdit;
-        dismissForeverBtn.textContent = t.dismissForever;
-        snoozeMainLabel.textContent = t.snoozeMain;
-        alarmFooterNote.textContent = t.alarmFooter;
-
-        updateSimDistanceLabel();
-        renderSoundOptions();
-        renderDestinations();
-        updateStatusTexts();
-        if (typeof window.swAddonRefreshTexts === "function") window.swAddonRefreshTexts();
-      }
-
-      function updateSimDistanceLabel() {
-        const t = getT();
-        simDistanceLabelWrap.innerHTML = `${t.simPrefix} <strong id="simDistanceLabel">${formatDistance(state.simDistance)}</strong>`;
-      }
-
-      function renderSoundOptions() {
-        const t = getT();
-        const prev = state.sound;
-        soundSelect.innerHTML = "";
-        SOUND_KEYS.forEach((key) => {
-          const opt = document.createElement("option");
-          opt.value = key;
-          opt.textContent = t.sounds[key] || key;
-          if (key === prev) opt.selected = true;
-          soundSelect.appendChild(opt);
-        });
-      }
-
-      function renderLanguageMenu() {
-        langList.innerHTML = "";
-        LANGUAGES.forEach((lang) => {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "theme-chip" + (lang.code === currentLang ? " active" : "");
-          btn.textContent = lang.label;
-          btn.addEventListener("click", () => {
-            currentLang = lang.code;
-            localStorage.setItem(LANG_STORAGE_KEY, currentLang);
-            langMenu.style.display = "none";
-            applyLanguage();
-            renderLanguageMenu();
-            saveState();
-          });
-          langList.appendChild(btn);
-        });
-      }
-
-      function getSelectedPlace() {
-        return state.places[state.selectedIndex] || state.places[0];
-      }
-
-      function renderDestinations() {
-        const t = getT();
-        destinationsGrid.innerHTML = "";
-        state.places.forEach((place, idx) => {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          const isSelected = idx === state.selectedIndex;
-          btn.className = "dest-btn" + (isSelected ? " selected" : "");
-
-          const hasCoords = typeof place.lat === "number" && typeof place.lng === "number";
-          const tag = place.isFixed ? t.fixedPlace : t.freePlace;
-          const subText = hasCoords ? `${tag} • ${formatDistance(state.thresholdMeters)} ${t.beforeSuffix}` : `${tag} • ${t.setPlaceHint}`;
-
-          btn.innerHTML = `
-            <span class="dest-index">${idx + 1}.</span>
-            <span class="dest-name">${place.name}</span>
-            <span class="dest-sub">${subText}</span>
-          `;
-
-          btn.addEventListener("click", () => {
-            if (editMode) {
-              openEditModal(idx);
-              return;
-            }
-            state.selectedIndex = idx;
-            alarmDismissedForCurrentLeg = false;
-            saveState();
-            renderDestinations();
-            updateStatusTexts();
-            if (!hasCoords) {
-              openEditModal(idx);
-            } else if (!watching) {
-              startWatching();
-            }
-          });
-
-          destinationsGrid.appendChild(btn);
-        });
-      }
-
-      function updateStatusTexts(extraDetail = null) {
-        const t = getT();
-        const place = getSelectedPlace();
-        const hasCoords = place && typeof place.lat === "number" && typeof place.lng === "number";
-
-        if (editMode) {
-          statusLine.textContent = `${t.editModeOn} (${place ? place.name : ""})`;
-          statusDetail.textContent = t.tapToWatch;
-          return;
-        }
-
-        if (!place || !hasCoords) {
-          statusLine.textContent = place ? `${place.name} — ${t.noCoordsYet}` : t.choosePlace;
-          statusDetail.textContent = t.tapToWatch;
-          return;
-        }
-
-        const distLabel = formatDistance(state.thresholdMeters);
-        if (watching) {
-          statusLine.textContent = `${t.watchingActive} → ${place.name} (${distLabel} ${t.beforeSuffix})`;
-          if (extraDetail) {
-            statusDetail.textContent = extraDetail;
-          } else if (typeof lastKnownLat === "number" && typeof lastKnownLng === "number") {
-            const curDist = haversineMeters(lastKnownLat, lastKnownLng, place.lat, place.lng);
-            statusDetail.textContent = `${place.name}: ${formatDistance(curDist)} • ${t.beforeSuffix}: ${distLabel}`;
-          } else {
-            statusDetail.textContent = `${place.name} (${place.lat.toFixed(4)}, ${place.lng.toFixed(4)})`;
-          }
-        } else {
-          statusLine.textContent = `${place.name} (${distLabel} ${t.beforeSuffix})`;
-          statusDetail.textContent = extraDetail || t.coordsReady;
-        }
-      }
-
-      function triggerAlarm(distanceMeters = null) {
-        if (alarmActive) return;
-        const t = getT();
-        const place = getSelectedPlace();
+      function startAlarm(messageSub = "") {
         alarmActive = true;
         snoozeRemaining = 0;
-        if (snoozeTimer) { clearInterval(snoozeTimer); snoozeTimer = null; }
-
-        alarmHeading.textContent = `${t.alarmPrefix} ${place ? place.name : "StopWay"}`;
-        alarmSub.textContent = typeof distanceMeters === "number" && isFinite(distanceMeters)
-          ? `${formatDistance(distanceMeters)} (${t.beforeSuffix}: ${formatDistance(state.thresholdMeters)})`
-          : `${t.beforeSuffix}: ${formatDistance(state.thresholdMeters)}`;
-        snoozeCountdownText.textContent = t.snoozeTap;
-
+        if (snoozeInterval) {
+          clearInterval(snoozeInterval);
+          snoozeInterval = null;
+        }
+        const place = state.places[state.selectedIndex] || state.places[0];
+        alarmHeading.textContent = `${t("alarmPrefix")} ${place.name}`;
+        alarmSub.textContent = messageSub || formatDistance(state.thresholdMeters);
+        snoozeGiantBtn.disabled = false;
+        snoozeCountdownText.textContent = t("snoozeTap");
         alarmOverlay.classList.add("active");
-        updateAdVisibility();
-        requestAlarmWakeLock();
-        playAlarmCycle();
-        startAlarmVibration();
-        notifyNativeBridge("ALARM_TRIGGERED", { placeName: place ? place.name : "", distanceMeters });
+
+        if (navigator.vibrate) {
+          navigator.vibrate([500, 250, 500, 250, 800]);
+        }
+
+        stopAllSounds();
+        triggerSoundOnce(state.soundId);
+        alarmLoopInterval = setInterval(() => {
+          if (alarmActive && snoozeRemaining <= 0) {
+            triggerSoundOnce(state.soundId);
+            if (navigator.vibrate) navigator.vibrate([400, 200, 400]);
+          }
+        }, 2400);
       }
 
-      function startSnooze20s() {
-        const t = getT();
-        stopAllAudio();
-        stopAlarmVibration();
+      function snoozeFor20Seconds() {
+        if (!alarmActive) return;
+        stopAllSounds();
         snoozeRemaining = 20;
-        snoozeCountdownText.textContent = `20 ${t.snoozeLeft}`;
-        if (snoozeTimer) clearInterval(snoozeTimer);
-        snoozeTimer = setInterval(() => {
+        snoozeGiantBtn.disabled = true;
+        snoozeCountdownText.textContent = `${snoozeRemaining} ${t("snoozeLeft")}`;
+
+        if (snoozeInterval) clearInterval(snoozeInterval);
+        snoozeInterval = setInterval(() => {
           snoozeRemaining -= 1;
-          if (snoozeRemaining <= 0) {
-            clearInterval(snoozeTimer);
-            snoozeTimer = null;
-            snoozeRemaining = 0;
-            if (alarmActive) {
-              snoozeCountdownText.textContent = t.snoozeTap;
-              playAlarmCycle();
-              startAlarmVibration();
-            }
+          if (snoozeRemaining > 0) {
+            snoozeCountdownText.textContent = `${snoozeRemaining} ${t("snoozeLeft")}`;
           } else {
-            snoozeCountdownText.textContent = `${snoozeRemaining} ${t.snoozeLeft}`;
+            clearInterval(snoozeInterval);
+            snoozeInterval = null;
+            snoozeGiantBtn.disabled = false;
+            snoozeCountdownText.textContent = t("snoozeTap");
+            if (alarmActive) {
+              triggerSoundOnce(state.soundId);
+              alarmLoopInterval = setInterval(() => {
+                if (alarmActive && snoozeRemaining <= 0) {
+                  triggerSoundOnce(state.soundId);
+                }
+              }, 2400);
+            }
           }
         }, 1000);
-        notifyNativeBridge("ALARM_SNOOZED", { seconds: 20 });
       }
 
-      function dismissAlarmPermanently() {
+      function dismissAlarmForever() {
         alarmActive = false;
-        alarmDismissedForCurrentLeg = true;
         snoozeRemaining = 0;
-        if (snoozeTimer) { clearInterval(snoozeTimer); snoozeTimer = null; }
-        stopAllAudio();
-        stopAlarmVibration();
-        releaseAlarmWakeLock();
+        if (snoozeInterval) {
+          clearInterval(snoozeInterval);
+          snoozeInterval = null;
+        }
+        stopAllSounds();
         alarmOverlay.classList.remove("active");
-        updateAdVisibility();
         stopWatching();
-        notifyNativeBridge("ALARM_DISMISSED");
+        updateStatus();
+        window.dispatchEvent(new CustomEvent("stopway:alarm-dismissed"));
       }
 
-      function handlePositionUpdate(pos) {
-        if (!pos || !pos.coords) return;
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-        lastKnownLat = lat;
-        lastKnownLng = lng;
-
-        const place = getSelectedPlace();
+      function evaluateCoordsAgainstTarget(coords) {
+        if (!watching || alarmActive || !coords) return;
+        const place = state.places[state.selectedIndex];
         if (!place || typeof place.lat !== "number" || typeof place.lng !== "number") return;
-
-        const dist = haversineMeters(lat, lng, place.lat, place.lng);
-        const t = getT();
-        updateStatusTexts(`${place.name}: ${formatDistance(dist)} • ${t.beforeSuffix}: ${formatDistance(state.thresholdMeters)}`);
-
-        if (watching && !alarmDismissedForCurrentLeg && dist <= state.thresholdMeters) {
-          triggerAlarm(dist);
+        if (typeof coords.latitude !== "number" || typeof coords.longitude !== "number") return;
+        const dist = haversineMeters(coords.latitude, coords.longitude, place.lat, place.lng);
+        updateStatus(`${place.name}: ${Math.round(dist)} m`);
+        if (dist <= state.thresholdMeters) {
+          startAlarm(`${place.name}: ${Math.round(dist)} m`);
         }
       }
 
-      function startContinuousTrackingLoop() {
-        if (continuousPollTimer) { clearInterval(continuousPollTimer); continuousPollTimer = null; }
-        if (!("geolocation" in navigator)) return;
-        continuousPollTimer = setInterval(() => {
-          if (!watching) return;
-          navigator.geolocation.getCurrentPosition(
-            (p) => handlePositionUpdate(p),
-            () => {},
-            { enableHighAccuracy: true, timeout: 12000, maximumAge: 3000 }
-          );
-        }, 7000);
-      }
-
-      function stopContinuousTrackingLoop() {
-        if (continuousPollTimer) { clearInterval(continuousPollTimer); continuousPollTimer = null; }
-      }
+      window.__stopwayEvaluateCoords = evaluateCoordsAgainstTarget;
 
       function startWatching() {
-        const place = getSelectedPlace();
+        const place = state.places[state.selectedIndex];
         if (!place || typeof place.lat !== "number" || typeof place.lng !== "number") {
-          openEditModal(state.selectedIndex);
+          updateStatus(t("noCoordsYet"));
           return;
         }
-        if (!("geolocation" in navigator)) {
-          updateStatusTexts("GPS nem elérhető ezen az eszközön.");
-          return;
-        }
+        if (!navigator.geolocation) return;
 
-        stopWatching();
+        ensureAudioContext();
         watching = true;
-        alarmDismissedForCurrentLeg = false;
         toggleWatchBtn.style.display = "none";
         stopWatchBtn.style.display = "inline-flex";
-        updateStatusTexts();
-        requestAlarmWakeLock();
-
-        navigator.geolocation.getCurrentPosition(
-          (pos) => handlePositionUpdate(pos),
-          () => {},
-          { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
-        );
+        updateStatus(t("watchingActive"));
+        window.dispatchEvent(new CustomEvent("stopway:watch-started"));
 
         watchId = navigator.geolocation.watchPosition(
-          (pos) => handlePositionUpdate(pos),
-          (err) => {
-            updateStatusTexts(`GPS: ${err && err.message ? err.message : "várakozás a jelre..."}`);
+          pos => {
+            if (!watching || alarmActive) return;
+            window.dispatchEvent(new CustomEvent("stopway:gps-position", { detail: { coords: pos.coords } }));
+            evaluateCoordsAgainstTarget(pos.coords);
           },
-          { enableHighAccuracy: true, timeout: 15000, maximumAge: 2000 }
+          err => {
+            updateStatus(err.message || "GPS");
+            window.dispatchEvent(new CustomEvent("stopway:gps-error", { detail: { error: err } }));
+          },
+          { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 }
         );
-
-        startContinuousTrackingLoop();
-        notifyNativeBridge("WATCH_STARTED", { placeName: place.name, thresholdMeters: state.thresholdMeters });
       }
 
       function stopWatching() {
         watching = false;
-        if (watchId !== null && "geolocation" in navigator) {
-          try { navigator.geolocation.clearWatch(watchId); } catch (e) {}
+        if (watchId !== null && navigator.geolocation) {
+          navigator.geolocation.clearWatch(watchId);
           watchId = null;
         }
-        stopContinuousTrackingLoop();
-        if (!alarmActive) releaseAlarmWakeLock();
         toggleWatchBtn.style.display = "inline-flex";
         stopWatchBtn.style.display = "none";
-        updateStatusTexts();
-        notifyNativeBridge("WATCH_STOPPED");
+        updateStatus();
+        window.dispatchEvent(new CustomEvent("stopway:watch-stopped"));
       }
 
-      function ensureMap(lat, lng) {
-        const targetLat = typeof lat === "number" ? lat : 47.4979;
-        const targetLng = typeof lng === "number" ? lng : 19.0402;
-        if (typeof L === "undefined") return;
+      function ensureLeafletMap(lat, lng) {
+        if (typeof window.L === "undefined") return;
+        const centerLat = typeof lat === "number" ? lat : 32.0853;
+        const centerLng = typeof lng === "number" ? lng : 34.7818;
 
-        if (!mapInstance) {
-          mapInstance = L.map("mapContainer").setView([targetLat, targetLng], 14);
+        if (!leafletMap) {
+          leafletMap = L.map("mapContainer").setView([centerLat, centerLng], typeof lat === "number" ? 15 : 8);
           L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
             attribution: "&copy; OpenStreetMap"
-          }).addTo(mapInstance);
+          }).addTo(leafletMap);
 
-          mapInstance.on("click", (e) => {
-            const cLat = Number(e.latlng.lat.toFixed(6));
-            const cLng = Number(e.latlng.lng.toFixed(6));
-            editLatInput.value = cLat;
-            editLngInput.value = cLng;
-            setMapMarker(cLat, cLng, false);
+          leafletMap.on("click", e => {
+            setMapPoint(e.latlng.lat, e.latlng.lng, true);
           });
         } else {
-          mapInstance.setView([targetLat, targetLng], 14);
+          leafletMap.setView([centerLat, centerLng], typeof lat === "number" ? 15 : 8);
         }
 
         if (typeof lat === "number" && typeof lng === "number") {
-          setMapMarker(lat, lng, false);
+          setMapPoint(lat, lng, false);
+        } else if (leafletMarker) {
+          leafletMap.removeLayer(leafletMarker);
+          leafletMarker = null;
         }
 
         setTimeout(() => {
-          if (mapInstance) mapInstance.invalidateSize();
+          if (leafletMap) leafletMap.invalidateSize();
         }, 120);
       }
 
-      function setMapMarker(lat, lng, pan = true) {
-        if (!mapInstance || typeof L === "undefined") return;
-        if (!mapMarker) {
-          mapMarker = L.marker([lat, lng], { draggable: true }).addTo(mapInstance);
-          mapMarker.on("dragend", () => {
-            const pos = mapMarker.getLatLng();
-            editLatInput.value = Number(pos.lat.toFixed(6));
-            editLngInput.value = Number(pos.lng.toFixed(6));
-          });
+      function setMapPoint(lat, lng, panTo) {
+        const fixedLat = Number(lat.toFixed(6));
+        const fixedLng = Number(lng.toFixed(6));
+        editLatInput.value = fixedLat;
+        editLngInput.value = fixedLng;
+
+        if (!leafletMap || typeof window.L === "undefined") return;
+        if (!leafletMarker) {
+          leafletMarker = L.marker([fixedLat, fixedLng]).addTo(leafletMap);
         } else {
-          mapMarker.setLatLng([lat, lng]);
+          leafletMarker.setLatLng([fixedLat, fixedLng]);
         }
-        if (pan) mapInstance.setView([lat, lng], 15);
-      }
-
-      function openEditModal(idx) {
-        const place = state.places[idx];
-        if (!place) return;
-        editingIndex = idx;
-        editNameInput.value = place.name || "";
-        editLatInput.value = typeof place.lat === "number" ? place.lat : "";
-        editLngInput.value = typeof place.lng === "number" ? place.lng : "";
-        addressSearchInput.value = "";
-        searchResults.innerHTML = "";
-        editModal.classList.add("open");
-        ensureMap(place.lat, place.lng);
-      }
-
-      function closeEditModal() {
-        editModal.classList.remove("open");
-        editingIndex = null;
+        if (panTo) {
+          leafletMap.setView([fixedLat, fixedLng], Math.max(leafletMap.getZoom(), 15));
+        }
       }
 
       async function searchAddress() {
@@ -2732,89 +2708,62 @@
         try {
           const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(q)}`;
           const res = await fetch(url, { headers: { "Accept-Language": currentLang } });
-          const data = await res.json();
+          const items = await res.json();
           searchResults.innerHTML = "";
-          if (!Array.isArray(data) || data.length === 0) {
-            searchResults.innerHTML = `<div class="field-label">-</div>`;
-            return;
-          }
-          data.forEach((item) => {
+          if (!Array.isArray(items) || items.length === 0) return;
+          items.forEach(item => {
             const btn = document.createElement("button");
             btn.type = "button";
             btn.className = "search-item-btn";
             btn.textContent = item.display_name;
             btn.addEventListener("click", () => {
-              const lat = Number(parseFloat(item.lat).toFixed(6));
-              const lng = Number(parseFloat(item.lon).toFixed(6));
-              editLatInput.value = lat;
-              editLngInput.value = lng;
-              if (!editNameInput.value.trim()) {
-                editNameInput.value = item.display_name.split(",")[0].slice(0, 32);
+              const lat = parseFloat(item.lat);
+              const lon = parseFloat(item.lon);
+              if (Number.isFinite(lat) && Number.isFinite(lon)) {
+                setMapPoint(lat, lon, true);
               }
-              setMapMarker(lat, lng, true);
             });
             searchResults.appendChild(btn);
           });
         } catch (err) {
-          searchResults.innerHTML = `<div class="field-label">Hiba a keresésnél.</div>`;
+          searchResults.innerHTML = "";
         }
       }
 
+      function openEditModal(index) {
+        editingIndex = index;
+        const place = state.places[index];
+        editNameInput.value = place.name || "";
+        addressSearchInput.value = "";
+        searchResults.innerHTML = "";
+        editLatInput.value = typeof place.lat === "number" ? place.lat : "";
+        editLngInput.value = typeof place.lng === "number" ? place.lng : "";
+        editModal.classList.add("open");
+        ensureLeafletMap(place.lat, place.lng);
+      }
+
+      function closeEditModal() {
+        editModal.classList.remove("open");
+        editingIndex = null;
+      }
+
       thresholdSelect.addEventListener("change", () => {
-        state.thresholdMeters = parseInt(thresholdSelect.value, 10) || 1000;
+        state.thresholdMeters = Number(thresholdSelect.value);
         saveState();
-        renderDestinations();
-        updateStatusTexts();
+        updateStatus();
       });
 
       langBtn.addEventListener("click", () => {
-        const open = langMenu.style.display === "none";
-        langMenu.style.display = open ? "flex" : "none";
-        if (open) renderLanguageMenu();
+        const isOpen = langMenu.style.display !== "none";
+        langMenu.style.display = isOpen ? "none" : "flex";
+        if (!isOpen) renderLangMenu();
       });
 
-      voiceBtn.addEventListener("click", () => {
-        const t = getT();
-        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRec) {
-          updateStatusTexts(t.voiceUnavailable);
-          return;
-        }
-        const langObj = LANGUAGES.find((l) => l.code === currentLang) || LANGUAGES[0];
-        const rec = new SpeechRec();
-        rec.lang = langObj.speech;
-        rec.interimResults = false;
-        rec.maxAlternatives = 3;
-        voiceBtn.classList.add("active");
-        updateStatusTexts(t.voiceListening);
-
-        rec.onresult = (ev) => {
-          const spoken = ((ev.results[0] && ev.results[0][0] && ev.results[0][0].transcript) || "").trim();
-          const low = spoken.toLowerCase();
-          let matchedIdx = state.places.findIndex((p) => low.includes(p.name.toLowerCase()) || p.name.toLowerCase().includes(low));
-          if (matchedIdx === -1) {
-            const numMatch = low.match(/\b([1-9]|10)\b/);
-            if (numMatch) matchedIdx = parseInt(numMatch[1], 10) - 1;
-          }
-          if (matchedIdx >= 0 && matchedIdx < state.places.length) {
-            state.selectedIndex = matchedIdx;
-            alarmDismissedForCurrentLeg = false;
-            saveState();
-            renderDestinations();
-            updateStatusTexts(`${t.voiceSelected} ${state.places[matchedIdx].name}`);
-            if (typeof state.places[matchedIdx].lat === "number" && typeof state.places[matchedIdx].lng === "number") {
-              startWatching();
-            }
-          } else {
-            updateStatusTexts(`${t.voiceNotFound} "${spoken}"`);
-          }
-        };
-        rec.onerror = () => updateStatusTexts(t.voiceUnavailable);
-        rec.onend = () => voiceBtn.classList.remove("active");
-        try { rec.start(); } catch (e) {
-          voiceBtn.classList.remove("active");
-          updateStatusTexts(t.voiceUnavailable);
-        }
+      editModeBtn.addEventListener("click", () => {
+        editMode = !editMode;
+        editModeBtn.classList.toggle("active", editMode);
+        renderDestinations();
+        updateStatus(editMode ? t("editModeOn") : "");
       });
 
       themeBtn.addEventListener("click", () => {
@@ -2822,604 +2771,1322 @@
         themeBtn.classList.toggle("active", isOpen);
       });
 
-      editModeBtn.addEventListener("click", () => {
-        editMode = !editMode;
-        editModeBtn.classList.toggle("active", editMode);
-        renderDestinations();
-        updateStatusTexts();
-      });
-
-      toggleWatchBtn.addEventListener("click", startWatching);
-      stopWatchBtn.addEventListener("click", stopWatching);
-
-      soundSelect.addEventListener("change", () => {
-        state.sound = soundSelect.value;
-        saveState();
-      });
-
-      previewSoundBtn.addEventListener("click", () => {
-        playAlarmCycle();
-        previewTimer = setTimeout(() => {
-          if (!alarmActive) stopAllAudio();
-        }, 2600);
-      });
-
-      loudModeToggle.addEventListener("change", () => {
-        state.loudMode = loudModeToggle.checked;
-        if (customAudioEl) customAudioEl.volume = state.loudMode ? 1.0 : 0.65;
-        saveState();
-      });
-
-      pickAudioBtn.addEventListener("click", () => customAudioInput.click());
-      customAudioInput.addEventListener("change", (e) => {
-        const file = e.target.files && e.target.files[0];
-        if (!file) return;
-        if (customAudioUrl) {
-          try { URL.revokeObjectURL(customAudioUrl); } catch (err) {}
-        }
-        customAudioUrl = URL.createObjectURL(file);
-        customAudioName = file.name;
-        customAudioInfo.textContent = `${getT().customAudioLoaded}${customAudioName}`;
-      });
-
-      document.querySelectorAll(".theme-chip[data-theme-choice]").forEach((chip) => {
-        chip.addEventListener("click", () => {
-          state.theme = chip.getAttribute("data-theme-choice") || "classic";
-          applyTheme();
-          saveState();
-        });
+      document.querySelectorAll(".theme-chip[data-theme-choice]").forEach(chip => {
+        chip.addEventListener("click", () => applyTheme(chip.dataset.themeChoice));
       });
 
       pickWallpaperBtn.addEventListener("click", () => wallpaperInput.click());
-      wallpaperInput.addEventListener("change", (e) => {
+
+      wallpaperInput.addEventListener("change", e => {
         const file = e.target.files && e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
-        reader.onload = () => {
-          if (typeof reader.result === "string") {
-            document.body.style.setProperty("--wallpaper-img", `url("${reader.result}")`);
-            state.hasWallpaper = true;
-            applyTheme();
-            saveState();
-          }
+        reader.onload = ev => {
+          wallpaperDataUrl = ev.target.result;
+          detectImageLuminanceAndApply(wallpaperDataUrl);
         };
         reader.readAsDataURL(file);
       });
 
       flipGlassPolarityBtn.addEventListener("click", () => {
         state.glassPolarity = state.glassPolarity === "dark-ui" ? "light-ui" : "dark-ui";
-        applyTheme();
+        applyTheme("glass");
+      });
+
+      soundSelect.addEventListener("change", () => {
+        state.soundId = soundSelect.value;
+        saveState();
+      });
+
+      loudModeToggle.addEventListener("change", () => {
+        state.loudMode = loudModeToggle.checked;
+        saveState();
+      });
+
+      previewSoundBtn.addEventListener("click", () => {
+        ensureAudioContext();
+        stopAllSounds();
+        triggerSoundOnce(state.soundId);
+        setTimeout(() => {
+          if (!alarmActive) stopAllSounds();
+        }, 2200);
+      });
+
+      pickAudioBtn.addEventListener("click", () => customAudioInput.click());
+
+      customAudioInput.addEventListener("change", e => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        if (customAudioUrl) URL.revokeObjectURL(customAudioUrl);
+        customAudioUrl = URL.createObjectURL(file);
+        customAudioName = file.name;
+        state.soundId = "__custom__";
+        customAudioInfo.textContent = t("customAudioLoaded") + customAudioName;
+        populateSounds();
         saveState();
       });
 
       simDistanceRange.addEventListener("input", () => {
-        state.simDistance = parseInt(simDistanceRange.value, 10) || 1000;
-        updateSimDistanceLabel();
-        updateStatusTexts(`${getT().simPrefix} ${formatDistance(state.simDistance)}`);
-        saveState();
+        const lbl = document.getElementById("simDistanceLabel");
+        if (lbl) lbl.textContent = `${simDistanceRange.value} m`;
       });
 
       triggerSimAlarmBtn.addEventListener("click", () => {
-        triggerAlarm(state.simDistance);
+        ensureAudioContext();
+        startAlarm(`${simDistanceRange.value} m`);
       });
 
+      toggleWatchBtn.addEventListener("click", startWatching);
+      stopWatchBtn.addEventListener("click", stopWatching);
+      snoozeGiantBtn.addEventListener("click", snoozeFor20Seconds);
+      dismissForeverBtn.addEventListener("click", dismissAlarmForever);
+
       searchAddressBtn.addEventListener("click", searchAddress);
-      addressSearchInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") { e.preventDefault(); searchAddress(); }
+      addressSearchInput.addEventListener("keydown", e => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          searchAddress();
+        }
       });
 
       useCurrentGpsBtn.addEventListener("click", () => {
-        if (!("geolocation" in navigator)) return;
+        if (!navigator.geolocation) return;
         navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const lat = Number(pos.coords.latitude.toFixed(6));
-            const lng = Number(pos.coords.longitude.toFixed(6));
-            editLatInput.value = lat;
-            editLngInput.value = lng;
-            setMapMarker(lat, lng, true);
+          pos => {
+            setMapPoint(pos.coords.latitude, pos.coords.longitude, true);
           },
           () => {},
-          { enableHighAccuracy: true, timeout: 10000 }
+          { enableHighAccuracy: true }
         );
       });
 
       savePlaceBtn.addEventListener("click", () => {
-        if (editingIndex === null || !state.places[editingIndex]) return;
-        const t = getT();
-        const rawName = editNameInput.value.trim();
-        state.places[editingIndex].name = rawName || t.defaultPlaces[editingIndex] || `Hely ${editingIndex + 1}`;
+        if (editingIndex === null) return;
+        const customName = editNameInput.value.trim();
+        const defName = getDefaultPlaceName(editingIndex);
+        const name = customName || defName;
+        const isDefaultName = !customName || customName === defName;
         const latVal = parseFloat(editLatInput.value);
         const lngVal = parseFloat(editLngInput.value);
-        state.places[editingIndex].lat = Number.isFinite(latVal) ? latVal : null;
-        state.places[editingIndex].lng = Number.isFinite(lngVal) ? lngVal : null;
+        state.places[editingIndex] = {
+          name,
+          isDefaultName,
+          lat: Number.isFinite(latVal) ? latVal : null,
+          lng: Number.isFinite(lngVal) ? lngVal : null
+        };
         saveState();
-        closeEditModal();
         renderDestinations();
-        updateStatusTexts();
+        updateStatus();
+        closeEditModal();
       });
 
       cancelEditBtn.addEventListener("click", closeEditModal);
-      editModal.addEventListener("click", (e) => {
-        if (e.target === editModal) closeEditModal();
-      });
 
-      snoozeGiantBtn.addEventListener("click", startSnooze20s);
-      dismissForeverBtn.addEventListener("click", dismissAlarmPermanently);
-
-      document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "visible" && alarmActive) {
-          requestAlarmWakeLock();
-          updateAdVisibility();
+      voiceBtn.addEventListener("click", () => {
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRec) {
+          updateStatus(t("voiceUnavailable"));
+          return;
         }
+        const langObj = LANGUAGES.find(l => l.code === currentLang) || LANGUAGES[0];
+        const rec = new SpeechRec();
+        rec.lang = langObj.speech || "en-US";
+        rec.interimResults = false;
+        voiceBtn.classList.add("active");
+        updateStatus(t("voiceListening"));
+
+        rec.onresult = event => {
+          const spoken = (event.results[0][0].transcript || "").toLowerCase().trim();
+          const foundIdx = state.places.findIndex(p => spoken.includes(p.name.toLowerCase()));
+          if (foundIdx !== -1) {
+            state.selectedIndex = foundIdx;
+            saveState();
+            renderDestinations();
+            updateStatus(`${t("voiceSelected")} ${state.places[foundIdx].name}`);
+          } else {
+            updateStatus(`${t("voiceNotFound")} ${spoken}`);
+          }
+        };
+
+        rec.onerror = () => updateStatus(t("voiceUnavailable"));
+        rec.onend = () => voiceBtn.classList.remove("active");
+        rec.start();
       });
 
+      loadState();
       thresholdSelect.value = String(state.thresholdMeters);
-      loudModeToggle.checked = Boolean(state.loudMode);
-      simDistanceRange.value = String(state.simDistance);
-      applyTheme();
-      applyLanguage();
-      renderLanguageMenu();
-      updateAdVisibility();
-    } catch (bootErr) {
-      console.error("StopWay boot error:", bootErr);
+      loudModeToggle.checked = state.loudMode;
+      applyLanguage(currentLang);
+    } catch (fatalErr) {
+      document.body.innerHTML = `<div style="padding:20px;font-family:sans-serif;color:#111;background:#fff;"><h2>StopWay</h2><p>${String(fatalErr && fatalErr.message || fatalErr)}</p></div>`;
     }
   </script>
-  <!-- StopWay toldás: súgó, 3 lépéses ellenőrzés, háttér-figyelmeztetés és búcsú -->
+
+  <!-- StopWay külső toldás logika + natív / háttér híd -->
   <script id="stopway-addon-script">
     (function () {
-      "use strict";
+      const ADDON_DATE_HU = "2026. november 22., 21:00";
+      const ADDON_DATE_EN = "November 22, 2026, 21:00";
+      const RECONNECT_MS = 90000;
+      const STAGNATION_METERS = 100;
+      const STAGNATION_MS = 60 * 60 * 1000;
+      const CONTINUOUS_POLL_MS = 8000;
 
-      const CHECKLIST_KEY = "stopway_prewatch_checklist_v1";
-      const BUILD_DATE = "2026-04-06";
-
-      const ADDON_TEXTS = {
+      const ADDON_TEXT = {
         hu: {
-          helpTitle: "StopWay súgó",
-          helpDate: "Utolsó frissítés: " + BUILD_DATE,
+          helpTitle: "Gyakorlati súgó",
+          helpDate: "Keltezés: " + ADDON_DATE_HU,
           helpItems: [
-            "1. Válassz ki egy célpontot a 10 hely közül (vagy koppints a ✏️ gombra a név és a térképes/címes hely beállításához).",
-            "2. Állítsd be a riasztási távolságot (300 m – 5 km), és válaszd ki a kívánt ébresztőhangot vagy saját hangfájlt.",
-            "3. A figyelés indítása előtt a 3 lépéses ellenőrzés segít, hogy a GPS, a hangerő/némítás és a háttérben futás rendben legyen.",
-            "4. Közelgő célpontnál teljes képernyős riasztás indul: a nagy zöld gombbal 20 mp szundi kérhető, a jobb felső gombbal végleg leállítható."
+            "📍 Célpontok és védelem: Add meg a célpontot pontos cím alapján vagy a térképre bökve (az otthon és a munka alapból elérhető, és további helyek is felvehetők), majd mentsd el. A már beállított, gombokon rögzített címek csak a ✏️ ikonra nyomva, a beállításoknál módosíthatók; máskülönben nem írhatók át.",
+            "🌐 Nyelvválasztás: A 🌐 ikonnal bármikor kiválaszthatod a kívánt nyelvet, és elmenthető a későbbi használathoz.",
+            "🎨 Megjelenési stílusok: A 🎨 ikonnal kiválaszthatod a tetszőleges vizuális témát.",
+            "🎤 Riasztási hangok és saját hang: A hangbeállításoknál és a 🎤 vezérlésnél állítható be a megfelelő riasztási hang, vagy tölthető fel saját hangfájl.",
+            "📏 Riasztási távolság: A képernyő tetején található választó gombbal állítható be a riasztási távolság: városban 300 m, 500 m vagy legfeljebb 1 km, vonaton, hosszabb utazáson vagy távolsági buszon pedig 5 km ajánlott.",
+            "✅ Háromlépéses indítási panel: A célállomás-figyelés indításakor — ha valami még hiányzik — jelenik meg a háromlépéses panel, ahol be kell jelölni a helymeghatározást, valamint engedélyezni kell a felszíni és a háttérműködést."
           ],
           checkTitle: "Indítás előtti ellenőrzés",
-          steps: [
-            "Helymeghatározás (GPS) engedélyezve és pontos",
-            "Ébresztőhang és hangerő ellenőrizve (nincs lenémítva)",
-            "Képernyő / akkumulátor / háttérben futás rendben"
-          ],
-          goWatch: "Indítás",
-          bgTitle: "Háttérben futás figyelmeztetés",
-          bgDesc: "Ha elhagyod az alkalmazást vagy lezárod a képernyőt, egyes böngészők vagy rendszerek korlátozhatják a GPS-figyelést. Szeretnél visszatérni a StopWay felületére?",
-          bgBack: "Vissza a StopWay-hez",
-          bgConfirm: "Folytatás a háttérben",
-          goodbyeTitle: "Sikeres megérkezést!",
-          goodbyeDesc: "A StopWay leállította a figyelést. Viszlát, és jó utat tovább!"
+          step1: "1. Helyzetjelző bekapcsolása",
+          step1Waiting: "1. Helyzetjelző bekapcsolása (kapcsold be a telefonon...)",
+          step2: "2. Helyhozzáférés engedélyezése",
+          step3: "3. Háttérben és nonstop működés engedélyezése",
+          goBtn: "Figyelés indítása",
+          bgTitle: "Biztos, hogy nem engedélyezed?",
+          bgDesc: "Ha nem engedélyezed a háttérben futást és a nonstop helyzetjelzést, zárolt képernyő vagy más alkalmazás (például filmnézés) közben megszakadhat a követés.",
+          bgBack: "Vissza az engedélyezéshez",
+          bgConfirm: "Igen, biztos",
+          idleTitle: "1 órája nincs 100 méteres mozgás",
+          idleDesc: "Az elmúlt 1 órában nem történt 100 métert elérő elmozdulás. Folytatjuk az utazást, vagy leállítjuk?",
+          idleContinue: "Folytatjuk",
+          idleStop: "Leállítjuk",
+          goodbyeTitle: "Köszönjük, hogy velünk utaztál",
+          goodbyeDesc: "Jó pihenést és biztonságos folytatást! Ha már nincs szükség a helymeghatározásra, ne felejtsd el kikapcsolni.",
+          reconnectingMsg: "GPS jel keresése (90 mp-es újracsatlakozás aktív)...",
+          nonstopActiveMsg: "Nonstop háttér-helyzetjelzés aktív."
         },
         en: {
-          helpTitle: "StopWay Help",
-          helpDate: "Updated: " + BUILD_DATE,
+          helpTitle: "Practical Guide",
+          helpDate: "Date: " + ADDON_DATE_EN,
           helpItems: [
-            "1. Pick one of the 10 destinations (or tap ✏️ to set its name, search an address, or pick on the map).",
-            "2. Choose your alert distance (300 m – 5 km) and pick a built-in alarm sound or your own audio file.",
-            "3. Before starting, the 3-step check helps verify GPS location, volume/mute state, and background operation.",
-            "4. When approaching your destination, a full-screen alarm rings: tap the big green button for a 20s snooze, or top-right to stop permanently."
+            "📍 Destinations & lock: Set your destination by exact address or tapping on the map (home and work are available by default, and you can add more), then save it. Already set addresses fixed on buttons can only be modified by tapping the ✏️ icon in settings; otherwise they cannot be overwritten.",
+            "🌐 Language selection: Use the 🌐 icon at any time to select your preferred language and save it for future use.",
+            "🎨 Appearance styles: Use the 🎨 icon to choose the visual style that suits you best.",
+            "🎤 Alarm sounds & custom audio: Set an alarm sound that works for you or upload your own custom sound.",
+            "📏 Alert distance: Use the top selector to set the alert distance: 300 m, 500 m, or up to 1 km in the city, and 5 km recommended on trains, longer trips, or intercity buses.",
+            "✅ Three-step start panel: When starting destination monitoring — if something is still missing — a three-step panel appears where you need to enable location as well as surface and background operation."
           ],
-          checkTitle: "Pre-start checklist",
-          steps: [
-            "Location (GPS) permission enabled and accurate",
-            "Alarm sound and volume checked (not muted)",
-            "Screen / battery / background behavior ready"
-          ],
-          goWatch: "Start",
-          bgTitle: "Background tracking notice",
-          bgDesc: "Leaving the app or locking the screen can pause browser GPS tracking on some devices. Return to StopWay?",
-          bgBack: "Back to StopWay",
-          bgConfirm: "Continue in background",
-          goodbyeTitle: "Arrived safely!",
-          goodbyeDesc: "StopWay has stopped watching. Goodbye and have a great trip!"
+          checkTitle: "Pre-start check",
+          step1: "1. Turn on location service",
+          step1Waiting: "1. Turn on location service (enable on device...)",
+          step2: "2. Allow location access",
+          step3: "3. Allow background & nonstop location",
+          goBtn: "Start watching",
+          bgTitle: "Are you sure you don't allow it?",
+          bgDesc: "If you do not allow background execution and nonstop location, tracking may stop when the screen is locked or while watching media.",
+          bgBack: "Back to permission",
+          bgConfirm: "Yes, I'm sure",
+          idleTitle: "No 100 m movement for 1 hour",
+          idleDesc: "No movement of at least 100 meters has been detected in the past hour. Continue the trip or stop?",
+          idleContinue: "Continue trip",
+          idleStop: "Stop watching",
+          goodbyeTitle: "Thank you for traveling with us",
+          goodbyeDesc: "If you no longer need location services, don't forget to turn them off.",
+          reconnectingMsg: "Searching for GPS signal (90s reconnect active)...",
+          nonstopActiveMsg: "Nonstop background location active."
         }
       };
 
-      function getLangCode() {
-        const htmlLang = (document.documentElement.lang || "").toLowerCase();
-        if (htmlLang.startsWith("hu")) return "hu";
-        if (htmlLang.startsWith("en")) return "en";
-        return "hu";
-      }
+      const perms = { gps: false, overlay: false, background: false };
+      let step1WaitingForUser = false;
+      let step1PollTimer = null;
+      let bypassStartOnce = false;
+      let explicitStopPending = false;
+      let reconnectInterval = null;
+      let continuousPollInterval = null;
+      let lastAnchorCoords = null;
+      let lastSignificantMoveAt = null;
+      let idlePromptOpen = false;
+      let watchSessionActive = false;
 
-      function getT() {
-        return ADDON_TEXTS[getLangCode()] || ADDON_TEXTS.hu;
-      }
-
-      function loadChecklistState() {
-        try {
-          const raw = localStorage.getItem(CHECKLIST_KEY);
-          if (!raw) return [false, false, false];
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed) && parsed.length === 3) {
-            return parsed.map(Boolean);
-          }
-        } catch (e) {}
-        return [false, false, false];
-      }
-
-      function saveChecklistState(arr) {
-        try {
-          localStorage.setItem(CHECKLIST_KEY, JSON.stringify(arr));
-        } catch (e) {}
-      }
-
-      let checklistState = loadChecklistState();
-      let pendingStartAfterCheck = false;
-      let goodbyeTimer = null;
-
-      const helpBackdrop = document.getElementById("sw-addon-help-backdrop");
       const helpBtn = document.getElementById("sw-addon-help-btn");
-      const helpClose = document.getElementById("sw-addon-help-close");
-      const helpTitle = document.getElementById("sw-addon-help-title");
-      const helpDate = document.getElementById("sw-addon-help-date");
-      const helpList = document.getElementById("sw-addon-help-list");
+      const helpBackdrop = document.getElementById("sw-addon-help-backdrop");
+      const helpCloseBtn = document.getElementById("sw-addon-help-close");
+      const helpTitleEl = document.getElementById("sw-addon-help-title");
+      const helpDateEl = document.getElementById("sw-addon-help-date");
+      const helpListEl = document.getElementById("sw-addon-help-list");
 
       const checkBackdrop = document.getElementById("sw-addon-check-backdrop");
-      const checkClose = document.getElementById("sw-addon-check-close");
-      const checkTitle = document.getElementById("sw-addon-check-title");
-      const stepBtns = [
-        document.getElementById("sw-addon-step-1"),
-        document.getElementById("sw-addon-step-2"),
-        document.getElementById("sw-addon-step-3")
-      ];
-      const stepTexts = [
-        document.getElementById("sw-addon-step-1-text"),
-        document.getElementById("sw-addon-step-2-text"),
-        document.getElementById("sw-addon-step-3-text")
-      ];
-      const stepMarks = [
-        document.getElementById("sw-addon-step-1-mark"),
-        document.getElementById("sw-addon-step-2-mark"),
-        document.getElementById("sw-addon-step-3-mark")
-      ];
+      const checkCloseBtn = document.getElementById("sw-addon-check-close");
+      const checkTitleEl = document.getElementById("sw-addon-check-title");
+      const step1Btn = document.getElementById("sw-addon-step-1");
+      const step2Btn = document.getElementById("sw-addon-step-2");
+      const step3Btn = document.getElementById("sw-addon-step-3");
       const goBtn = document.getElementById("sw-addon-go-btn");
 
       const bgBackdrop = document.getElementById("sw-addon-bg-backdrop");
-      const bgTitle = document.getElementById("sw-addon-bg-title");
-      const bgDesc = document.getElementById("sw-addon-bg-desc");
+      const bgTitleEl = document.getElementById("sw-addon-bg-title");
+      const bgDescEl = document.getElementById("sw-addon-bg-desc");
       const bgBackBtn = document.getElementById("sw-addon-bg-back");
       const bgConfirmBtn = document.getElementById("sw-addon-bg-confirm");
 
+      const idleBackdrop = document.getElementById("sw-addon-idle-backdrop");
+      const idleTitleEl = document.getElementById("sw-addon-idle-title");
+      const idleDescEl = document.getElementById("sw-addon-idle-desc");
+      const idleContinueBtn = document.getElementById("sw-addon-idle-continue");
+      const idleStopBtn = document.getElementById("sw-addon-idle-stop");
+
       const goodbyeBackdrop = document.getElementById("sw-addon-goodbye-backdrop");
-      const goodbyeTitle = document.getElementById("sw-addon-goodbye-title");
-      const goodbyeDesc = document.getElementById("sw-addon-goodbye-desc");
+      const goodbyeTitleEl = document.getElementById("sw-addon-goodbye-title");
+      const goodbyeDescEl = document.getElementById("sw-addon-goodbye-desc");
 
-      function refreshAddonTexts() {
-        const t = getT();
-        helpTitle.textContent = t.helpTitle;
-        helpDate.textContent = t.helpDate;
-        helpList.innerHTML = "";
-        t.helpItems.forEach((txt) => {
-          const div = document.createElement("div");
-          div.className = "sw-help-entry";
-          div.textContent = txt;
-          helpList.appendChild(div);
+      const watchStartBtn = document.getElementById("toggleWatchBtn");
+      const watchStopBtn = document.getElementById("stopWatchBtn");
+      const statusDetailEl = document.getElementById("statusDetail");
+
+      function getAddonLang() {
+        return document.documentElement.lang === "hu" ? ADDON_TEXT.hu : ADDON_TEXT.en;
+      }
+
+      function allPermsReady() {
+        return Boolean(perms.gps && perms.overlay && perms.background);
+      }
+
+      function distMeters(a, b) {
+        const R = 6371000;
+        const toRad = x => (x * Math.PI) / 180;
+        const dLat = toRad(b.lat - a.lat);
+        const dLon = toRad(b.lng - a.lng);
+        const s =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) *
+          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return 2 * R * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+      }
+
+      function sendNativeBridgeCommand(action, payload = {}) {
+        const message = Object.assign({ source: "stopway_v6", action }, payload);
+        try {
+          if (window.ReactNativeWebView && typeof window.ReactNativeWebView.postMessage === "function") {
+            window.ReactNativeWebView.postMessage(JSON.stringify(message));
+          }
+        } catch (e) {}
+        try {
+          if (window.StopWayNative && typeof window.StopWayNative[action] === "function") {
+            window.StopWayNative[action](JSON.stringify(message));
+          }
+        } catch (e) {}
+        try {
+          if (window.Android && typeof window.Android[action] === "function") {
+            window.Android[action](JSON.stringify(message));
+          }
+        } catch (e) {}
+        try {
+          if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.stopway) {
+            window.webkit.messageHandlers.stopway.postMessage(message);
+          }
+        } catch (e) {}
+        try {
+          window.parent.postMessage(message, "*");
+        } catch (e) {}
+        window.dispatchEvent(new CustomEvent("stopway:bridge-command", { detail: message }));
+      }
+
+      function refreshAddonUI() {
+        const txt = getAddonLang();
+        helpTitleEl.textContent = txt.helpTitle;
+        helpDateEl.textContent = txt.helpDate;
+        helpListEl.innerHTML = "";
+        txt.helpItems.forEach(itemText => {
+          const box = document.createElement("div");
+          box.className = "sw-help-entry";
+          box.textContent = itemText;
+          helpListEl.appendChild(box);
         });
 
-        checkTitle.textContent = t.checkTitle;
-        for (let i = 0; i < 3; i++) {
-          stepTexts[i].textContent = t.steps[i];
-          const done = Boolean(checklistState[i]);
-          stepBtns[i].classList.toggle("done", done);
-          stepMarks[i].textContent = done ? "✓" : "○";
-          stepMarks[i].classList.toggle("ok", done);
+        checkTitleEl.textContent = txt.checkTitle;
+        document.getElementById("sw-addon-step-1-text").textContent =
+          (!perms.gps && step1WaitingForUser) ? txt.step1Waiting : txt.step1;
+        document.getElementById("sw-addon-step-2-text").textContent = txt.step2;
+        document.getElementById("sw-addon-step-3-text").textContent = txt.step3;
+        goBtn.textContent = txt.goBtn;
+
+        const states = [
+          [step1Btn, document.getElementById("sw-addon-step-1-mark"), perms.gps],
+          [step2Btn, document.getElementById("sw-addon-step-2-mark"), perms.overlay],
+          [step3Btn, document.getElementById("sw-addon-step-3-mark"), perms.background]
+        ];
+        states.forEach(([btn, mark, ok]) => {
+          btn.classList.toggle("done", Boolean(ok));
+          mark.textContent = ok ? "✓" : "○";
+          mark.classList.toggle("ok", Boolean(ok));
+        });
+
+        bgTitleEl.textContent = txt.bgTitle;
+        bgDescEl.textContent = txt.bgDesc;
+        bgBackBtn.textContent = txt.bgBack;
+        bgConfirmBtn.textContent = txt.bgConfirm;
+
+        idleTitleEl.textContent = txt.idleTitle;
+        idleDescEl.textContent = txt.idleDesc;
+        idleContinueBtn.textContent = txt.idleContinue;
+        idleStopBtn.textContent = txt.idleStop;
+
+        goodbyeTitleEl.textContent = txt.goodbyeTitle;
+        goodbyeDescEl.textContent = txt.goodbyeDesc;
+      }
+
+      function stopStep1Polling() {
+        if (step1PollTimer) {
+          clearInterval(step1PollTimer);
+          step1PollTimer = null;
         }
-        goBtn.textContent = t.goWatch;
-
-        bgTitle.textContent = t.bgTitle;
-        bgDesc.textContent = t.bgDesc;
-        bgBackBtn.textContent = t.bgBack;
-        bgConfirmBtn.textContent = t.bgConfirm;
-
-        goodbyeTitle.textContent = t.goodbyeTitle;
-        goodbyeDesc.textContent = t.goodbyeDesc;
       }
 
-      window.swAddonRefreshTexts = refreshAddonTexts;
-
-      function openHelp() {
-        refreshAddonTexts();
-        helpBackdrop.classList.add("open");
+      function verifyLocationServiceActive(onConfirmed) {
+        sendNativeBridgeCommand("checkLocationService");
+        if (!navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            if (pos && pos.coords) {
+              perms.gps = true;
+              step1WaitingForUser = false;
+              stopStep1Polling();
+              refreshAddonUI();
+              if (typeof onConfirmed === "function") onConfirmed(pos.coords);
+            }
+          },
+          () => {},
+          { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
+        );
       }
 
-      function closeHelp() {
-        helpBackdrop.classList.remove("open");
-      }
-
-      function openChecklist(startAfter) {
-        pendingStartAfterCheck = Boolean(startAfter);
-        refreshAddonTexts();
+      function openCheckPanelWithLiveProbe() {
+        refreshAddonUI();
         checkBackdrop.classList.add("open");
+        verifyLocationServiceActive();
       }
 
-      function closeChecklist() {
-        checkBackdrop.classList.remove("open");
-        pendingStartAfterCheck = false;
-      }
-
-      function isWatchActiveNow() {
-        const stopBtn = document.getElementById("stopWatchBtn");
-        return Boolean(stopBtn && stopBtn.style.display !== "none");
-      }
-
-      function isAlarmActiveNow() {
-        const overlay = document.getElementById("alarmOverlay");
-        return Boolean(overlay && overlay.classList.contains("active"));
-      }
-
-      function triggerRealWatchStart() {
-        const startBtn = document.getElementById("toggleWatchBtn");
-        if (!startBtn) return;
-        startBtn.dataset.swBypassChecklist = "1";
-        startBtn.click();
-        delete startBtn.dataset.swBypassChecklist;
-      }
-
-      function showGoodbyeScreen() {
-        refreshAddonTexts();
+      function showGoodbyeBanner() {
+        refreshAddonUI();
         goodbyeBackdrop.classList.add("open");
-        if (goodbyeTimer) clearTimeout(goodbyeTimer);
-        goodbyeTimer = setTimeout(() => {
+        setTimeout(() => {
           goodbyeBackdrop.classList.remove("open");
-        }, 3200);
+        }, 3000);
       }
 
-      if (helpBtn) helpBtn.addEventListener("click", openHelp);
-      if (helpClose) helpClose.addEventListener("click", closeHelp);
-      if (helpBackdrop) {
-        helpBackdrop.addEventListener("click", (e) => {
-          if (e.target === helpBackdrop) closeHelp();
+      function clearReconnectLoop() {
+        if (reconnectInterval) {
+          clearInterval(reconnectInterval);
+          reconnectInterval = null;
+        }
+      }
+
+      function clearContinuousPoll() {
+        if (continuousPollInterval) {
+          clearInterval(continuousPollInterval);
+          continuousPollInterval = null;
+        }
+      }
+
+      function startContinuousTrackingLoop() {
+        clearContinuousPoll();
+        sendNativeBridgeCommand("startNonstopLocation", { background: Boolean(perms.background) });
+        continuousPollInterval = setInterval(() => {
+          if (!watchSessionActive) return;
+          sendNativeBridgeCommand("pollLocation", { background: Boolean(perms.background) });
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              pos => {
+                if (!watchSessionActive || !pos || !pos.coords) return;
+                handleCoordsUpdate(pos.coords);
+                if (typeof window.__stopwayEvaluateCoords === "function") {
+                  window.__stopwayEvaluateCoords(pos.coords);
+                }
+              },
+              () => {
+                if (watchSessionActive && !reconnectInterval) {
+                  startReconnectLoop();
+                }
+              },
+              { enableHighAccuracy: true, maximumAge: 1000, timeout: 7000 }
+            );
+          }
+        }, CONTINUOUS_POLL_MS);
+      }
+
+      function startReconnectLoop() {
+        clearReconnectLoop();
+        if (statusDetailEl) statusDetailEl.textContent = getAddonLang().reconnectingMsg;
+        sendNativeBridgeCommand("reconnectLocation");
+        verifyLocationServiceActive(() => {
+          clearReconnectLoop();
+        });
+        reconnectInterval = setInterval(() => {
+          if (!watchSessionActive) {
+            clearReconnectLoop();
+            return;
+          }
+          sendNativeBridgeCommand("reconnectLocation");
+          verifyLocationServiceActive(() => {
+            clearReconnectLoop();
+          });
+        }, RECONNECT_MS);
+      }
+
+      function handleCoordsUpdate(coords) {
+        if (!coords || typeof coords.latitude !== "number" || typeof coords.longitude !== "number") return;
+        perms.gps = true;
+        step1WaitingForUser = false;
+        stopStep1Polling();
+        clearReconnectLoop();
+
+        const now = Date.now();
+        const current = { lat: coords.latitude, lng: coords.longitude };
+
+        if (!lastAnchorCoords) {
+          lastAnchorCoords = current;
+          lastSignificantMoveAt = now;
+          return;
+        }
+
+        const moved = distMeters(lastAnchorCoords, current);
+        if (moved >= STAGNATION_METERS) {
+          lastAnchorCoords = current;
+          lastSignificantMoveAt = now;
+          return;
+        }
+
+        if (!lastSignificantMoveAt) {
+          lastSignificantMoveAt = now;
+          return;
+        }
+
+        if (!idlePromptOpen && now - lastSignificantMoveAt >= STAGNATION_MS) {
+          idlePromptOpen = true;
+          refreshAddonUI();
+          idleBackdrop.classList.add("open");
+        }
+      }
+
+      function triggerRealStart() {
+        if (!watchStartBtn) return;
+        stopStep1Polling();
+        checkBackdrop.classList.remove("open");
+        bgBackdrop.classList.remove("open");
+        bypassStartOnce = true;
+        watchStartBtn.click();
+      }
+
+      if (helpBtn) {
+        helpBtn.addEventListener("click", () => {
+          refreshAddonUI();
+          helpBackdrop.classList.add("open");
+        });
+      }
+      if (helpCloseBtn) {
+        helpCloseBtn.addEventListener("click", () => helpBackdrop.classList.remove("open"));
+      }
+
+      if (watchStartBtn) {
+        watchStartBtn.addEventListener("click", ev => {
+          if (bypassStartOnce) {
+            bypassStartOnce = false;
+            return;
+          }
+          if (!allPermsReady()) {
+            ev.preventDefault();
+            ev.stopImmediatePropagation();
+            openCheckPanelWithLiveProbe();
+          }
+        }, true);
+      }
+
+      if (checkCloseBtn) {
+        checkCloseBtn.addEventListener("click", () => {
+          stopStep1Polling();
+          step1WaitingForUser = false;
+          checkBackdrop.classList.remove("open");
+          refreshAddonUI();
         });
       }
 
-      stepBtns.forEach((btn, idx) => {
-        if (!btn) return;
-        btn.addEventListener("click", () => {
-          checklistState[idx] = !checklistState[idx];
-          saveChecklistState(checklistState);
-          refreshAddonTexts();
+      if (step1Btn) {
+        step1Btn.addEventListener("click", () => {
+          if (perms.gps) return;
+          step1WaitingForUser = true;
+          refreshAddonUI();
+          sendNativeBridgeCommand("enableLocationService");
+          verifyLocationServiceActive();
+          stopStep1Polling();
+          step1PollTimer = setInterval(() => {
+            if (perms.gps || !checkBackdrop.classList.contains("open")) {
+              stopStep1Polling();
+              return;
+            }
+            verifyLocationServiceActive();
+          }, 1500);
         });
-      });
+      }
 
-      if (checkClose) checkClose.addEventListener("click", closeChecklist);
-      if (checkBackdrop) {
-        checkBackdrop.addEventListener("click", (e) => {
-          if (e.target === checkBackdrop) closeChecklist();
+      if (step2Btn) {
+        step2Btn.addEventListener("click", () => {
+          sendNativeBridgeCommand("requestLocationPermission");
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              pos => {
+                perms.gps = true;
+                perms.overlay = true;
+                step1WaitingForUser = false;
+                stopStep1Polling();
+                refreshAddonUI();
+                if (pos && pos.coords && typeof window.__stopwayEvaluateCoords === "function") {
+                  window.__stopwayEvaluateCoords(pos.coords);
+                }
+              },
+              () => {
+                perms.overlay = true;
+                refreshAddonUI();
+              },
+              { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+            );
+          } else {
+            perms.overlay = true;
+            refreshAddonUI();
+          }
+        });
+      }
+
+      function enableBackgroundAndNonstopStep() {
+        perms.background = true;
+        bgBackdrop.classList.remove("open");
+        refreshAddonUI();
+        sendNativeBridgeCommand("enableBackgroundAndNonstopGps", {
+          background: true,
+          nonstop: true
+        });
+        startContinuousTrackingLoop();
+        if (statusDetailEl && watchSessionActive) {
+          statusDetailEl.textContent = getAddonLang().nonstopActiveMsg;
+        }
+      }
+
+      if (step3Btn) {
+        step3Btn.addEventListener("click", enableBackgroundAndNonstopStep);
+      }
+
+      if (bgBackBtn) {
+        bgBackBtn.addEventListener("click", enableBackgroundAndNonstopStep);
+      }
+
+      if (bgConfirmBtn) {
+        bgConfirmBtn.addEventListener("click", () => {
+          perms.background = false;
+          bgBackdrop.classList.remove("open");
+          refreshAddonUI();
+          sendNativeBridgeCommand("disableBackgroundLocation", { background: false, nonstop: false });
         });
       }
 
       if (goBtn) {
         goBtn.addEventListener("click", () => {
-          checklistState = [true, true, true];
-          saveChecklistState(checklistState);
-          refreshAddonTexts();
-          const shouldStart = pendingStartAfterCheck;
-          closeChecklist();
-          if (shouldStart) {
-            triggerRealWatchStart();
-          }
-        });
-      }
-
-      const startWatchBtnEl = document.getElementById("toggleWatchBtn");
-      if (startWatchBtnEl) {
-        startWatchBtnEl.addEventListener(
-          "click",
-          (e) => {
-            if (startWatchBtnEl.dataset.swBypassChecklist === "1") return;
-            const allDone = checklistState.every(Boolean);
-            if (!allDone) {
-              e.preventDefault();
-              e.stopImmediatePropagation();
-              openChecklist(true);
+          if (!perms.gps) {
+            verifyLocationServiceActive(() => {
+              if (perms.overlay && perms.background) {
+                triggerRealStart();
+              }
+            });
+            if (!perms.gps) {
+              step1WaitingForUser = true;
+              refreshAddonUI();
+              sendNativeBridgeCommand("enableLocationService");
+              return;
             }
-          },
-          true
-        );
-      }
-
-      let bgPromptShownThisHide = false;
-      document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "hidden") {
-          bgPromptShownThisHide = false;
-        } else if (document.visibilityState === "visible") {
-          if (isWatchActiveNow() && !isAlarmActiveNow() && !bgPromptShownThisHide) {
-            bgPromptShownThisHide = true;
-            refreshAddonTexts();
-            bgBackdrop.classList.add("open");
           }
-        }
-      });
-
-      if (bgBackBtn) {
-        bgBackBtn.addEventListener("click", () => {
-          bgBackdrop.classList.remove("open");
-        });
-      }
-
-      if (bgConfirmBtn) {
-        bgConfirmBtn.addEventListener("click", () => {
-          bgBackdrop.classList.remove("open");
-        });
-      }
-
-      const dismissForeverEl = document.getElementById("dismissForeverBtn");
-      if (dismissForeverEl) {
-        dismissForeverEl.addEventListener("click", () => {
-          setTimeout(showGoodbyeScreen, 120);
-        });
-      }
-
-      const stopWatchBtnEl = document.getElementById("stopWatchBtn");
-      if (stopWatchBtnEl) {
-        stopWatchBtnEl.addEventListener("click", () => {
-          setTimeout(showGoodbyeScreen, 120);
-        });
-      }
-
-      refreshAddonTexts();
-    })();
-  </script>
-
-  <!-- StopWay 90 mp-es jelkimaradás és újracsatlakozás (csak aktív figyelésnél) -->
-  <script id="stopway-90s-addon">
-    (function () {
-      "use strict";
-
-      const STALE_MS = 90000;
-      const CHECK_INTERVAL_MS = 5000;
-      const RETRY_COOLDOWN_MS = 12000;
-
-      let lastFixAt = 0;
-      let lastRetryAt = 0;
-      let watchActive = false;
-      let idleDialogOpen = false;
-      let monitorTimer = null;
-
-      const idleBackdrop = document.getElementById("sw-addon-idle-backdrop");
-      const idleTitle = document.getElementById("sw-addon-idle-title");
-      const idleDesc = document.getElementById("sw-addon-idle-desc");
-      const idleContinueBtn = document.getElementById("sw-addon-idle-continue");
-      const idleStopBtn = document.getElementById("sw-addon-idle-stop");
-
-      function isHu() {
-        return (document.documentElement.lang || "").toLowerCase().startsWith("hu");
-      }
-
-      function renderIdleTexts() {
-        if (!idleTitle || !idleDesc || !idleContinueBtn || !idleStopBtn) return;
-        if (isHu()) {
-          idleTitle.textContent = "90 másodperce nincs friss GPS-jel";
-          idleDesc.textContent =
-            "Újrapróbáljuk a helymeghatározást. Folytatod a figyelést, vagy leállítod a StopWay-t?";
-          idleContinueBtn.textContent = "Folytatom a figyelést";
-          idleStopBtn.textContent = "Leállítás";
-        } else {
-          idleTitle.textContent = "No GPS update for 90 seconds";
-          idleDesc.textContent =
-            "Retrying location now. Do you want to keep watching or stop StopWay?";
-          idleContinueBtn.textContent = "Keep watching";
-          idleStopBtn.textContent = "Stop";
-        }
-      }
-
-      function openIdleDialog() {
-        if (idleDialogOpen || !watchActive || !idleBackdrop) return;
-        idleDialogOpen = true;
-        renderIdleTexts();
-        idleBackdrop.classList.add("open");
-      }
-
-      function closeIdleDialog() {
-        idleDialogOpen = false;
-        if (idleBackdrop) idleBackdrop.classList.remove("open");
-      }
-
-      function retryLocationNow() {
-        if (!watchActive || !("geolocation" in navigator)) return;
-        const now = Date.now();
-        if (now - lastRetryAt < RETRY_COOLDOWN_MS) return;
-        lastRetryAt = now;
-
-        try {
-          navigator.geolocation.getCurrentPosition(
-            function () {
-              lastFixAt = Date.now();
-              closeIdleDialog();
-            },
-            function () {},
-            { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
-          );
-        } catch (e) {}
-      }
-
-      function startMonitor() {
-        watchActive = true;
-        lastFixAt = Date.now();
-        lastRetryAt = 0;
-        closeIdleDialog();
-        if (monitorTimer) clearInterval(monitorTimer);
-        monitorTimer = setInterval(function () {
-          if (!watchActive) return;
-          const elapsed = Date.now() - lastFixAt;
-          if (elapsed >= STALE_MS) {
-            retryLocationNow();
-            openIdleDialog();
+          if (!perms.overlay) perms.overlay = true;
+          if (!perms.background) {
+            perms.background = true;
+            sendNativeBridgeCommand("enableBackgroundAndNonstopGps", { background: true, nonstop: true });
           }
-        }, CHECK_INTERVAL_MS);
-      }
-
-      function stopMonitor() {
-        watchActive = false;
-        lastRetryAt = 0;
-        closeIdleDialog();
-        if (monitorTimer) {
-          clearInterval(monitorTimer);
-          monitorTimer = null;
-        }
-      }
-
-      if ("geolocation" in navigator && typeof navigator.geolocation.watchPosition === "function") {
-        const origWatchPosition = navigator.geolocation.watchPosition.bind(navigator.geolocation);
-        navigator.geolocation.watchPosition = function (successCb, errorCb, options) {
-          const wrappedSuccess = function (pos) {
-            lastFixAt = Date.now();
-            if (idleDialogOpen) closeIdleDialog();
-            if (typeof successCb === "function") return successCb(pos);
-          };
-          return origWatchPosition(wrappedSuccess, errorCb, options);
-        };
-      }
-
-      const startBtn = document.getElementById("toggleWatchBtn");
-      const stopBtn = document.getElementById("stopWatchBtn");
-      const dismissBtn = document.getElementById("dismissForeverBtn");
-
-      if (startBtn) {
-        startBtn.addEventListener("click", function () {
-          setTimeout(function () {
-            if (stopBtn && stopBtn.style.display !== "none") {
-              startMonitor();
-            }
-          }, 60);
+          refreshAddonUI();
+          triggerRealStart();
         });
       }
-
-      if (stopBtn) stopBtn.addEventListener("click", stopMonitor);
-      if (dismissBtn) dismissBtn.addEventListener("click", stopMonitor);
 
       if (idleContinueBtn) {
-        idleContinueBtn.addEventListener("click", function () {
-          lastFixAt = Date.now();
-          lastRetryAt = 0;
-          closeIdleDialog();
-          retryLocationNow();
+        idleContinueBtn.addEventListener("click", () => {
+          idlePromptOpen = false;
+          lastSignificantMoveAt = Date.now();
+          if (lastAnchorCoords) {
+            lastAnchorCoords = { lat: lastAnchorCoords.lat, lng: lastAnchorCoords.lng };
+          }
+          idleBackdrop.classList.remove("open");
         });
       }
 
       if (idleStopBtn) {
-        idleStopBtn.addEventListener("click", function () {
-          stopMonitor();
-          if (stopBtn && stopBtn.style.display !== "none") {
-            stopBtn.click();
-          }
+        idleStopBtn.addEventListener("click", () => {
+          idlePromptOpen = false;
+          idleBackdrop.classList.remove("open");
+          explicitStopPending = true;
+          if (watchStopBtn) watchStopBtn.click();
         });
       }
 
-      document.addEventListener("visibilitychange", function () {
-        if (document.visibilityState === "visible" && watchActive) {
-          retryLocationNow();
+      if (watchStopBtn) {
+        watchStopBtn.addEventListener("click", () => {
+          explicitStopPending = true;
+        });
+      }
+
+      window.addEventListener("stopway:watch-started", () => {
+        watchSessionActive = true;
+        explicitStopPending = false;
+        lastAnchorCoords = null;
+        lastSignificantMoveAt = Date.now();
+        clearReconnectLoop();
+        startContinuousTrackingLoop();
+      });
+
+      window.addEventListener("stopway:gps-position", ev => {
+        if (ev && ev.detail && ev.detail.coords) {
+          handleCoordsUpdate(ev.detail.coords);
         }
       });
+
+      window.addEventListener("stopway:gps-error", () => {
+        if (watchSessionActive && !reconnectInterval) {
+          startReconnectLoop();
+        }
+      });
+
+      window.addEventListener("stopway:watch-stopped", () => {
+        watchSessionActive = false;
+        clearReconnectLoop();
+        clearContinuousPoll();
+        stopStep1Polling();
+        sendNativeBridgeCommand("stopNonstopLocation");
+        lastAnchorCoords = null;
+        lastSignificantMoveAt = null;
+        idlePromptOpen = false;
+        if (explicitStopPending) {
+          explicitStopPending = false;
+          showGoodbyeBanner();
+        }
+      });
+
+      window.addEventListener("stopway:alarm-dismissed", () => {
+        watchSessionActive = false;
+        explicitStopPending = false;
+        clearReconnectLoop();
+        clearContinuousPoll();
+        stopStep1Polling();
+        sendNativeBridgeCommand("stopNonstopLocation");
+        showGoodbyeBanner();
+      });
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+          verifyLocationServiceActive(() => {
+            if (watchSessionActive && perms.background) {
+              startContinuousTrackingLoop();
+            }
+          });
+          if (checkBackdrop.classList.contains("open")) {
+            verifyLocationServiceActive();
+          }
+        } else if (watchSessionActive && perms.background) {
+          sendNativeBridgeCommand("ensureBackgroundRunning", { background: true, nonstop: true });
+        }
+      });
+
+      window.addEventListener("message", ev => {
+        const data = ev && ev.data;
+        if (!data || typeof data !== "object") return;
+        if (data.type === "STOPWAY_PERM_STATE") {
+          if (typeof data.locationEnabled === "boolean") {
+            perms.gps = data.locationEnabled;
+            if (perms.gps) {
+              step1WaitingForUser = false;
+              stopStep1Polling();
+            }
+          }
+          if (typeof data.locationPermission === "boolean") {
+            perms.overlay = data.locationPermission;
+          }
+          if (typeof data.backgroundEnabled === "boolean") {
+            perms.background = data.backgroundEnabled;
+          }
+          refreshAddonUI();
+        } else if (data.type === "STOPWAY_GPS_POSITION" && data.coords) {
+          handleCoordsUpdate(data.coords);
+          if (typeof window.__stopwayEvaluateCoords === "function") {
+            window.__stopwayEvaluateCoords(data.coords);
+          }
+        }
+      });
+
+      window.addEventListener("stopway:lang-changed", refreshAddonUI);
+      refreshAddonUI();
+      verifyLocationServiceActive();
     })();
   </script>
 </body>
 </html>
+<!-- StopWay 90 másodperces jelkimaradás- és újraigénylés-toldalék -->
+<!-- StopWay 90 másodperces jelkimaradás- és újraigénylés-toldalék -->
+<script id="stopway-90s-addon">
+  (function () {
+    const STALE_AFTER_MS = 30000;
+    const RECONNECT_INTERVAL_MS = 90000;
+    const WATCHDOG_TICK_MS = 10000;
+
+    const SIGNAL_TEXT = {
+      hu: {
+        lost: "Kikerültél a helymeghatározási pontból. Ne aggódj, 90 másodpercenként újra próbálunk csatlakozni.",
+        restored: "Újra csatlakozni tudtunk a helymeghatározáshoz. A megfigyelés folytatódik. További jó utat."
+      },
+      en: {
+        lost: "You moved out of the location fix. Don't worry, we will try to reconnect every 90 seconds.",
+        restored: "We reconnected to location services. Monitoring continues. Have a safe trip."
+      }
+    };
+
+    let sessionActive = false;
+    let lastPosReceivedAt = 0;
+    let reconnectTimer = null;
+    let watchdogTimer = null;
+    let isSignalLost = false;
+    let bubbleEl = null;
+    let bubbleTextEl = null;
+
+    function getTexts() {
+      return document.documentElement.lang === "hu" ? SIGNAL_TEXT.hu : SIGNAL_TEXT.en;
+    }
+
+    function playFixedBeep() {
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+        if (!window.__swSignalBeepCtx) {
+          window.__swSignalBeepCtx = new Ctx();
+        }
+        const ctx = window.__swSignalBeepCtx;
+        if (ctx.state === "suspended") {
+          ctx.resume().catch(() => {});
+        }
+        const start = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(880, start);
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.linearRampToValueAtTime(0.14, start + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.14);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + 0.16);
+      } catch (e) {}
+    }
+
+    function ensureBubble() {
+      if (bubbleEl) return;
+
+      const style = document.createElement("style");
+      style.id = "sw-90s-signal-bubble-style";
+      style.textContent = `
+        #sw-90s-signal-bubble {
+          position: fixed;
+          left: 14px;
+          right: 14px;
+          bottom: 18px;
+          max-width: 612px;
+          margin: 0 auto;
+          z-index: 260;
+          display: none;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 14px 16px;
+          border-radius: 16px;
+          background: var(--surface, #1e293b);
+          color: var(--text, #f8fafc);
+          border: 2px solid var(--accent, #38bdf8);
+          box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
+          font-family: inherit;
+          font-size: 0.92rem;
+          font-weight: 700;
+          line-height: 1.42;
+        }
+        #sw-90s-signal-bubble.open { display: flex; }
+        #sw-90s-signal-bubble-close {
+          width: 32px;
+          height: 32px;
+          border-radius: 999px;
+          border: 1.5px solid var(--border, #475569);
+          background: var(--surface-2, #334155);
+          color: var(--text, #f8fafc);
+          font-size: 1rem;
+          font-weight: 800;
+          cursor: pointer;
+          flex-shrink: 0;
+        }
+      `;
+      document.head.appendChild(style);
+
+      bubbleEl = document.createElement("div");
+      bubbleEl.id = "sw-90s-signal-bubble";
+      bubbleEl.setAttribute("role", "status");
+      bubbleEl.setAttribute("aria-live", "polite");
+
+      bubbleTextEl = document.createElement("div");
+      bubbleTextEl.id = "sw-90s-signal-bubble-text";
+
+      const closeBtn = document.createElement("button");
+      closeBtn.id = "sw-90s-signal-bubble-close";
+      closeBtn.type = "button";
+      closeBtn.setAttribute("aria-label", "Bezárás");
+      closeBtn.textContent = "✕";
+      closeBtn.addEventListener("click", () => {
+        bubbleEl.classList.remove("open");
+      });
+
+      bubbleEl.appendChild(bubbleTextEl);
+      bubbleEl.appendChild(closeBtn);
+      document.body.appendChild(bubbleEl);
+    }
+
+    function showSignalBubble(messageText) {
+      ensureBubble();
+      bubbleTextEl.textContent = messageText;
+      bubbleEl.classList.add("open");
+      playFixedBeep();
+    }
+
+    function markSignalLost() {
+      if (!sessionActive || isSignalLost) return;
+      isSignalLost = true;
+      showSignalBubble(getTexts().lost);
+    }
+
+    function markSignalRestored() {
+      if (!sessionActive) return;
+      lastPosReceivedAt = Date.now();
+      if (!isSignalLost) return;
+      isSignalLost = false;
+      showSignalBubble(getTexts().restored);
+    }
+
+    function dispatchBridge(action, extra = {}) {
+      const msg = Object.assign({ source: "stopway_v6", action, intervalMs: RECONNECT_INTERVAL_MS }, extra);
+      try {
+        if (window.ReactNativeWebView && typeof window.ReactNativeWebView.postMessage === "function") {
+          window.ReactNativeWebView.postMessage(JSON.stringify(msg));
+        }
+      } catch (e) {}
+      try {
+        if (window.StopWayNative && typeof window.StopWayNative[action] === "function") {
+          window.StopWayNative[action](JSON.stringify(msg));
+        }
+      } catch (e) {}
+      try {
+        if (window.Android && typeof window.Android[action] === "function") {
+          window.Android[action](JSON.stringify(msg));
+        }
+      } catch (e) {}
+      try {
+        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.stopway) {
+          window.webkit.messageHandlers.stopway.postMessage(msg);
+        }
+      } catch (e) {}
+      try {
+        window.parent.postMessage(msg, "*");
+      } catch (e) {}
+      window.dispatchEvent(new CustomEvent("stopway:bridge-command", { detail: msg }));
+    }
+
+    function requestLocationNow() {
+      if (!sessionActive) return;
+      dispatchBridge("reconnectLocation", { reason: "90s_retry" });
+      dispatchBridge("pollLocation", { reason: "90s_retry" });
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            if (!sessionActive || !pos || !pos.coords) return;
+            markSignalRestored();
+            window.dispatchEvent(new CustomEvent("stopway:gps-position", { detail: { coords: pos.coords } }));
+            if (typeof window.__stopwayEvaluateCoords === "function") {
+              window.__stopwayEvaluateCoords(pos.coords);
+            }
+          },
+          () => {
+            markSignalLost();
+          },
+          { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+        );
+      } else {
+        markSignalLost();
+      }
+    }
+
+    function start90sLoop() {
+      if (reconnectTimer !== null) return;
+      requestLocationNow();
+      reconnectTimer = setInterval(() => {
+        if (!sessionActive) {
+          stop90sLoop();
+          return;
+        }
+        requestLocationNow();
+      }, RECONNECT_INTERVAL_MS);
+    }
+
+    function stop90sLoop() {
+      if (reconnectTimer !== null) {
+        clearInterval(reconnectTimer);
+        reconnectTimer = null;
+      }
+    }
+
+    function startWatchdog() {
+      stopWatchdog();
+      watchdogTimer = setInterval(() => {
+        if (!sessionActive) return;
+        const elapsed = Date.now() - lastPosReceivedAt;
+        if (!lastPosReceivedAt || elapsed >= STALE_AFTER_MS) {
+          start90sLoop();
+        }
+      }, WATCHDOG_TICK_MS);
+    }
+
+    function stopWatchdog() {
+      if (watchdogTimer !== null) {
+        clearInterval(watchdogTimer);
+        watchdogTimer = null;
+      }
+    }
+
+    window.addEventListener("stopway:watch-started", () => {
+      sessionActive = true;
+      lastPosReceivedAt = 0;
+      isSignalLost = false;
+      startWatchdog();
+      start90sLoop();
+    });
+
+    window.addEventListener("stopway:gps-position", () => {
+      if (!sessionActive) return;
+      markSignalRestored();
+    });
+
+    window.addEventListener("stopway:gps-error", () => {
+      if (!sessionActive) return;
+      markSignalLost();
+      start90sLoop();
+    });
+
+    window.addEventListener("stopway:watch-stopped", () => {
+      sessionActive = false;
+      lastPosReceivedAt = 0;
+      isSignalLost = false;
+      stop90sLoop();
+      stopWatchdog();
+      if (bubbleEl) bubbleEl.classList.remove("open");
+      dispatchBridge("stopReconnectLoop");
+    });
+
+    window.addEventListener("stopway:alarm-dismissed", () => {
+      sessionActive = false;
+      lastPosReceivedAt = 0;
+      isSignalLost = false;
+      stop90sLoop();
+      stopWatchdog();
+      if (bubbleEl) bubbleEl.classList.remove("open");
+      dispatchBridge("stopReconnectLoop");
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (!sessionActive) return;
+      if (document.visibilityState === "visible") {
+        requestLocationNow();
+      } else {
+        dispatchBridge("ensureBackgroundRunning", { background: true, nonstop: true, retry90s: true });
+      }
+    });
+  })();
+</script>
+<!-- Ideiglenes diagnosztikai naplózó (később törölhető) -->
+  <!-- StopWay háttér-túlélő, híd-fogadó és riasztás-összehangoló réteg (teszteléshez) -->
+  <script id="stopway-bg-survival-addon">
+    (function () {
+      "use strict";
+
+      let pendingAlarmPayload = null;
+      let lastBridgeFixAt = 0;
+
+      function logMsg(tag, detail) {
+        try {
+          if (typeof window.__swDebugLog === "function") {
+            window.__swDebugLog(tag, detail || "");
+          }
+        } catch (e) {}
+      }
+
+      function nudgeSoundAndVibration(strong) {
+        try {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (Ctx) {
+            if (!window.__swSurvivalCtx) window.__swSurvivalCtx = new Ctx();
+            const ctx = window.__swSurvivalCtx;
+            if (ctx.state === "suspended") {
+              ctx.resume().catch(function () {});
+            }
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = strong ? "sawtooth" : "sine";
+            osc.frequency.setValueAtTime(strong ? 980 : 780, now);
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.linearRampToValueAtTime(strong ? 0.28 : 0.14, now + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + (strong ? 0.35 : 0.16));
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + (strong ? 0.38 : 0.18));
+          }
+        } catch (e) {}
+
+        try {
+          if (navigator.vibrate) {
+            navigator.vibrate(strong ? [600, 250, 600, 250, 700] : [250, 120, 250]);
+          }
+        } catch (e) {}
+      }
+
+      function applyIncomingCoords(coords, sourceLabel) {
+        if (!coords || typeof coords.latitude !== "number" || typeof coords.longitude !== "number") return;
+        lastBridgeFixAt = Date.now();
+        logMsg(sourceLabel || "BRIDGE_GPS", `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`);
+        try {
+          window.dispatchEvent(new CustomEvent("stopway:gps-position", { detail: { coords: coords } }));
+        } catch (e) {}
+        if (typeof window.__stopwayEvaluateCoords === "function") {
+          try {
+            window.__stopwayEvaluateCoords(coords);
+          } catch (e) {
+            logMsg("EVAL_ERR", String(e && e.message || e));
+          }
+        }
+      }
+
+      function handleNativeMessage(rawData) {
+        let data = rawData;
+        if (typeof data === "string") {
+          try {
+            data = JSON.parse(data);
+          } catch (e) {
+            return;
+          }
+        }
+        if (!data || typeof data !== "object") return;
+
+        const msgType = data.type || data.event || data.action || "";
+        if (msgType === "STOPWAY_GPS_POSITION" || msgType === "GPS_POSITION" || msgType === "locationUpdate") {
+          const coords = data.coords || (
+            typeof data.latitude === "number" && typeof data.longitude === "number"
+              ? { latitude: data.latitude, longitude: data.longitude, accuracy: data.accuracy || 0 }
+              : null
+          );
+          applyIncomingCoords(coords, "NATIVE_POS");
+        } else if (msgType === "STOPWAY_PERM_STATE") {
+          logMsg("NATIVE_PERM", JSON.stringify(data));
+          try {
+            window.postMessage(data, "*");
+          } catch (e) {}
+        } else if (msgType === "STOPWAY_ALARM_SIGNAL" || msgType === "TRIGGER_ALARM") {
+          pendingAlarmPayload = data;
+          logMsg("NATIVE_ALARM", data.reason || data.message || "riasztás");
+          nudgeSoundAndVibration(true);
+          if (data.coords) {
+            applyIncomingCoords(data.coords, "ALARM_POS");
+          }
+        } else if (msgType === "STOPWAY_IDLE_SIGNAL" || msgType === "STOPWAY_RECONNECT_SIGNAL") {
+          logMsg("NATIVE_SIGNAL", msgType + (data.message ? ": " + data.message : ""));
+          nudgeSoundAndVibration(false);
+        }
+      }
+
+      window.addEventListener("message", function (ev) {
+        handleNativeMessage(ev && ev.data);
+      });
+
+      window.StopWayReceive = handleNativeMessage;
+
+      function probeNow(reason) {
+        const stopBtn = document.getElementById("stopWatchBtn");
+        const isActive = Boolean(stopBtn && stopBtn.style.display !== "none");
+        logMsg("PROBE", reason + (isActive ? " (watch=ON)" : " (watch=OFF)"));
+        if (!isActive || !navigator.geolocation) return;
+
+        navigator.geolocation.getCurrentPosition(
+          function (pos) {
+            if (pos && pos.coords) {
+              applyIncomingCoords(pos.coords, "PROBE_GPS");
+            }
+          },
+          function (err) {
+            const sinceBridge = lastBridgeFixAt ? Math.round((Date.now() - lastBridgeFixAt) / 1000) : -1;
+            logMsg("PROBE_ERR", `${err && err.message ? err.message : "no fix"} (lastBridge=${sinceBridge}s)`);
+            try {
+              window.dispatchEvent(new CustomEvent("stopway:gps-error", { detail: { error: err } }));
+            } catch (e) {}
+          },
+          { enableHighAccuracy: true, maximumAge: 0, timeout: 9000 }
+        );
+      }
+
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "visible") {
+          probeNow("resume_visible");
+          if (pendingAlarmPayload) {
+            const overlay = document.getElementById("alarmOverlay");
+            if (overlay && !overlay.classList.contains("active")) {
+              overlay.classList.add("active");
+            }
+            nudgeSoundAndVibration(true);
+            pendingAlarmPayload = null;
+          }
+        } else {
+          logMsg("BG_ENTER", "alkalmazás háttérbe került");
+        }
+      });
+
+      window.addEventListener("focus", function () {
+        probeNow("window_focus");
+      });
+
+      logMsg("SURVIVAL_INIT", "Háttér-túlélő réteg aktív");
+    })();
+  </script>
+
+<script id="stopway-debug-log">
+  (function () {
+    const LOG_KEY = "stopway_debug_logs_v1";
+    const MAX_LOGS = 120;
+
+    function readLogs() {
+      try {
+        return JSON.parse(localStorage.getItem(LOG_KEY) || "[]");
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function writeLogs(list) {
+      try {
+        localStorage.setItem(LOG_KEY, JSON.stringify(list.slice(-MAX_LOGS)));
+      } catch (e) {}
+    }
+
+    function addLog(tag, detail = "") {
+      const now = new Date();
+      const time = now.toTimeString().split(" ")[0] + "." + String(now.getMilliseconds()).padStart(3, "0");
+      const vis = document.visibilityState;
+      const entry = `[${time}] (${vis}) ${tag}${detail ? " — " + detail : ""}`;
+      const list = readLogs();
+      list.push(entry);
+      writeLogs(list);
+      renderLogBox();
+    }
+
+    window.__swDebugLog = addLog;
+
+    function createLogUi() {
+      if (document.getElementById("sw-debug-panel")) return;
+
+      const wrap = document.createElement("div");
+      wrap.id = "sw-debug-panel";
+      wrap.style.cssText = "max-width:640px;margin:8px auto 24px;padding:0 14px;font-family:monospace;";
+
+      wrap.innerHTML = `
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button id="sw-dbg-toggle" type="button" style="padding:8px 12px;border-radius:10px;border:1px solid #475569;background:#1e293b;color:#f8fafc;font-weight:700;cursor:pointer;">Napló mutatása / elrejtése</button>
+          <button id="sw-dbg-clear" type="button" style="padding:8px 12px;border-radius:10px;border:1px solid #475569;background:#334155;color:#f8fafc;font-weight:700;cursor:pointer;">Napló törlése</button>
+        </div>
+        <pre id="sw-dbg-output" style="display:none;margin-top:8px;padding:10px;border-radius:12px;background:#020617;color:#e2e8f0;border:1px solid #334155;max-height:240px;overflow:auto;font-size:12px;white-space:pre-wrap;"></pre>
+      `;
+      document.body.appendChild(wrap);
+
+      const out = document.getElementById("sw-dbg-output");
+      document.getElementById("sw-dbg-toggle").addEventListener("click", () => {
+        out.style.display = out.style.display === "none" ? "block" : "none";
+        renderLogBox();
+      });
+
+      document.getElementById("sw-dbg-clear").addEventListener("click", () => {
+        localStorage.removeItem(LOG_KEY);
+        renderLogBox();
+      });
+    }
+
+    function renderLogBox() {
+      const out = document.getElementById("sw-dbg-output");
+      if (!out) return;
+      const list = readLogs();
+      out.textContent = list.length ? list.join("\n") : "(Még nincs bejegyzés)";
+    }
+
+    function hookAppFunctions() {
+      if (typeof window.__stopwayEvaluateCoords === "function" && !window.__stopwayEvaluateCoords.__logged) {
+        const origEval = window.__stopwayEvaluateCoords;
+        const wrappedEval = function (coords) {
+          addLog("EVAL_COORDS", coords ? `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}` : "no coords");
+          return origEval.apply(this, arguments);
+        };
+        wrappedEval.__logged = true;
+        window.__stopwayEvaluateCoords = wrappedEval;
+      }
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      addLog("VISIBILITY", document.visibilityState);
+      hookAppFunctions();
+    });
+
+    window.addEventListener("stopway:watch-started", () => {
+      hookAppFunctions();
+      addLog("WATCH_STARTED");
+    });
+
+    window.addEventListener("stopway:watch-stopped", () => {
+      addLog("WATCH_STOPPED");
+    });
+
+    window.addEventListener("stopway:gps-position", ev => {
+      const c = ev && ev.detail && ev.detail.coords;
+      addLog("GPS_POS", c ? `lat=${c.latitude.toFixed(5)} lng=${c.longitude.toFixed(5)}` : "");
+    });
+
+    window.addEventListener("stopway:gps-error", ev => {
+      const err = ev && ev.detail && ev.detail.error;
+      addLog("GPS_ERR", err ? err.message || String(err.code) : "");
+    });
+
+    window.addEventListener("stopway:alarm-dismissed", () => {
+      addLog("ALARM_DISMISSED");
+    });
+
+    const origAlert = window.alert;
+    createLogUi();
+    hookAppFunctions();
+    addLog("INIT", "Naplózó betöltve");
+    void origAlert;
+  })();
+</script>
+
+
+
+
+
+
 
