@@ -149,7 +149,7 @@ jobs:
                   public void run() {{
                       if (!running) return;
                       requestSingleFix();
-                      handler.postDelayed(this, 8000);
+                      handler.postDelayed(this, 10000);
                   }}
               }};
 
@@ -183,7 +183,7 @@ jobs:
                   acquireWakeLock();
                   requestUpdates();
                   requestSingleFix();
-                  handler.postDelayed(pollRunnable, 8000);
+                  handler.postDelayed(pollRunnable, 10000);
               }}
 
               private void stopTracking() {{
@@ -206,12 +206,12 @@ jobs:
                   }}
                   try {{
                       if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {{
-                          locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2500L, 1f, listener, Looper.getMainLooper());
+                          locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 4000L, 2f, listener, Looper.getMainLooper());
                       }}
                   }} catch (Exception ignored) {{}}
                   try {{
                       if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {{
-                          locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3500L, 1f, listener, Looper.getMainLooper());
+                          locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000L, 2f, listener, Looper.getMainLooper());
                       }}
                   }} catch (Exception ignored) {{}}
               }}
@@ -326,6 +326,7 @@ jobs:
           public class MainActivity extends BridgeActivity {{
               private static MainActivity instance;
               private long lastStatusPushMs = 0L;
+              private long lastGpsDispatchMs = 0L;
               private String lastStatusKey = "";
 
               @Override
@@ -422,8 +423,14 @@ jobs:
                   final String key = locEnabled + ":" + locPerm + ":" + bgActive;
                   final long now = System.currentTimeMillis();
 
-                  if (!force && key.equals(lastStatusKey) && (now - lastStatusPushMs) < 2500L) {{
-                      return;
+                  if (key.equals(lastStatusKey)) {{
+                      if ((now - lastStatusPushMs) < 3500L) {{
+                          return;
+                      }}
+                  }} else {{
+                      if (!force && (now - lastStatusPushMs) < 1200L) {{
+                          return;
+                      }}
                   }}
                   lastStatusKey = key;
                   lastStatusPushMs = now;
@@ -442,6 +449,10 @@ jobs:
               public static void dispatchLocationToWebView(double lat, double lng, float acc) {{
                   MainActivity act = instance;
                   if (act == null || !act.isLocationProviderOn() || !act.hasLocationPermission()) return;
+                  final long now = System.currentTimeMillis();
+                  if ((now - act.lastGpsDispatchMs) < 3000L) return;
+                  act.lastGpsDispatchMs = now;
+
                   act.runOnUiThread(() -> {{
                       if (act.getBridge() == null || act.getBridge().getWebView() == null) return;
                       String js = "javascript:(function(){{" +
