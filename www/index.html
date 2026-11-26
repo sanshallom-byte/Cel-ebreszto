@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="hu" dir="ltr">
 <head>
@@ -2922,11 +2921,11 @@
     }
   </script>
 
-  <!-- StopWay külső toldás logika + natív / háttér híd -->
+  <!-- StopWay javított 3 lépéses panel, háttér- és riasztáskezelő -->
   <script id="stopway-addon-script">
     (function () {
-      const ADDON_DATE_HU = "2026. november 22., 21:00";
-      const ADDON_DATE_EN = "November 22, 2026, 21:00";
+      const ADDON_DATE_HU = "2026. november 25.";
+      const ADDON_DATE_EN = "November 25, 2026";
       const RECONNECT_MS = 90000;
       const STAGNATION_METERS = 100;
       const STAGNATION_MS = 60 * 60 * 1000;
@@ -3050,6 +3049,16 @@
         return Boolean(perms.gps && perms.overlay && perms.background);
       }
 
+      function setGpsState(isOn) {
+        const nextVal = Boolean(isOn);
+        perms.gps = nextVal;
+        if (nextVal) {
+          step1WaitingForUser = false;
+          stopStep1Polling();
+        }
+        refreshAddonUI();
+      }
+
       function distMeters(a, b) {
         const R = 6371000;
         const toRad = x => (x * Math.PI) / 180;
@@ -3143,18 +3152,20 @@
 
       function verifyLocationServiceActive(onConfirmed) {
         sendNativeBridgeCommand("checkLocationService");
-        if (!navigator.geolocation) return;
+        if (!navigator.geolocation) {
+          setGpsState(false);
+          return;
+        }
         navigator.geolocation.getCurrentPosition(
           pos => {
             if (pos && pos.coords) {
-              perms.gps = true;
-              step1WaitingForUser = false;
-              stopStep1Polling();
-              refreshAddonUI();
+              setGpsState(true);
               if (typeof onConfirmed === "function") onConfirmed(pos.coords);
             }
           },
-          () => {},
+          () => {
+            setGpsState(false);
+          },
           { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
         );
       }
@@ -3203,6 +3214,7 @@
                 }
               },
               () => {
+                setGpsState(false);
                 if (watchSessionActive && !reconnectInterval) {
                   startReconnectLoop();
                 }
@@ -3234,9 +3246,7 @@
 
       function handleCoordsUpdate(coords) {
         if (!coords || typeof coords.latitude !== "number" || typeof coords.longitude !== "number") return;
-        perms.gps = true;
-        step1WaitingForUser = false;
-        stopStep1Polling();
+        setGpsState(true);
         clearReconnectLoop();
 
         const now = Date.now();
@@ -3292,10 +3302,12 @@
             bypassStartOnce = false;
             return;
           }
+          ev.preventDefault();
+          ev.stopImmediatePropagation();
           if (!allPermsReady()) {
-            ev.preventDefault();
-            ev.stopImmediatePropagation();
             openCheckPanelWithLiveProbe();
+          } else {
+            triggerRealStart();
           }
         }, true);
       }
@@ -3311,14 +3323,13 @@
 
       if (step1Btn) {
         step1Btn.addEventListener("click", () => {
-          if (perms.gps) return;
           step1WaitingForUser = true;
           refreshAddonUI();
           sendNativeBridgeCommand("enableLocationService");
           verifyLocationServiceActive();
           stopStep1Polling();
           step1PollTimer = setInterval(() => {
-            if (perms.gps || !checkBackdrop.classList.contains("open")) {
+            if (!checkBackdrop.classList.contains("open")) {
               stopStep1Polling();
               return;
             }
@@ -3333,22 +3344,22 @@
           if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
               pos => {
-                perms.gps = true;
+                setGpsState(true);
                 perms.overlay = true;
-                step1WaitingForUser = false;
-                stopStep1Polling();
                 refreshAddonUI();
                 if (pos && pos.coords && typeof window.__stopwayEvaluateCoords === "function") {
                   window.__stopwayEvaluateCoords(pos.coords);
                 }
               },
               () => {
+                setGpsState(false);
                 perms.overlay = true;
                 refreshAddonUI();
               },
               { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
             );
           } else {
+            setGpsState(false);
             perms.overlay = true;
             refreshAddonUI();
           }
@@ -3394,12 +3405,10 @@
                 triggerRealStart();
               }
             });
-            if (!perms.gps) {
-              step1WaitingForUser = true;
-              refreshAddonUI();
-              sendNativeBridgeCommand("enableLocationService");
-              return;
-            }
+            step1WaitingForUser = true;
+            refreshAddonUI();
+            sendNativeBridgeCommand("enableLocationService");
+            return;
           }
           if (!perms.overlay) perms.overlay = true;
           if (!perms.background) {
@@ -3453,6 +3462,7 @@
       });
 
       window.addEventListener("stopway:gps-error", () => {
+        setGpsState(false);
         if (watchSessionActive && !reconnectInterval) {
           startReconnectLoop();
         }
@@ -3485,13 +3495,12 @@
 
       document.addEventListener("visibilitychange", () => {
         if (document.visibilityState === "visible") {
-          verifyLocationServiceActive(() => {
-            if (watchSessionActive && perms.background) {
-              startContinuousTrackingLoop();
-            }
-          });
-          if (checkBackdrop.classList.contains("open")) {
-            verifyLocationServiceActive();
+          if (watchSessionActive || checkBackdrop.classList.contains("open")) {
+            verifyLocationServiceActive(() => {
+              if (watchSessionActive && perms.background) {
+                startContinuousTrackingLoop();
+              }
+            });
           }
         } else if (watchSessionActive && perms.background) {
           sendNativeBridgeCommand("ensureBackgroundRunning", { background: true, nonstop: true });
@@ -3503,11 +3512,7 @@
         if (!data || typeof data !== "object") return;
         if (data.type === "STOPWAY_PERM_STATE") {
           if (typeof data.locationEnabled === "boolean") {
-            perms.gps = data.locationEnabled;
-            if (perms.gps) {
-              step1WaitingForUser = false;
-              stopStep1Polling();
-            }
+            setGpsState(data.locationEnabled);
           }
           if (typeof data.locationPermission === "boolean") {
             perms.overlay = data.locationPermission;
@@ -3526,296 +3531,9 @@
 
       window.addEventListener("stopway:lang-changed", refreshAddonUI);
       refreshAddonUI();
-      verifyLocationServiceActive();
     })();
   </script>
-</body>
-</html>
-<!-- StopWay 90 másodperces jelkimaradás- és újraigénylés-toldalék -->
-<!-- StopWay 90 másodperces jelkimaradás- és újraigénylés-toldalék -->
-<script id="stopway-90s-addon">
-  (function () {
-    const STALE_AFTER_MS = 30000;
-    const RECONNECT_INTERVAL_MS = 90000;
-    const WATCHDOG_TICK_MS = 10000;
 
-    const SIGNAL_TEXT = {
-      hu: {
-        lost: "Kikerültél a helymeghatározási pontból. Ne aggódj, 90 másodpercenként újra próbálunk csatlakozni.",
-        restored: "Újra csatlakozni tudtunk a helymeghatározáshoz. A megfigyelés folytatódik. További jó utat."
-      },
-      en: {
-        lost: "You moved out of the location fix. Don't worry, we will try to reconnect every 90 seconds.",
-        restored: "We reconnected to location services. Monitoring continues. Have a safe trip."
-      }
-    };
-
-    let sessionActive = false;
-    let lastPosReceivedAt = 0;
-    let reconnectTimer = null;
-    let watchdogTimer = null;
-    let isSignalLost = false;
-    let bubbleEl = null;
-    let bubbleTextEl = null;
-
-    function getTexts() {
-      return document.documentElement.lang === "hu" ? SIGNAL_TEXT.hu : SIGNAL_TEXT.en;
-    }
-
-    function playFixedBeep() {
-      try {
-        const Ctx = window.AudioContext || window.webkitAudioContext;
-        if (!Ctx) return;
-        if (!window.__swSignalBeepCtx) {
-          window.__swSignalBeepCtx = new Ctx();
-        }
-        const ctx = window.__swSignalBeepCtx;
-        if (ctx.state === "suspended") {
-          ctx.resume().catch(() => {});
-        }
-        const start = ctx.currentTime;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(880, start);
-        gain.gain.setValueAtTime(0.0001, start);
-        gain.gain.linearRampToValueAtTime(0.14, start + 0.015);
-        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.14);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(start);
-        osc.stop(start + 0.16);
-      } catch (e) {}
-    }
-
-    function ensureBubble() {
-      if (bubbleEl) return;
-
-      const style = document.createElement("style");
-      style.id = "sw-90s-signal-bubble-style";
-      style.textContent = `
-        #sw-90s-signal-bubble {
-          position: fixed;
-          left: 14px;
-          right: 14px;
-          bottom: 18px;
-          max-width: 612px;
-          margin: 0 auto;
-          z-index: 260;
-          display: none;
-          align-items: flex-start;
-          justify-content: space-between;
-          gap: 12px;
-          padding: 14px 16px;
-          border-radius: 16px;
-          background: var(--surface, #1e293b);
-          color: var(--text, #f8fafc);
-          border: 2px solid var(--accent, #38bdf8);
-          box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
-          font-family: inherit;
-          font-size: 0.92rem;
-          font-weight: 700;
-          line-height: 1.42;
-        }
-        #sw-90s-signal-bubble.open { display: flex; }
-        #sw-90s-signal-bubble-close {
-          width: 32px;
-          height: 32px;
-          border-radius: 999px;
-          border: 1.5px solid var(--border, #475569);
-          background: var(--surface-2, #334155);
-          color: var(--text, #f8fafc);
-          font-size: 1rem;
-          font-weight: 800;
-          cursor: pointer;
-          flex-shrink: 0;
-        }
-      `;
-      document.head.appendChild(style);
-
-      bubbleEl = document.createElement("div");
-      bubbleEl.id = "sw-90s-signal-bubble";
-      bubbleEl.setAttribute("role", "status");
-      bubbleEl.setAttribute("aria-live", "polite");
-
-      bubbleTextEl = document.createElement("div");
-      bubbleTextEl.id = "sw-90s-signal-bubble-text";
-
-      const closeBtn = document.createElement("button");
-      closeBtn.id = "sw-90s-signal-bubble-close";
-      closeBtn.type = "button";
-      closeBtn.setAttribute("aria-label", "Bezárás");
-      closeBtn.textContent = "✕";
-      closeBtn.addEventListener("click", () => {
-        bubbleEl.classList.remove("open");
-      });
-
-      bubbleEl.appendChild(bubbleTextEl);
-      bubbleEl.appendChild(closeBtn);
-      document.body.appendChild(bubbleEl);
-    }
-
-    function showSignalBubble(messageText) {
-      ensureBubble();
-      bubbleTextEl.textContent = messageText;
-      bubbleEl.classList.add("open");
-      playFixedBeep();
-    }
-
-    function markSignalLost() {
-      if (!sessionActive || isSignalLost) return;
-      isSignalLost = true;
-      showSignalBubble(getTexts().lost);
-    }
-
-    function markSignalRestored() {
-      if (!sessionActive) return;
-      lastPosReceivedAt = Date.now();
-      if (!isSignalLost) return;
-      isSignalLost = false;
-      showSignalBubble(getTexts().restored);
-    }
-
-    function dispatchBridge(action, extra = {}) {
-      const msg = Object.assign({ source: "stopway_v6", action, intervalMs: RECONNECT_INTERVAL_MS }, extra);
-      try {
-        if (window.ReactNativeWebView && typeof window.ReactNativeWebView.postMessage === "function") {
-          window.ReactNativeWebView.postMessage(JSON.stringify(msg));
-        }
-      } catch (e) {}
-      try {
-        if (window.StopWayNative && typeof window.StopWayNative[action] === "function") {
-          window.StopWayNative[action](JSON.stringify(msg));
-        }
-      } catch (e) {}
-      try {
-        if (window.Android && typeof window.Android[action] === "function") {
-          window.Android[action](JSON.stringify(msg));
-        }
-      } catch (e) {}
-      try {
-        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.stopway) {
-          window.webkit.messageHandlers.stopway.postMessage(msg);
-        }
-      } catch (e) {}
-      try {
-        window.parent.postMessage(msg, "*");
-      } catch (e) {}
-      window.dispatchEvent(new CustomEvent("stopway:bridge-command", { detail: msg }));
-    }
-
-    function requestLocationNow() {
-      if (!sessionActive) return;
-      dispatchBridge("reconnectLocation", { reason: "90s_retry" });
-      dispatchBridge("pollLocation", { reason: "90s_retry" });
-
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          pos => {
-            if (!sessionActive || !pos || !pos.coords) return;
-            markSignalRestored();
-            window.dispatchEvent(new CustomEvent("stopway:gps-position", { detail: { coords: pos.coords } }));
-            if (typeof window.__stopwayEvaluateCoords === "function") {
-              window.__stopwayEvaluateCoords(pos.coords);
-            }
-          },
-          () => {
-            markSignalLost();
-          },
-          { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
-        );
-      } else {
-        markSignalLost();
-      }
-    }
-
-    function start90sLoop() {
-      if (reconnectTimer !== null) return;
-      requestLocationNow();
-      reconnectTimer = setInterval(() => {
-        if (!sessionActive) {
-          stop90sLoop();
-          return;
-        }
-        requestLocationNow();
-      }, RECONNECT_INTERVAL_MS);
-    }
-
-    function stop90sLoop() {
-      if (reconnectTimer !== null) {
-        clearInterval(reconnectTimer);
-        reconnectTimer = null;
-      }
-    }
-
-    function startWatchdog() {
-      stopWatchdog();
-      watchdogTimer = setInterval(() => {
-        if (!sessionActive) return;
-        const elapsed = Date.now() - lastPosReceivedAt;
-        if (!lastPosReceivedAt || elapsed >= STALE_AFTER_MS) {
-          start90sLoop();
-        }
-      }, WATCHDOG_TICK_MS);
-    }
-
-    function stopWatchdog() {
-      if (watchdogTimer !== null) {
-        clearInterval(watchdogTimer);
-        watchdogTimer = null;
-      }
-    }
-
-    window.addEventListener("stopway:watch-started", () => {
-      sessionActive = true;
-      lastPosReceivedAt = 0;
-      isSignalLost = false;
-      startWatchdog();
-      start90sLoop();
-    });
-
-    window.addEventListener("stopway:gps-position", () => {
-      if (!sessionActive) return;
-      markSignalRestored();
-    });
-
-    window.addEventListener("stopway:gps-error", () => {
-      if (!sessionActive) return;
-      markSignalLost();
-      start90sLoop();
-    });
-
-    window.addEventListener("stopway:watch-stopped", () => {
-      sessionActive = false;
-      lastPosReceivedAt = 0;
-      isSignalLost = false;
-      stop90sLoop();
-      stopWatchdog();
-      if (bubbleEl) bubbleEl.classList.remove("open");
-      dispatchBridge("stopReconnectLoop");
-    });
-
-    window.addEventListener("stopway:alarm-dismissed", () => {
-      sessionActive = false;
-      lastPosReceivedAt = 0;
-      isSignalLost = false;
-      stop90sLoop();
-      stopWatchdog();
-      if (bubbleEl) bubbleEl.classList.remove("open");
-      dispatchBridge("stopReconnectLoop");
-    });
-
-    document.addEventListener("visibilitychange", () => {
-      if (!sessionActive) return;
-      if (document.visibilityState === "visible") {
-        requestLocationNow();
-      } else {
-        dispatchBridge("ensureBackgroundRunning", { background: true, nonstop: true, retry90s: true });
-      }
-    });
-  })();
-</script>
-<!-- Ideiglenes diagnosztikai naplózó (később törölhető) -->
   <!-- StopWay háttér-túlélő, híd-fogadó és riasztás-összehangoló réteg (teszteléshez) -->
   <script id="stopway-bg-survival-addon">
     (function () {
@@ -3907,6 +3625,10 @@
           pendingAlarmPayload = data;
           logMsg("NATIVE_ALARM", data.reason || data.message || "riasztás");
           nudgeSoundAndVibration(true);
+          const overlay = document.getElementById("alarmOverlay");
+          if (overlay && document.visibilityState === "visible") {
+            overlay.classList.add("active");
+          }
           if (data.coords) {
             applyIncomingCoords(data.coords, "ALARM_POS");
           }
@@ -3969,124 +3691,436 @@
     })();
   </script>
 
-<script id="stopway-debug-log">
-  (function () {
-    const LOG_KEY = "stopway_debug_logs_v1";
-    const MAX_LOGS = 120;
+  <!-- StopWay 90 másodperces jelkimaradás- és újraigénylés-toldalék -->
+  <script id="stopway-90s-addon">
+    (function () {
+      const STALE_AFTER_MS = 30000;
+      const RECONNECT_INTERVAL_MS = 90000;
+      const WATCHDOG_TICK_MS = 10000;
 
-    function readLogs() {
-      try {
-        return JSON.parse(localStorage.getItem(LOG_KEY) || "[]");
-      } catch (e) {
-        return [];
+      const SIGNAL_TEXT = {
+        hu: {
+          lost: "Kikerültél a helymeghatározási pontból. Ne aggódj, 90 másodpercenként újra próbálunk csatlakozni.",
+          restored: "Újra csatlakozni tudtunk a helymeghatározáshoz. A megfigyelés folytatódik. További jó utat."
+        },
+        en: {
+          lost: "You moved out of the location fix. Don't worry, we will try to reconnect every 90 seconds.",
+          restored: "We reconnected to location services. Monitoring continues. Have a safe trip."
+        }
+      };
+
+      let sessionActive = false;
+      let lastPosReceivedAt = 0;
+      let reconnectTimer = null;
+      let watchdogTimer = null;
+      let isSignalLost = false;
+      let bubbleEl = null;
+      let bubbleTextEl = null;
+
+      function getTexts() {
+        return document.documentElement.lang === "hu" ? SIGNAL_TEXT.hu : SIGNAL_TEXT.en;
       }
-    }
 
-    function writeLogs(list) {
-      try {
-        localStorage.setItem(LOG_KEY, JSON.stringify(list.slice(-MAX_LOGS)));
-      } catch (e) {}
-    }
+      function playFixedBeep() {
+        try {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (!Ctx) return;
+          if (!window.__swSignalBeepCtx) {
+            window.__swSignalBeepCtx = new Ctx();
+          }
+          const ctx = window.__swSignalBeepCtx;
+          if (ctx.state === "suspended") {
+            ctx.resume().catch(() => {});
+          }
+          const start = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(880, start);
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.linearRampToValueAtTime(0.14, start + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.14);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(start);
+          osc.stop(start + 0.16);
+        } catch (e) {}
+      }
 
-    function addLog(tag, detail = "") {
-      const now = new Date();
-      const time = now.toTimeString().split(" ")[0] + "." + String(now.getMilliseconds()).padStart(3, "0");
-      const vis = document.visibilityState;
-      const entry = `[${time}] (${vis}) ${tag}${detail ? " — " + detail : ""}`;
-      const list = readLogs();
-      list.push(entry);
-      writeLogs(list);
-      renderLogBox();
-    }
+      function ensureBubble() {
+        if (bubbleEl) return;
 
-    window.__swDebugLog = addLog;
+        const style = document.createElement("style");
+        style.id = "sw-90s-signal-bubble-style";
+        style.textContent = `
+          #sw-90s-signal-bubble {
+            position: fixed;
+            left: 14px;
+            right: 14px;
+            bottom: 18px;
+            max-width: 612px;
+            margin: 0 auto;
+            z-index: 260;
+            display: none;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: var(--surface, #1e293b);
+            color: var(--text, #f8fafc);
+            border: 2px solid var(--accent, #38bdf8);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
+            font-family: inherit;
+            font-size: 0.92rem;
+            font-weight: 700;
+            line-height: 1.42;
+          }
+          #sw-90s-signal-bubble.open { display: flex; }
+          #sw-90s-signal-bubble-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: 1.5px solid var(--border, #475569);
+            background: var(--surface-2, #334155);
+            color: var(--text, #f8fafc);
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            flex-shrink: 0;
+          }
+        `;
+        document.head.appendChild(style);
 
-    function createLogUi() {
-      if (document.getElementById("sw-debug-panel")) return;
+        bubbleEl = document.createElement("div");
+        bubbleEl.id = "sw-90s-signal-bubble";
+        bubbleEl.setAttribute("role", "status");
+        bubbleEl.setAttribute("aria-live", "polite");
 
-      const wrap = document.createElement("div");
-      wrap.id = "sw-debug-panel";
-      wrap.style.cssText = "max-width:640px;margin:8px auto 24px;padding:0 14px;font-family:monospace;";
+        bubbleTextEl = document.createElement("div");
+        bubbleTextEl.id = "sw-90s-signal-bubble-text";
 
-      wrap.innerHTML = `
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button id="sw-dbg-toggle" type="button" style="padding:8px 12px;border-radius:10px;border:1px solid #475569;background:#1e293b;color:#f8fafc;font-weight:700;cursor:pointer;">Napló mutatása / elrejtése</button>
-          <button id="sw-dbg-clear" type="button" style="padding:8px 12px;border-radius:10px;border:1px solid #475569;background:#334155;color:#f8fafc;font-weight:700;cursor:pointer;">Napló törlése</button>
-        </div>
-        <pre id="sw-dbg-output" style="display:none;margin-top:8px;padding:10px;border-radius:12px;background:#020617;color:#e2e8f0;border:1px solid #334155;max-height:240px;overflow:auto;font-size:12px;white-space:pre-wrap;"></pre>
-      `;
-      document.body.appendChild(wrap);
+        const closeBtn = document.createElement("button");
+        closeBtn.id = "sw-90s-signal-bubble-close";
+        closeBtn.type = "button";
+        closeBtn.setAttribute("aria-label", "Bezárás");
+        closeBtn.textContent = "✕";
+        closeBtn.addEventListener("click", () => {
+          bubbleEl.classList.remove("open");
+        });
 
-      const out = document.getElementById("sw-dbg-output");
-      document.getElementById("sw-dbg-toggle").addEventListener("click", () => {
-        out.style.display = out.style.display === "none" ? "block" : "none";
-        renderLogBox();
+        bubbleEl.appendChild(bubbleTextEl);
+        bubbleEl.appendChild(closeBtn);
+        document.body.appendChild(bubbleEl);
+      }
+
+      function showSignalBubble(messageText) {
+        ensureBubble();
+        bubbleTextEl.textContent = messageText;
+        bubbleEl.classList.add("open");
+        playFixedBeep();
+      }
+
+      function markSignalLost() {
+        if (!sessionActive || isSignalLost) return;
+        isSignalLost = true;
+        showSignalBubble(getTexts().lost);
+      }
+
+      function markSignalRestored() {
+        if (!sessionActive) return;
+        lastPosReceivedAt = Date.now();
+        if (!isSignalLost) return;
+        isSignalLost = false;
+        showSignalBubble(getTexts().restored);
+      }
+
+      function dispatchBridge(action, extra = {}) {
+        const msg = Object.assign({ source: "stopway_v6", action, intervalMs: RECONNECT_INTERVAL_MS }, extra);
+        try {
+          if (window.ReactNativeWebView && typeof window.ReactNativeWebView.postMessage === "function") {
+            window.ReactNativeWebView.postMessage(JSON.stringify(msg));
+          }
+        } catch (e) {}
+        try {
+          if (window.StopWayNative && typeof window.StopWayNative[action] === "function") {
+            window.StopWayNative[action](JSON.stringify(msg));
+          }
+        } catch (e) {}
+        try {
+          if (window.Android && typeof window.Android[action] === "function") {
+            window.Android[action](JSON.stringify(msg));
+          }
+        } catch (e) {}
+        try {
+          if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.stopway) {
+            window.webkit.messageHandlers.stopway.postMessage(msg);
+          }
+        } catch (e) {}
+        try {
+          window.parent.postMessage(msg, "*");
+        } catch (e) {}
+        window.dispatchEvent(new CustomEvent("stopway:bridge-command", { detail: msg }));
+      }
+
+      function requestLocationNow() {
+        if (!sessionActive) return;
+        dispatchBridge("reconnectLocation", { reason: "90s_retry" });
+        dispatchBridge("pollLocation", { reason: "90s_retry" });
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            pos => {
+              if (!sessionActive || !pos || !pos.coords) return;
+              markSignalRestored();
+              window.dispatchEvent(new CustomEvent("stopway:gps-position", { detail: { coords: pos.coords } }));
+              if (typeof window.__stopwayEvaluateCoords === "function") {
+                window.__stopwayEvaluateCoords(pos.coords);
+              }
+            },
+            () => {
+              markSignalLost();
+            },
+            { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+          );
+        } else {
+          markSignalLost();
+        }
+      }
+
+      function start90sLoop() {
+        if (reconnectTimer !== null) return;
+        requestLocationNow();
+        reconnectTimer = setInterval(() => {
+          if (!sessionActive) {
+            stop90sLoop();
+            return;
+          }
+          requestLocationNow();
+        }, RECONNECT_INTERVAL_MS);
+      }
+
+      function stop90sLoop() {
+        if (reconnectTimer !== null) {
+          clearInterval(reconnectTimer);
+          reconnectTimer = null;
+        }
+      }
+
+      function startWatchdog() {
+        stopWatchdog();
+        watchdogTimer = setInterval(() => {
+          if (!sessionActive) return;
+          const elapsed = Date.now() - lastPosReceivedAt;
+          if (!lastPosReceivedAt || elapsed >= STALE_AFTER_MS) {
+            start90sLoop();
+          }
+        }, WATCHDOG_TICK_MS);
+      }
+
+      function stopWatchdog() {
+        if (watchdogTimer !== null) {
+          clearInterval(watchdogTimer);
+          watchdogTimer = null;
+        }
+      }
+
+      window.addEventListener("stopway:watch-started", () => {
+        sessionActive = true;
+        lastPosReceivedAt = 0;
+        isSignalLost = false;
+        startWatchdog();
+        start90sLoop();
       });
 
-      document.getElementById("sw-dbg-clear").addEventListener("click", () => {
-        localStorage.removeItem(LOG_KEY);
-        renderLogBox();
+      window.addEventListener("stopway:gps-position", () => {
+        if (!sessionActive) return;
+        markSignalRestored();
       });
-    }
 
-    function renderLogBox() {
-      const out = document.getElementById("sw-dbg-output");
-      if (!out) return;
-      const list = readLogs();
-      out.textContent = list.length ? list.join("\n") : "(Még nincs bejegyzés)";
-    }
+      window.addEventListener("stopway:gps-error", () => {
+        if (!sessionActive) return;
+        markSignalLost();
+        start90sLoop();
+      });
 
-    function hookAppFunctions() {
-      if (typeof window.__stopwayEvaluateCoords === "function" && !window.__stopwayEvaluateCoords.__logged) {
-        const origEval = window.__stopwayEvaluateCoords;
-        const wrappedEval = function (coords) {
-          addLog("EVAL_COORDS", coords ? `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}` : "no coords");
-          return origEval.apply(this, arguments);
-        };
-        wrappedEval.__logged = true;
-        window.__stopwayEvaluateCoords = wrappedEval;
+      window.addEventListener("stopway:watch-stopped", () => {
+        sessionActive = false;
+        lastPosReceivedAt = 0;
+        isSignalLost = false;
+        stop90sLoop();
+        stopWatchdog();
+        if (bubbleEl) bubbleEl.classList.remove("open");
+        dispatchBridge("stopReconnectLoop");
+      });
+
+      window.addEventListener("stopway:alarm-dismissed", () => {
+        sessionActive = false;
+        lastPosReceivedAt = 0;
+        isSignalLost = false;
+        stop90sLoop();
+        stopWatchdog();
+        if (bubbleEl) bubbleEl.classList.remove("open");
+        dispatchBridge("stopReconnectLoop");
+      });
+
+      document.addEventListener("visibilitychange", () => {
+        if (!sessionActive) return;
+        if (document.visibilityState === "visible") {
+          requestLocationNow();
+        } else {
+          dispatchBridge("ensureBackgroundRunning", { background: true, nonstop: true, retry90s: true });
+        }
+      });
+    })();
+  </script>
+
+  <!-- Ideiglenes diagnosztikai naplózó (később törölhető) -->
+  <!-- Ideiglenes diagnosztikai naplózó (később törölhető) -->
+  <script id="stopway-debug-log">
+    (function () {
+      const LOG_KEY = "stopway_debug_logs_v1";
+      const MAX_LOGS = 120;
+      let renderTimer = null;
+      let userScrolling = false;
+      let scrollReleaseTimer = null;
+
+      function readLogs() {
+        try {
+          return JSON.parse(localStorage.getItem(LOG_KEY) || "[]");
+        } catch (e) {
+          return [];
+        }
       }
-    }
 
-    document.addEventListener("visibilitychange", () => {
-      addLog("VISIBILITY", document.visibilityState);
+      function writeLogs(list) {
+        try {
+          localStorage.setItem(LOG_KEY, JSON.stringify(list.slice(-MAX_LOGS)));
+        } catch (e) {}
+      }
+
+      function addLog(tag, detail = "") {
+        if (tag === "NATIVE_PERM") return;
+        const now = new Date();
+        const time = now.toTimeString().split(" ")[0] + "." + String(now.getMilliseconds()).padStart(3, "0");
+        const vis = document.visibilityState;
+        const entry = `[${time}] (${vis}) ${tag}${detail ? " — " + detail : ""}`;
+        const list = readLogs();
+        const last = list[list.length - 1];
+        if (last && last.slice(15) === entry.slice(15)) return;
+        list.push(entry);
+        writeLogs(list);
+        scheduleRender();
+      }
+
+      window.__swDebugLog = addLog;
+
+      function scheduleRender() {
+        if (renderTimer) return;
+        renderTimer = setTimeout(() => {
+          renderTimer = null;
+          renderLogBox();
+        }, 500);
+      }
+
+      function createLogUi() {
+        if (document.getElementById("sw-debug-panel")) return;
+
+        const wrap = document.createElement("div");
+        wrap.id = "sw-debug-panel";
+        wrap.style.cssText = "max-width:640px;margin:8px auto 24px;padding:0 14px;font-family:monospace;";
+
+        wrap.innerHTML = `
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button id="sw-dbg-toggle" type="button" style="padding:8px 12px;border-radius:10px;border:1px solid #475569;background:#1e293b;color:#f8fafc;font-weight:700;cursor:pointer;">Napló mutatása / elrejtése</button>
+            <button id="sw-dbg-clear" type="button" style="padding:8px 12px;border-radius:10px;border:1px solid #475569;background:#334155;color:#f8fafc;font-weight:700;cursor:pointer;">Napló törlése</button>
+          </div>
+          <pre id="sw-dbg-output" style="display:none;margin-top:8px;padding:10px;border-radius:12px;background:#020617;color:#e2e8f0;border:1px solid #334155;max-height:240px;overflow:auto;font-size:12px;white-space:pre-wrap;"></pre>
+        `;
+        document.body.appendChild(wrap);
+
+        const out = document.getElementById("sw-dbg-output");
+        out.addEventListener("touchstart", () => {
+          userScrolling = true;
+          if (scrollReleaseTimer) clearTimeout(scrollReleaseTimer);
+        }, { passive: true });
+
+        out.addEventListener("scroll", () => {
+          userScrolling = true;
+          if (scrollReleaseTimer) clearTimeout(scrollReleaseTimer);
+          scrollReleaseTimer = setTimeout(() => {
+            userScrolling = false;
+          }, 2500);
+        }, { passive: true });
+
+        document.getElementById("sw-dbg-toggle").addEventListener("click", () => {
+          out.style.display = out.style.display === "none" ? "block" : "none";
+          renderLogBox(true);
+        });
+
+        document.getElementById("sw-dbg-clear").addEventListener("click", () => {
+          localStorage.removeItem(LOG_KEY);
+          renderLogBox(true);
+        });
+      }
+
+      function renderLogBox(forceScroll = false) {
+        const out = document.getElementById("sw-dbg-output");
+        if (!out || out.style.display === "none") return;
+        const prevScrollTop = out.scrollTop;
+        const list = readLogs();
+        out.textContent = list.length ? list.join("\n") : "(Még nincs bejegyzés)";
+        if (forceScroll) {
+          out.scrollTop = out.scrollHeight;
+        } else if (userScrolling) {
+          out.scrollTop = prevScrollTop;
+        }
+      }
+
+      function hookAppFunctions() {
+        if (typeof window.__stopwayEvaluateCoords === "function" && !window.__stopwayEvaluateCoords.__logged) {
+          const origEval = window.__stopwayEvaluateCoords;
+          const wrappedEval = function (coords) {
+            addLog("EVAL_COORDS", coords ? `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}` : "no coords");
+            return origEval.apply(this, arguments);
+          };
+          wrappedEval.__logged = true;
+          window.__stopwayEvaluateCoords = wrappedEval;
+        }
+      }
+
+      document.addEventListener("visibilitychange", () => {
+        addLog("VISIBILITY", document.visibilityState);
+        hookAppFunctions();
+      });
+
+      window.addEventListener("stopway:watch-started", () => {
+        hookAppFunctions();
+        addLog("WATCH_STARTED");
+      });
+
+      window.addEventListener("stopway:watch-stopped", () => {
+        addLog("WATCH_STOPPED");
+      });
+
+      window.addEventListener("stopway:gps-position", ev => {
+        const c = ev && ev.detail && ev.detail.coords;
+        addLog("GPS_POS", c ? `lat=${c.latitude.toFixed(5)} lng=${c.longitude.toFixed(5)}` : "");
+      });
+
+      window.addEventListener("stopway:gps-error", ev => {
+        const err = ev && ev.detail && ev.detail.error;
+        addLog("GPS_ERR", err ? err.message || String(err.code) : "");
+      });
+
+      window.addEventListener("stopway:alarm-dismissed", () => {
+        addLog("ALARM_DISMISSED");
+      });
+
+      createLogUi();
       hookAppFunctions();
-    });
-
-    window.addEventListener("stopway:watch-started", () => {
-      hookAppFunctions();
-      addLog("WATCH_STARTED");
-    });
-
-    window.addEventListener("stopway:watch-stopped", () => {
-      addLog("WATCH_STOPPED");
-    });
-
-    window.addEventListener("stopway:gps-position", ev => {
-      const c = ev && ev.detail && ev.detail.coords;
-      addLog("GPS_POS", c ? `lat=${c.latitude.toFixed(5)} lng=${c.longitude.toFixed(5)}` : "");
-    });
-
-    window.addEventListener("stopway:gps-error", ev => {
-      const err = ev && ev.detail && ev.detail.error;
-      addLog("GPS_ERR", err ? err.message || String(err.code) : "");
-    });
-
-    window.addEventListener("stopway:alarm-dismissed", () => {
-      addLog("ALARM_DISMISSED");
-    });
-
-    const origAlert = window.alert;
-    createLogUi();
-    hookAppFunctions();
-    addLog("INIT", "Naplózó betöltve");
-    void origAlert;
-  })();
-</script>
-
-
-
-
-
-
-
+      addLog("INIT", "Naplózó betöltve");
+    })();
+  </script>
+</body>
+</html>
