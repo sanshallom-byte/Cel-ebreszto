@@ -2534,11 +2534,26 @@
           snoozeInterval = null;
         }
         const place = state.places[state.selectedIndex] || state.places[0];
+        const subText = messageSub || formatDistance(state.thresholdMeters);
         alarmHeading.textContent = `${t("alarmPrefix")} ${place.name}`;
-        alarmSub.textContent = messageSub || formatDistance(state.thresholdMeters);
+        alarmSub.textContent = subText;
         snoozeGiantBtn.disabled = false;
         snoozeCountdownText.textContent = t("snoozeTap");
         alarmOverlay.classList.add("active");
+
+        try {
+          const alertPayload = JSON.stringify({
+            title: `${t("alarmPrefix")} ${place.name}`,
+            body: subText,
+            kind: "ARRIVAL_ALARM"
+          });
+          if (window.__swDebugLog) window.__swDebugLog("NATIVE_ALERT_OUT", alertPayload);
+          if (window.StopWayNative && typeof window.StopWayNative.triggerNativeAlert === "function") {
+            window.StopWayNative.triggerNativeAlert(alertPayload);
+          } else if (window.Android && typeof window.Android.triggerNativeAlert === "function") {
+            window.Android.triggerNativeAlert(alertPayload);
+          }
+        } catch (e) {}
 
         if (navigator.vibrate) {
           navigator.vibrate([500, 250, 500, 250, 800]);
@@ -3534,7 +3549,7 @@
     })();
   </script>
 
-  <!-- StopWay háttér-túlélő, híd-fogadó és riasztás-összehangoló réteg (teszteléshez) -->
+  <!-- StopWay háttér-túlélő, híd-fogadó és riasztás-összehangoló réteg -->
   <script id="stopway-bg-survival-addon">
     (function () {
       "use strict";
@@ -3825,6 +3840,19 @@
         if (!sessionActive || isSignalLost) return;
         isSignalLost = true;
         showSignalBubble(getTexts().lost);
+        try {
+          const lostPayload = JSON.stringify({
+            title: "GPS jel megszakadt",
+            body: getTexts().lost,
+            kind: "SIGNAL_LOST"
+          });
+          if (window.__swDebugLog) window.__swDebugLog("NATIVE_ALERT_OUT", lostPayload);
+          if (window.StopWayNative && typeof window.StopWayNative.triggerNativeAlert === "function") {
+            window.StopWayNative.triggerNativeAlert(lostPayload);
+          } else if (window.Android && typeof window.Android.triggerNativeAlert === "function") {
+            window.Android.triggerNativeAlert(lostPayload);
+          }
+        } catch (e) {}
       }
 
       function markSignalRestored() {
@@ -3975,7 +4003,6 @@
     })();
   </script>
 
-  <!-- Ideiglenes diagnosztikai naplózó (később törölhető) -->
   <!-- Ideiglenes diagnosztikai naplózó (később törölhető) -->
   <script id="stopway-debug-log">
     (function () {
