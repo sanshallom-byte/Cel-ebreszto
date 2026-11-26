@@ -37,7 +37,7 @@ jobs:
           fi
           touch android/capacitor.settings.gradle
 
-      - name: GPS, háttérszolgáltatás, rezgés és hálózati engedélyek hozzáadása
+      - name: GPS, háttérszolgáltatás, értesítés, rezgés és hálózati engedélyek hozzáadása
         run: |
           MANIFEST="android/app/src/main/AndroidManifest.xml"
           if [ -f "$MANIFEST" ]; then
@@ -55,6 +55,7 @@ jobs:
               "android.permission.POST_NOTIFICATIONS",
               "android.permission.WAKE_LOCK",
               "android.permission.VIBRATE",
+              "android.permission.USE_FULL_SCREEN_INTENT",
               "android.permission.INTERNET"
           ]
           for perm in perms:
@@ -75,7 +76,7 @@ jobs:
           PYEOF
           fi
 
-      - name: Natív háttér-GPS szolgáltatás és WebView híd létrehozása
+      - name: Natív háttér-GPS szolgáltatás, riasztó-értesítés és WebView híd létrehozása
         run: |
           python3 - << 'PYEOF'
           import glob, os, re
@@ -100,6 +101,7 @@ jobs:
           import android.app.Notification;
           import android.app.NotificationChannel;
           import android.app.NotificationManager;
+          import android.app.PendingIntent;
           import android.app.Service;
           import android.content.Context;
           import android.content.Intent;
@@ -107,31 +109,43 @@ jobs:
           import android.location.Location;
           import android.location.LocationListener;
           import android.location.LocationManager;
+          import android.media.AudioAttributes;
+          import android.media.RingtoneManager;
+          import android.net.Uri;
           import android.os.Build;
           import android.os.Bundle;
           import android.os.Handler;
           import android.os.IBinder;
           import android.os.Looper;
           import android.os.PowerManager;
+          import android.os.VibrationEffect;
+          import android.os.Vibrator;
           import androidx.core.app.ActivityCompat;
           import androidx.core.app.NotificationCompat;
 
           public class StopWayLocationService extends Service {{
               public static final String CHANNEL_ID = "stopway_gps_channel";
+              public static final String ALERT_CHANNEL_ID = "stopway_alert_channel";
               public static final int NOTIF_ID = 7071;
+              public static final int ALERT_NOTIF_ID = 7072;
               public static final String ACTION_START = "STOPWAY_START_GPS";
               public static final String ACTION_STOP = "STOPWAY_STOP_GPS";
+              public static final String ACTION_ALERT = "STOPWAY_TRIGGER_ALERT";
               public static volatile boolean isServiceRunning = false;
 
               private LocationManager locationManager;
               private PowerManager.WakeLock wakeLock;
               private final Handler handler = new Handler(Looper.getMainLooper());
               private boolean running = false;
+              private Location anchorLoc = null;
+              private long lastMoveMs = 0L;
+              private boolean idleAlertSent = false;
 
               private final LocationListener listener = new LocationListener() {{
                   @Override
                   public void onLocationChanged(Location loc) {{
                       if (loc != null && running) {{
+                          checkNativeStagnation(loc);
                           MainActivity.dispatchLocationToWebView(
                               loc.getLatitude(),
                               loc.getLongitude(),
@@ -149,7 +163,7 @@ jobs:
                   public void run() {{
                       if (!running) return;
                       requestSingleFix();
-                      handler.postDelayed(this, 8000);
+                      handler.postDelayed(this, 10000);
                   }}
               }};
 
@@ -157,7 +171,7 @@ jobs:
               public void onCreate() {{
                   super.onCreate();
                   locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                  createChannel();
+                  createChannels();
               }}
 
               @Override
@@ -169,6 +183,17 @@ jobs:
                       stopSelf();
                       return START_NOT_STICKY;
                   }}
+                  if (ACTION_ALERT.equals(action)) {{
+                      String title = intent.getStringExtra("title");
+                      String body = intent.getStringExtra("body");
+                      String kind = intent.getStringExtra("kind");
+                      postHighPriorityAlert(
+                          title != null ? title : "Cél-ébresztő",
+                          body != null ? body : "Figyelmeztetés a háttérből",
+                          kind != null ? kind : "ALERT"
+                      );
+                      return START_STICKY;
+                  }}
                   startForeground(NOTIF_ID, buildNotification());
                   if (!running) {{
                       startTracking();
@@ -176,19 +201,104 @@ jobs:
                   return START_STICKY;
               }}
 
+              private void checkNativeStagnation(Location loc) {{
+                  long now = System.currentTimeMillis();
+                  if (anchorLoc == null) {{
+                      anchorLoc = loc;
+                      lastMoveMs = now;
+                      idleAlertSent = false;
+                      return;
+                  }}
+                  float moved = anchorLoc.distanceTo(loc);
+                  if (moved >= 100f) {{
+                      anchorLoc = loc;
+                      lastMoveMs = now;
+                      idleAlertSent = false;
+                      return;
+                  }}
+                  if (!idleAlertSent && lastMoveMs > 0L && (now - lastMoveMs) >= (60L * 60L * 1000L)) {{
+                      idleAlertSent = true;
+                      postHighPriorityAlert(
+                          "1 órája nincs 100 méteres mozgás",
+                          "Az elmúlt 1 órában nem történt 100 métert elérő elmozdulás. Nyisd meg az alkalmazást a folytatáshoz vagy leállításhoz.",
+                          "IDLE_1H"
+                      );
+                  }}
+              }}
+
+              public void postHighPriorityAlert(String title, String body, String kind) {{
+                  createChannels();
+                  Intent openIntent = new Intent(this, MainActivity.class);
+                  openIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                  openIntent.putExtra("stopway_alert_kind", kind);
+                  openIntent.putExtra("stopway_alert_title", title);
+                  openIntent.putExtra("stopway_alert_body", body);
+
+                  int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {{
+                      flags |= PendingIntent.FLAG_IMMUTABLE;
+                  }}
+                  PendingIntent pendingIntent = PendingIntent.getActivity(this, 7099, openIntent, flags);
+
+                  Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+                  if (alarmUri == null) {{
+                      alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                  }}
+
+                  NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ALERT_CHANNEL_ID)
+                      .setSmallIcon(android.R.drawable.ic_dialog_alert)
+                      .setContentTitle(title)
+                      .setContentText(body)
+                      .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
+                      .setPriority(NotificationCompat.PRIORITY_MAX)
+                      .setCategory(NotificationCompat.CATEGORY_ALARM)
+                      .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                      .setAutoCancel(true)
+                      .setContentIntent(pendingIntent)
+                      .setFullScreenIntent(pendingIntent, true);
+
+                  if (alarmUri != null) {{
+                      builder.setSound(alarmUri);
+                  }}
+
+                  NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                  if (nm != null) {{
+                      nm.notify(ALERT_NOTIF_ID, builder.build());
+                  }}
+
+                  try {{
+                      Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                      if (vib != null && vib.hasVibrator()) {{
+                          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {{
+                              vib.vibrate(VibrationEffect.createWaveform(new long[]{{0, 600, 250, 600, 250, 700}}, -1));
+                          }} else {{
+                              vib.vibrate(new long[]{{0, 600, 250, 600, 250, 700}}, -1);
+                          }}
+                      }}
+                  }} catch (Exception ignored) {{}}
+
+                  MainActivity.dispatchNativeAlertToWebView(title, body, kind);
+              }}
+
               private void startTracking() {{
                   stopTracking();
                   running = true;
                   isServiceRunning = true;
+                  anchorLoc = null;
+                  lastMoveMs = System.currentTimeMillis();
+                  idleAlertSent = false;
                   acquireWakeLock();
                   requestUpdates();
                   requestSingleFix();
-                  handler.postDelayed(pollRunnable, 8000);
+                  handler.postDelayed(pollRunnable, 10000);
               }}
 
               private void stopTracking() {{
                   running = false;
                   isServiceRunning = false;
+                  anchorLoc = null;
+                  lastMoveMs = 0L;
+                  idleAlertSent = false;
                   handler.removeCallbacksAndMessages(null);
                   if (locationManager != null) {{
                       try {{
@@ -206,12 +316,12 @@ jobs:
                   }}
                   try {{
                       if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {{
-                          locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000L, 1f, listener, Looper.getMainLooper());
+                          locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 4000L, 2f, listener, Looper.getMainLooper());
                       }}
                   }} catch (Exception ignored) {{}}
                   try {{
                       if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {{
-                          locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 4000L, 1f, listener, Looper.getMainLooper());
+                          locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000L, 2f, listener, Looper.getMainLooper());
                       }}
                   }} catch (Exception ignored) {{}}
               }}
@@ -227,6 +337,7 @@ jobs:
                       Location lastNet = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                       Location best = lastGps != null ? lastGps : lastNet;
                       if (best != null && running) {{
+                          checkNativeStagnation(best);
                           MainActivity.dispatchLocationToWebView(best.getLatitude(), best.getLongitude(), best.getAccuracy());
                       }}
                       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {{
@@ -236,6 +347,7 @@ jobs:
                           if (provider != null) {{
                               locationManager.getCurrentLocation(provider, null, getMainExecutor(), loc -> {{
                                   if (loc != null && running) {{
+                                      checkNativeStagnation(loc);
                                       MainActivity.dispatchLocationToWebView(loc.getLatitude(), loc.getLongitude(), loc.getAccuracy());
                                   }}
                               }});
@@ -264,15 +376,37 @@ jobs:
                   wakeLock = null;
               }}
 
-              private void createChannel() {{
+              private void createChannels() {{
                   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {{
-                      NotificationChannel ch = new NotificationChannel(
+                      NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                      if (nm == null) return;
+
+                      NotificationChannel gpsCh = new NotificationChannel(
                           CHANNEL_ID,
                           "Cél-ébresztő háttér-GPS",
                           NotificationManager.IMPORTANCE_LOW
                       );
-                      NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                      if (nm != null) nm.createNotificationChannel(ch);
+                      nm.createNotificationChannel(gpsCh);
+
+                      NotificationChannel alertCh = new NotificationChannel(
+                          ALERT_CHANNEL_ID,
+                          "Cél-ébresztő riasztások és jelzések",
+                          NotificationManager.IMPORTANCE_HIGH
+                      );
+                      alertCh.enableVibration(true);
+                      alertCh.setVibrationPattern(new long[]{{0, 600, 250, 600, 250, 700}});
+                      Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+                      if (alarmUri == null) {{
+                          alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                      }}
+                      if (alarmUri != null) {{
+                          AudioAttributes attrs = new AudioAttributes.Builder()
+                              .setUsage(AudioAttributes.USAGE_ALARM)
+                              .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                              .build();
+                          alertCh.setSound(alarmUri, attrs);
+                      }}
+                      nm.createNotificationChannel(alertCh);
                   }}
               }}
 
@@ -342,6 +476,58 @@ jobs:
                       wv.addJavascriptInterface(bridge, "StopWayNative");
                       wv.addJavascriptInterface(bridge, "Android");
                   }}
+                  handleIntentAlert(getIntent());
+              }}
+
+              @Override
+              protected void onNewIntent(Intent intent) {{
+                  super.onNewIntent(intent);
+                  setIntent(intent);
+                  handleIntentAlert(intent);
+              }}
+
+              private void handleIntentAlert(Intent intent) {{
+                  if (intent == null) return;
+                  String kind = intent.getStringExtra("stopway_alert_kind");
+                  String title = intent.getStringExtra("stopway_alert_title");
+                  String body = intent.getStringExtra("stopway_alert_body");
+                  if (kind != null || title != null) {{
+                      dispatchNativeAlertToWebView(
+                          title != null ? title : "Cél-ébresztő",
+                          body != null ? body : "",
+                          kind != null ? kind : "ALERT"
+                      );
+                  }}
+              }}
+
+              public void triggerNativeAlert(String title, String body, String kind) {{
+                  Intent intent = new Intent(this, StopWayLocationService.class);
+                  intent.setAction(StopWayLocationService.ACTION_ALERT);
+                  intent.putExtra("title", title);
+                  intent.putExtra("body", body);
+                  intent.putExtra("kind", kind);
+                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {{
+                      ContextCompat.startForegroundService(this, intent);
+                  }} else {{
+                      startService(intent);
+                  }}
+              }}
+
+              public static void dispatchNativeAlertToWebView(String title, String body, String kind) {{
+                  MainActivity act = instance;
+                  if (act == null) return;
+                  final String safeTitle = title != null ? title.replace("'", "\\\\'") : "Cél-ébresztő";
+                  final String safeBody = body != null ? body.replace("'", "\\\\'") : "";
+                  final String safeKind = kind != null ? kind.replace("'", "\\\\'") : "ALERT";
+                  act.runOnUiThread(() -> {{
+                      if (act.getBridge() == null || act.getBridge().getWebView() == null) return;
+                      String js = "javascript:(function(){{" +
+                          "var msg={{type:'STOPWAY_ALARM_SIGNAL',kind:'" + safeKind +
+                          "',title:'" + safeTitle + "',message:'" + safeBody + "'}};" +
+                          "if(window.StopWayReceive){{window.StopWayReceive(msg);}}" +
+                          "}})();";
+                      act.getBridge().getWebView().evaluateJavascript(js, null);
+                  }});
               }}
 
               public boolean isLocationProviderOn() {{
@@ -510,6 +696,25 @@ jobs:
 
                   @JavascriptInterface
                   public void disableBackgroundLocation(String json) {{ activity.stopServiceTracking(); }}
+
+                  @JavascriptInterface
+                  public void triggerNativeAlert(String json) {{
+                      String title = "Cél-ébresztő";
+                      String body = "Figyelmeztetés a háttérből";
+                      String kind = "ALERT";
+                      try {{
+                          if (json != null && json.startsWith("{{")) {{
+                              org.json.JSONObject obj = new org.json.JSONObject(json);
+                              if (obj.has("title")) title = obj.optString("title", title);
+                              if (obj.has("body")) body = obj.optString("body", body);
+                              if (obj.has("kind")) kind = obj.optString("kind", kind);
+                          }}
+                      }} catch (Exception ignored) {{}}
+                      final String fTitle = title;
+                      final String fBody = body;
+                      final String fKind = kind;
+                      activity.runOnUiThread(() -> activity.triggerNativeAlert(fTitle, fBody, fKind));
+                  }}
               }}
           }}
           """
