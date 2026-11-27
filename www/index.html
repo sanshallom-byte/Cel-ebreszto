@@ -2526,6 +2526,14 @@
         }
       }
 
+      window.__swTriggerConfiguredAlarmOnce = function () {
+        ensureAudioContext();
+        triggerSoundOnce(state.soundId);
+        try {
+          if (navigator.vibrate) navigator.vibrate([450, 200, 450]);
+        } catch (e) {}
+      };
+
       function startAlarm(messageSub = "") {
         alarmActive = true;
         snoozeRemaining = 0;
@@ -2939,8 +2947,8 @@
   <!-- StopWay javított 3 lépéses panel, háttér- és riasztáskezelő -->
   <script id="stopway-addon-script">
     (function () {
-      const ADDON_DATE_HU = "2026. november 25.";
-      const ADDON_DATE_EN = "November 25, 2026";
+      const ADDON_DATE_HU = "2026. november 27.";
+      const ADDON_DATE_EN = "November 27, 2026";
       const RECONNECT_MS = 90000;
       const STAGNATION_METERS = 100;
       const STAGNATION_MS = 60 * 60 * 1000;
@@ -2968,10 +2976,10 @@
           bgDesc: "Ha nem engedélyezed a háttérben futást és a nonstop helyzetjelzést, zárolt képernyő vagy más alkalmazás (például filmnézés) közben megszakadhat a követés.",
           bgBack: "Vissza az engedélyezéshez",
           bgConfirm: "Igen, biztos",
-          idleTitle: "1 órája nincs 100 méteres mozgás",
-          idleDesc: "Az elmúlt 1 órában nem történt 100 métert elérő elmozdulás. Folytatjuk az utazást, vagy leállítjuk?",
-          idleContinue: "Folytatjuk",
-          idleStop: "Leállítjuk",
+          idleTitle: "1 órája nem mozdult el (100 méteren belül)",
+          idleDesc: "Egy órája nem mozdult el a pozíció 100 méteren belül. Befejezed az utazást, vagy folytatod?",
+          idleContinue: "Folytatod",
+          idleStop: "Befejezed az utazást",
           goodbyeTitle: "Köszönjük, hogy velünk utaztál",
           goodbyeDesc: "Jó pihenést és biztonságos folytatást! Ha már nincs szükség a helymeghatározásra, ne felejtsd el kikapcsolni.",
           reconnectingMsg: "GPS jel keresése (90 mp-es újracsatlakozás aktív)...",
@@ -2999,9 +3007,9 @@
           bgBack: "Back to permission",
           bgConfirm: "Yes, I'm sure",
           idleTitle: "No 100 m movement for 1 hour",
-          idleDesc: "No movement of at least 100 meters has been detected in the past hour. Continue the trip or stop?",
-          idleContinue: "Continue trip",
-          idleStop: "Stop watching",
+          idleDesc: "No movement of at least 100 meters has been detected for an hour. End the trip or continue?",
+          idleContinue: "Continue",
+          idleStop: "End trip",
           goodbyeTitle: "Thank you for traveling with us",
           goodbyeDesc: "If you no longer need location services, don't forget to turn them off.",
           reconnectingMsg: "Searching for GPS signal (90s reconnect active)...",
@@ -3019,6 +3027,7 @@
       let lastAnchorCoords = null;
       let lastSignificantMoveAt = null;
       let idlePromptOpen = false;
+      let idleRingTimer = null;
       let watchSessionActive = false;
 
       const helpBtn = document.getElementById("sw-addon-help-btn");
@@ -3165,6 +3174,52 @@
         }
       }
 
+      function stopIdleContinuousRing() {
+        if (idleRingTimer) {
+          clearInterval(idleRingTimer);
+          idleRingTimer = null;
+        }
+      }
+
+      function triggerStagnationPrompt() {
+        if (idlePromptOpen || !watchSessionActive) return;
+        idlePromptOpen = true;
+        refreshAddonUI();
+        idleBackdrop.classList.add("open");
+
+        try {
+          const txt = getAddonLang();
+          const idlePayload = JSON.stringify({
+            title: txt.idleTitle,
+            body: txt.idleDesc,
+            kind: "IDLE_1H_ALARM"
+          });
+          if (window.__swDebugLog) window.__swDebugLog("NATIVE_ALERT_OUT", idlePayload);
+          if (window.StopWayNative && typeof window.StopWayNative.triggerNativeAlert === "function") {
+            window.StopWayNative.triggerNativeAlert(idlePayload);
+          } else if (window.Android && typeof window.Android.triggerNativeAlert === "function") {
+            window.Android.triggerNativeAlert(idlePayload);
+          }
+        } catch (e) {}
+
+        const ringOnce = () => {
+          if (typeof window.__swTriggerConfiguredAlarmOnce === "function") {
+            window.__swTriggerConfiguredAlarmOnce();
+          }
+        };
+        ringOnce();
+        stopIdleContinuousRing();
+        idleRingTimer = setInterval(() => {
+          if (idlePromptOpen && watchSessionActive) {
+            ringOnce();
+          } else {
+            stopIdleContinuousRing();
+          }
+        }, 2600);
+      }
+
+      window.__swOpenStagnationPrompt = triggerStagnationPrompt;
+
       function verifyLocationServiceActive(onConfirmed) {
         sendNativeBridgeCommand("checkLocationService");
         if (!navigator.geolocation) {
@@ -3286,9 +3341,7 @@
         }
 
         if (!idlePromptOpen && now - lastSignificantMoveAt >= STAGNATION_MS) {
-          idlePromptOpen = true;
-          refreshAddonUI();
-          idleBackdrop.classList.add("open");
+          triggerStagnationPrompt();
         }
       }
 
@@ -3437,17 +3490,17 @@
 
       if (idleContinueBtn) {
         idleContinueBtn.addEventListener("click", () => {
+          stopIdleContinuousRing();
           idlePromptOpen = false;
           lastSignificantMoveAt = Date.now();
-          if (lastAnchorCoords) {
-            lastAnchorCoords = { lat: lastAnchorCoords.lat, lng: lastAnchorCoords.lng };
-          }
+          lastAnchorCoords = null;
           idleBackdrop.classList.remove("open");
         });
       }
 
       if (idleStopBtn) {
         idleStopBtn.addEventListener("click", () => {
+          stopIdleContinuousRing();
           idlePromptOpen = false;
           idleBackdrop.classList.remove("open");
           explicitStopPending = true;
@@ -3466,6 +3519,8 @@
         explicitStopPending = false;
         lastAnchorCoords = null;
         lastSignificantMoveAt = Date.now();
+        stopIdleContinuousRing();
+        idlePromptOpen = false;
         clearReconnectLoop();
         startContinuousTrackingLoop();
       });
@@ -3485,6 +3540,7 @@
 
       window.addEventListener("stopway:watch-stopped", () => {
         watchSessionActive = false;
+        stopIdleContinuousRing();
         clearReconnectLoop();
         clearContinuousPoll();
         stopStep1Polling();
@@ -3492,6 +3548,7 @@
         lastAnchorCoords = null;
         lastSignificantMoveAt = null;
         idlePromptOpen = false;
+        idleBackdrop.classList.remove("open");
         if (explicitStopPending) {
           explicitStopPending = false;
           showGoodbyeBanner();
@@ -3501,10 +3558,13 @@
       window.addEventListener("stopway:alarm-dismissed", () => {
         watchSessionActive = false;
         explicitStopPending = false;
+        stopIdleContinuousRing();
         clearReconnectLoop();
         clearContinuousPoll();
         stopStep1Polling();
         sendNativeBridgeCommand("stopNonstopLocation");
+        idlePromptOpen = false;
+        idleBackdrop.classList.remove("open");
         showGoodbyeBanner();
       });
 
@@ -3566,6 +3626,12 @@
       }
 
       function nudgeSoundAndVibration(strong) {
+        if (strong) {
+          if (typeof window.__swTriggerConfiguredAlarmOnce === "function") {
+            window.__swTriggerConfiguredAlarmOnce();
+            return;
+          }
+        }
         try {
           const Ctx = window.AudioContext || window.webkitAudioContext;
           if (Ctx) {
@@ -3577,21 +3643,21 @@
             const now = ctx.currentTime;
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
-            osc.type = strong ? "sawtooth" : "sine";
-            osc.frequency.setValueAtTime(strong ? 980 : 780, now);
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(880, now);
             gain.gain.setValueAtTime(0.0001, now);
-            gain.gain.linearRampToValueAtTime(strong ? 0.28 : 0.14, now + 0.02);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + (strong ? 0.35 : 0.16));
+            gain.gain.linearRampToValueAtTime(0.16, now + 0.015);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
             osc.connect(gain);
             gain.connect(ctx.destination);
             osc.start(now);
-            osc.stop(now + (strong ? 0.38 : 0.18));
+            osc.stop(now + 0.16);
           }
         } catch (e) {}
 
         try {
           if (navigator.vibrate) {
-            navigator.vibrate(strong ? [600, 250, 600, 250, 700] : [250, 120, 250]);
+            navigator.vibrate(140);
           }
         } catch (e) {}
       }
@@ -3639,10 +3705,16 @@
         } else if (msgType === "STOPWAY_ALARM_SIGNAL" || msgType === "TRIGGER_ALARM") {
           pendingAlarmPayload = data;
           logMsg("NATIVE_ALARM", data.reason || data.message || "riasztás");
-          nudgeSoundAndVibration(true);
-          const overlay = document.getElementById("alarmOverlay");
-          if (overlay && document.visibilityState === "visible") {
-            overlay.classList.add("active");
+          if (data.kind === "IDLE_1H" || data.kind === "IDLE_1H_ALARM") {
+            if (typeof window.__swOpenStagnationPrompt === "function") {
+              window.__swOpenStagnationPrompt();
+            }
+          } else {
+            nudgeSoundAndVibration(true);
+            const overlay = document.getElementById("alarmOverlay");
+            if (overlay && document.visibilityState === "visible") {
+              overlay.classList.add("active");
+            }
           }
           if (data.coords) {
             applyIncomingCoords(data.coords, "ALARM_POS");
@@ -3753,12 +3825,15 @@
           osc.type = "sine";
           osc.frequency.setValueAtTime(880, start);
           gain.gain.setValueAtTime(0.0001, start);
-          gain.gain.linearRampToValueAtTime(0.14, start + 0.015);
+          gain.gain.linearRampToValueAtTime(0.16, start + 0.015);
           gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.14);
           osc.connect(gain);
           gain.connect(ctx.destination);
           osc.start(start);
           osc.stop(start + 0.16);
+        } catch (e) {}
+        try {
+          if (navigator.vibrate) navigator.vibrate(140);
         } catch (e) {}
       }
 
@@ -3829,7 +3904,7 @@
         document.body.appendChild(bubbleEl);
       }
 
-      function showSignalBubble(messageText) {
+      function setBubbleTextKeepOpen(messageText) {
         ensureBubble();
         bubbleTextEl.textContent = messageText;
         bubbleEl.classList.add("open");
@@ -3837,9 +3912,15 @@
       }
 
       function markSignalLost() {
-        if (!sessionActive || isSignalLost) return;
+        if (!sessionActive) return;
+        if (isSignalLost) {
+          if (bubbleEl && bubbleEl.classList.contains("open")) {
+            bubbleTextEl.textContent = getTexts().lost;
+          }
+          return;
+        }
         isSignalLost = true;
-        showSignalBubble(getTexts().lost);
+        setBubbleTextKeepOpen(getTexts().lost);
         try {
           const lostPayload = JSON.stringify({
             title: "GPS jel megszakadt",
@@ -3860,7 +3941,7 @@
         lastPosReceivedAt = Date.now();
         if (!isSignalLost) return;
         isSignalLost = false;
-        showSignalBubble(getTexts().restored);
+        setBubbleTextKeepOpen(getTexts().restored);
       }
 
       function dispatchBridge(action, extra = {}) {
@@ -3978,7 +4059,6 @@
         isSignalLost = false;
         stop90sLoop();
         stopWatchdog();
-        if (bubbleEl) bubbleEl.classList.remove("open");
         dispatchBridge("stopReconnectLoop");
       });
 
@@ -3988,7 +4068,6 @@
         isSignalLost = false;
         stop90sLoop();
         stopWatchdog();
-        if (bubbleEl) bubbleEl.classList.remove("open");
         dispatchBridge("stopReconnectLoop");
       });
 
