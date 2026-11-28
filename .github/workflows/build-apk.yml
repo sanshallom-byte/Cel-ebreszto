@@ -65,6 +65,13 @@ jobs:
               if tag not in txt:
                   txt = txt.replace("<application", tag + "\n    <application", 1)
 
+          if "<activity" in txt and "android:showWhenLocked" not in txt:
+              txt = txt.replace(
+                  "<activity",
+                  '<activity\n            android:showWhenLocked="true"\n            android:turnScreenOn="true"',
+                  1
+              )
+
           service_tag = """        <service
               android:name=".StopWayLocationService"
               android:enabled="true"
@@ -124,7 +131,7 @@ jobs:
 
           public class StopWayLocationService extends Service {{
               public static final String CHANNEL_ID = "stopway_gps_channel";
-              public static final String ALERT_CHANNEL_ID = "stopway_alert_channel_v3";
+              public static final String ALERT_CHANNEL_ID = "stopway_alert_channel_v4";
               public static final int NOTIF_ID = 7071;
               public static final int ALERT_NOTIF_ID = 7072;
               public static final String ACTION_START = "STOPWAY_START_GPS";
@@ -200,7 +207,7 @@ jobs:
                       String body = intent.getStringExtra("body");
                       String kind = intent.getStringExtra("kind");
                       postHighPriorityAlert(
-                          title != null ? title : "Cél-ébresztő",
+                          title != null ? title : "StopWay",
                           body != null ? body : "Figyelmeztetés a háttérből",
                           kind != null ? kind : "ALERT"
                       );
@@ -437,14 +444,14 @@ jobs:
 
                       NotificationChannel gpsCh = new NotificationChannel(
                           CHANNEL_ID,
-                          "Cél-ébresztő háttér-GPS",
+                          "StopWay háttér-GPS",
                           NotificationManager.IMPORTANCE_LOW
                       );
                       nm.createNotificationChannel(gpsCh);
 
                       NotificationChannel alertCh = new NotificationChannel(
                           ALERT_CHANNEL_ID,
-                          "Cél-ébresztő riasztások és jelzések",
+                          "StopWay riasztások és jelzések",
                           NotificationManager.IMPORTANCE_HIGH
                       );
                       alertCh.enableVibration(true);
@@ -456,7 +463,7 @@ jobs:
 
               private Notification buildNotification() {{
                   return new NotificationCompat.Builder(this, CHANNEL_ID)
-                      .setContentTitle("Cél-ébresztő")
+                      .setContentTitle("StopWay")
                       .setContentText("Háttér-GPS figyelés aktív")
                       .setSmallIcon(android.R.drawable.ic_menu_mylocation)
                       .setOngoing(true)
@@ -508,6 +515,7 @@ jobs:
           public class MainActivity extends BridgeActivity {{
               private static MainActivity instance;
               private static Integer savedAlarmVol = null;
+              private PowerManager.WakeLock screenWakeLock = null;
               private long lastStatusPushMs = 0L;
               private long lastGpsDispatchMs = 0L;
               private String lastStatusKey = "";
@@ -545,14 +553,14 @@ jobs:
                       forceMaxAlarmVolumeOnly();
                       wakeScreenAndBringWindow();
                       dispatchNativeAlertToWebView(
-                          title != null ? title : "Cél-ébresztő",
+                          title != null ? title : "StopWay",
                           body != null ? body : "",
                           kind != null ? kind : "ALERT"
                       );
                   }}
               }}
 
-              // Kizárólag a riasztási sávot (STREAM_ALARM) húzza fel maximumra; a film/zene (STREAM_MUSIC) érintetlen marad.
+              // Kizárólag a riasztási sávot (STREAM_ALARM) húzza fel maximumra; a média/zene (STREAM_MUSIC) érintetlen marad.
               public void forceMaxAlarmVolumeOnly() {{
                   try {{
                       AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -576,6 +584,7 @@ jobs:
                           savedAlarmVol = null;
                       }}
                   }} catch (Exception ignored) {{}}
+                  releaseScreenWakeLock();
               }}
 
               public static void restoreSavedAlarmVolumeStatic() {{
@@ -583,6 +592,15 @@ jobs:
                   if (act != null) {{
                       act.runOnUiThread(act::restoreSavedAlarmVolume);
                   }}
+              }}
+
+              private void releaseScreenWakeLock() {{
+                  try {{
+                      if (screenWakeLock != null && screenWakeLock.isHeld()) {{
+                          screenWakeLock.release();
+                      }}
+                  }} catch (Exception ignored) {{}}
+                  screenWakeLock = null;
               }}
 
               public void wakeScreenAndBringWindow() {{
@@ -604,11 +622,12 @@ jobs:
                       }}
                       PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
                       if (pm != null && !pm.isInteractive()) {{
-                          PowerManager.WakeLock wl = pm.newWakeLock(
+                          releaseScreenWakeLock();
+                          screenWakeLock = pm.newWakeLock(
                               PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP,
                               "StopWay:ScreenWakeLock"
                           );
-                          wl.acquire(6000L);
+                          screenWakeLock.acquire(15000L);
                       }}
                   }} catch (Exception ignored) {{}}
               }}
@@ -646,7 +665,7 @@ jobs:
               public static void dispatchNativeAlertToWebView(String title, String body, String kind) {{
                   MainActivity act = instance;
                   if (act == null) return;
-                  final String safeTitle = title != null ? title.replace("'", "\\\\'") : "Cél-ébresztő";
+                  final String safeTitle = title != null ? title.replace("'", "\\\\'") : "StopWay";
                   final String safeBody = body != null ? body.replace("'", "\\\\'") : "";
                   final String safeKind = kind != null ? kind.replace("'", "\\\\'") : "ALERT";
                   act.runOnUiThread(() -> {{
@@ -843,7 +862,7 @@ jobs:
 
                   @JavascriptInterface
                   public void triggerNativeAlert(String json) {{
-                      String title = "Cél-ébresztő";
+                      String title = "StopWay";
                       String body = "Figyelmeztetés a háttérből";
                       String kind = "ALERT";
                       try {{
