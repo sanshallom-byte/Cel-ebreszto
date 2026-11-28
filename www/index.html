@@ -569,12 +569,12 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 13px 14px;
+      padding: 12px 14px;
       border-radius: 12px;
       border: 1.5px solid var(--border, #475569);
       background: var(--surface-2, #334155);
       color: var(--text, #f8fafc);
-      font-size: 0.92rem;
+      font-size: 0.9rem;
       font-weight: 700;
       text-align: left;
       cursor: pointer;
@@ -582,6 +582,16 @@
     .sw-step-item.done { border-color: #22c55e; background: rgba(34, 197, 94, 0.16); }
     .sw-step-mark { font-size: 1.15rem; font-weight: 800; flex-shrink: 0; }
     .sw-step-mark.ok { color: #22c55e; }
+    .sw-warn-box {
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(245, 158, 11, 0.16);
+      border: 1.5px solid #f59e0b;
+      color: #fde68a;
+      font-size: 0.84rem;
+      font-weight: 700;
+      line-height: 1.4;
+    }
     .sw-addon-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
     .sw-addon-btn {
       flex: 1;
@@ -775,6 +785,7 @@
     </div>
   </div>
 
+  <!-- 4 soros indítási engedélyező panel -->
   <div id="sw-addon-check-backdrop" class="sw-addon-backdrop" role="dialog" aria-modal="true" aria-labelledby="sw-addon-check-title">
     <div class="sw-addon-card">
       <div class="sw-addon-header">
@@ -793,6 +804,11 @@
         <span id="sw-addon-step-3-text"></span>
         <span id="sw-addon-step-3-mark" class="sw-step-mark">○</span>
       </button>
+      <button id="sw-addon-step-4" class="sw-step-item" type="button">
+        <span id="sw-addon-step-4-text"></span>
+        <span id="sw-addon-step-4-mark" class="sw-step-mark">○</span>
+      </button>
+      <div id="sw-addon-warn-box" class="sw-warn-box" style="display:none;"></div>
       <div class="sw-addon-actions">
         <button id="sw-addon-go-btn" class="sw-addon-btn primary" type="button"></button>
       </div>
@@ -2954,11 +2970,11 @@
     }
   </script>
 
-  <!-- StopWay javított 3 lépéses panel, háttér- és riasztáskezelő -->
+  <!-- StopWay 4 soros indítási panel, háttér- és riasztáskezelő -->
   <script id="stopway-addon-script">
     (function () {
-      const ADDON_DATE_HU = "2026. november 27.";
-      const ADDON_DATE_EN = "November 27, 2026";
+      const ADDON_DATE_HU = "2026. november 28.";
+      const ADDON_DATE_EN = "November 28, 2026";
       const RECONNECT_MS = 90000;
       const STAGNATION_METERS = 100;
       const STAGNATION_MS = 60 * 60 * 1000;
@@ -2974,16 +2990,18 @@
             "🎨 Megjelenési stílusok: A 🎨 ikonnal kiválaszthatod a tetszőleges vizuális témát.",
             "🎤 Riasztási hangok és saját hang: A hangbeállításoknál és a 🎤 vezérlésnél állítható be a megfelelő riasztási hang, vagy tölthető fel saját hangfájl.",
             "📏 Riasztási távolság: A képernyő tetején található választó gombbal állítható be a riasztási távolság: városban 300 m, 500 m vagy legfeljebb 1 km, vonaton, hosszabb utazáson vagy távolsági buszon pedig 5 km ajánlott.",
-            "✅ Háromlépéses indítási panel: A célállomás-figyelés indításakor — ha valami még hiányzik — jelenik meg a háromlépéses panel, ahol be kell jelölni a helymeghatározást, valamint engedélyezni kell a felszíni és a háttérműködést."
+            "✅ Négysoros indítási panel: A figyelés indításakor ezen a lapon kapcsold be a telefon helymeghatározását, a többi engedélyt pedig az alkalmazáson belül adjuk meg."
           ],
-          checkTitle: "Indítás előtti ellenőrzés",
-          step1: "1. Helyzetjelző bekapcsolása",
-          step1Waiting: "1. Helyzetjelző bekapcsolása (kapcsold be a telefonon...)",
-          step2: "2. Helyhozzáférés engedélyezése",
-          step3: "3. Háttérben és nonstop működés engedélyezése",
+          checkTitle: "Indítás előtti beállítások",
+          step1: "1. Kapcsold be a telefonon a helymeghatározást",
+          step1Waiting: "1. Kapcsold be a telefonon a helymeghatározást (beállításoknál...)",
+          step1Warn: "Kérlek, kapcsold be a telefonodon a beállításoknál a helymeghatározást, hogy a követés működjön.",
+          step2: "2. Engedélyezd a csatlakozást a helyadatokhoz",
+          step3: "3. Engedélyezd, hogy a háttérben mindig csatlakozzon",
+          step4: "4. Engedélyezd, hogy üzeneteket és riasztásokat küldjön",
           goBtn: "Figyelés indítása",
           bgTitle: "Biztos, hogy nem engedélyezed?",
-          bgDesc: "Ha nem engedélyezed a háttérben futást és a nonstop helyzetjelzést, zárolt képernyő vagy más alkalmazás (például filmnézés) közben megszakadhat a követés.",
+          bgDesc: "Ha nem engedélyezed, hogy a háttérben mindig csatlakozzon a szolgáltatás, zárolt képernyő vagy más alkalmazás közben megszakadhat a követés.",
           bgBack: "Vissza az engedélyezéshez",
           bgConfirm: "Igen, biztos",
           idleTitle: "1 órája nem mozdult el (100 méteren belül)",
@@ -3004,16 +3022,18 @@
             "🎨 Appearance styles: Use the 🎨 icon to choose the visual style that suits you best.",
             "🎤 Alarm sounds & custom audio: Set an alarm sound that works for you or upload your own custom sound.",
             "📏 Alert distance: Use the top selector to set the alert distance: 300 m, 500 m, or up to 1 km in the city, and 5 km recommended on trains, longer trips, or intercity buses.",
-            "✅ Three-step start panel: When starting destination monitoring — if something is still missing — a three-step panel appears where you need to enable location as well as surface and background operation."
+            "✅ Four-line start panel: Turn on device location when prompted, while the other permissions are requested right inside the app."
           ],
-          checkTitle: "Pre-start check",
-          step1: "1. Turn on location service",
-          step1Waiting: "1. Turn on location service (enable on device...)",
-          step2: "2. Allow location access",
-          step3: "3. Allow background & nonstop location",
+          checkTitle: "Pre-start settings",
+          step1: "1. Turn on location on your phone",
+          step1Waiting: "1. Turn on location on your phone (in settings...)",
+          step1Warn: "Please turn on location in your phone settings so tracking can work.",
+          step2: "2. Allow connection to location data",
+          step3: "3. Allow always connecting in the background",
+          step4: "4. Allow sending messages and alerts",
           goBtn: "Start watching",
           bgTitle: "Are you sure you don't allow it?",
-          bgDesc: "If you do not allow background execution and nonstop location, tracking may stop when the screen is locked or while watching media.",
+          bgDesc: "If you do not allow the service to always connect in the background, tracking may stop when locked or using another app.",
           bgBack: "Back to permission",
           bgConfirm: "Yes, I'm sure",
           idleTitle: "No 100 m movement for 1 hour",
@@ -3027,9 +3047,10 @@
         }
       };
 
-      const perms = { gps: false, overlay: false, background: false };
+      const perms = { gps: false, overlay: false, background: false, alerts: false };
       let step1WaitingForUser = false;
       let step1PollTimer = null;
+      let step1WarnShown = false;
       let bypassStartOnce = false;
       let explicitStopPending = false;
       let reconnectInterval = null;
@@ -3053,6 +3074,8 @@
       const step1Btn = document.getElementById("sw-addon-step-1");
       const step2Btn = document.getElementById("sw-addon-step-2");
       const step3Btn = document.getElementById("sw-addon-step-3");
+      const step4Btn = document.getElementById("sw-addon-step-4");
+      const warnBoxEl = document.getElementById("sw-addon-warn-box");
       const goBtn = document.getElementById("sw-addon-go-btn");
 
       const bgBackdrop = document.getElementById("sw-addon-bg-backdrop");
@@ -3080,7 +3103,7 @@
       }
 
       function allPermsReady() {
-        return Boolean(perms.gps && perms.overlay && perms.background);
+        return Boolean(perms.gps && perms.overlay && perms.background && perms.alerts);
       }
 
       function setGpsState(isOn) {
@@ -3088,6 +3111,7 @@
         perms.gps = nextVal;
         if (nextVal) {
           step1WaitingForUser = false;
+          step1WarnShown = false;
           stopStep1Polling();
         }
         refreshAddonUI();
@@ -3150,14 +3174,27 @@
           (!perms.gps && step1WaitingForUser) ? txt.step1Waiting : txt.step1;
         document.getElementById("sw-addon-step-2-text").textContent = txt.step2;
         document.getElementById("sw-addon-step-3-text").textContent = txt.step3;
+        document.getElementById("sw-addon-step-4-text").textContent = txt.step4;
         goBtn.textContent = txt.goBtn;
+
+        if (warnBoxEl) {
+          if (!perms.gps && (step1WarnShown || step1WaitingForUser)) {
+            warnBoxEl.textContent = txt.step1Warn;
+            warnBoxEl.style.display = "block";
+          } else {
+            warnBoxEl.textContent = "";
+            warnBoxEl.style.display = "none";
+          }
+        }
 
         const states = [
           [step1Btn, document.getElementById("sw-addon-step-1-mark"), perms.gps],
           [step2Btn, document.getElementById("sw-addon-step-2-mark"), perms.overlay],
-          [step3Btn, document.getElementById("sw-addon-step-3-mark"), perms.background]
+          [step3Btn, document.getElementById("sw-addon-step-3-mark"), perms.background],
+          [step4Btn, document.getElementById("sw-addon-step-4-mark"), perms.alerts]
         ];
         states.forEach(([btn, mark, ok]) => {
+          if (!btn || !mark) return;
           btn.classList.toggle("done", Boolean(ok));
           mark.textContent = ok ? "✓" : "○";
           mark.classList.toggle("ok", Boolean(ok));
@@ -3260,6 +3297,7 @@
       }
 
       function openCheckPanelWithLiveProbe() {
+        step1WarnShown = false;
         refreshAddonUI();
         checkBackdrop.classList.add("open");
         verifyLocationServiceActive();
@@ -3403,6 +3441,7 @@
         checkCloseBtn.addEventListener("click", () => {
           stopStep1Polling();
           step1WaitingForUser = false;
+          step1WarnShown = false;
           checkBackdrop.classList.remove("open");
           refreshAddonUI();
         });
@@ -3411,6 +3450,7 @@
       if (step1Btn) {
         step1Btn.addEventListener("click", () => {
           step1WaitingForUser = true;
+          step1WarnShown = true;
           refreshAddonUI();
           sendNativeBridgeCommand("enableLocationService");
           verifyLocationServiceActive();
@@ -3461,14 +3501,40 @@
           background: true,
           nonstop: true
         });
-        startContinuousTrackingLoop();
-        if (statusDetailEl && watchSessionActive) {
-          statusDetailEl.textContent = getAddonLang().nonstopActiveMsg;
+        if (watchSessionActive) {
+          startContinuousTrackingLoop();
+          if (statusDetailEl) {
+            statusDetailEl.textContent = getAddonLang().nonstopActiveMsg;
+          }
         }
       }
 
       if (step3Btn) {
-        step3Btn.addEventListener("click", enableBackgroundAndNonstopStep);
+        step3Btn.addEventListener("click", () => {
+          if (!perms.background) {
+            bgBackdrop.classList.add("open");
+          } else {
+            enableBackgroundAndNonstopStep();
+          }
+        });
+      }
+
+      if (step4Btn) {
+        step4Btn.addEventListener("click", () => {
+          sendNativeBridgeCommand("requestNotificationPermission");
+          if ("Notification" in window && typeof Notification.requestPermission === "function") {
+            Notification.requestPermission().then(res => {
+              perms.alerts = (res === "granted") || perms.alerts;
+              refreshAddonUI();
+            }).catch(() => {
+              perms.alerts = true;
+              refreshAddonUI();
+            });
+          } else {
+            perms.alerts = true;
+            refreshAddonUI();
+          }
+        });
       }
 
       if (bgBackBtn) {
@@ -3487,13 +3553,14 @@
       if (goBtn) {
         goBtn.addEventListener("click", () => {
           if (!perms.gps) {
+            step1WarnShown = true;
+            step1WaitingForUser = true;
+            refreshAddonUI();
             verifyLocationServiceActive(() => {
-              if (perms.overlay && perms.background) {
+              if (perms.overlay && perms.background && perms.alerts) {
                 triggerRealStart();
               }
             });
-            step1WaitingForUser = true;
-            refreshAddonUI();
             sendNativeBridgeCommand("enableLocationService");
             return;
           }
@@ -3501,6 +3568,10 @@
           if (!perms.background) {
             perms.background = true;
             sendNativeBridgeCommand("enableBackgroundAndNonstopGps", { background: true, nonstop: true });
+          }
+          if (!perms.alerts) {
+            perms.alerts = true;
+            sendNativeBridgeCommand("requestNotificationPermission");
           }
           refreshAddonUI();
           triggerRealStart();
@@ -3618,6 +3689,9 @@
           if (typeof data.backgroundEnabled === "boolean") {
             perms.background = data.backgroundEnabled;
           }
+          if (typeof data.notificationsEnabled === "boolean") {
+            perms.alerts = data.notificationsEnabled;
+          }
           refreshAddonUI();
         } else if (data.type === "STOPWAY_GPS_POSITION" && data.coords) {
           handleCoordsUpdate(data.coords);
@@ -3716,7 +3790,7 @@
       let isSignalLost = false;
       let gpsModalVisible = false;
       let gpsDismissedWhileLost = false;
-      let gpsLastState = null; // 'LOST' | 'RESTORED' | null
+      let gpsLastState = null;
 
       function getTexts() {
         return document.documentElement.lang === "hu" ? SIGNAL_TEXT.hu : SIGNAL_TEXT.en;
@@ -3778,16 +3852,13 @@
           return;
         }
 
-        // restored === true
         if (gpsModalVisible) {
-          // Ablak még kint van: nem záródik be, csak átíródik a felirata, és bittyen egyet
           gpsLastState = "RESTORED";
           renderGpsModal(true);
           playGentleSignalBeep();
           return;
         }
 
-        // Ha már ki volt nyomva az ✕-szel (pl. bevásárlóközpont pincéje után): újra feljön
         if (gpsLastState === "LOST" || gpsDismissedWhileLost || !gpsModalVisible) {
           gpsLastState = "RESTORED";
           gpsDismissedWhileLost = false;
