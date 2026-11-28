@@ -3,7 +3,9 @@ name: Build Android APK
 on:
   workflow_dispatch:
   push:
-    branches: [ main, master ]
+    branches:
+      - main
+      - master
 
 jobs:
   build:
@@ -16,15 +18,15 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: "temurin"
+          java-version: "17"
 
-      - name: Install Capacitor & build web assets
+      - name: Install Capacitor and sync web assets
         run: |
           if [ -f package.json ]; then
             npm ci || npm install
@@ -55,734 +57,736 @@ jobs:
           MANIFEST="android/app/src/main/AndroidManifest.xml"
           if [ -f "$MANIFEST" ]; then
             python3 - <<'PY'
-from pathlib import Path
+          from pathlib import Path
 
-p = Path("android/app/src/main/AndroidManifest.xml")
-xml = p.read_text(encoding="utf-8")
+          p = Path("android/app/src/main/AndroidManifest.xml")
+          xml = p.read_text(encoding="utf-8")
 
-perms = [
-    "android.permission.ACCESS_COARSE_LOCATION",
-    "android.permission.ACCESS_FINE_LOCATION",
-    "android.permission.ACCESS_BACKGROUND_LOCATION",
-    "android.permission.FOREGROUND_SERVICE",
-    "android.permission.FOREGROUND_SERVICE_LOCATION",
-    "android.permission.POST_NOTIFICATIONS",
-    "android.permission.WAKE_LOCK",
-    "android.permission.VIBRATE",
-    "android.permission.INTERNET"
-]
+          perms = [
+              "android.permission.ACCESS_COARSE_LOCATION",
+              "android.permission.ACCESS_FINE_LOCATION",
+              "android.permission.ACCESS_BACKGROUND_LOCATION",
+              "android.permission.FOREGROUND_SERVICE",
+              "android.permission.FOREGROUND_SERVICE_LOCATION",
+              "android.permission.POST_NOTIFICATIONS",
+              "android.permission.WAKE_LOCK",
+              "android.permission.VIBRATE",
+              "android.permission.INTERNET",
+          ]
 
-for perm in perms:
-    tag = f'<uses-permission android:name="{perm}" />'
-    if tag not in xml:
-        xml = xml.replace("<application", f"{tag}\n    <application", 1)
+          for perm in perms:
+              tag = f'<uses-permission android:name="{perm}" />'
+              if tag not in xml:
+                  xml = xml.replace("<application", f"{tag}\n    <application", 1)
 
-if 'android:usesCleartextTraffic="true"' not in xml:
-    xml = xml.replace("<application", '<application android:usesCleartextTraffic="true"', 1)
+          if 'android:usesCleartextTraffic="true"' not in xml:
+              xml = xml.replace("<application", '<application android:usesCleartextTraffic="true"', 1)
 
-service_decl = '''        <service
-            android:name="com.stopway.app.StopWayLocationService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="location" />'''
+          service_decl = (
+              '        <service\n'
+              '            android:name="com.stopway.app.StopWayLocationService"\n'
+              '            android:enabled="true"\n'
+              '            android:exported="false"\n'
+              '            android:foregroundServiceType="location" />'
+          )
 
-if "StopWayLocationService" not in xml and "</application>" in xml:
-    xml = xml.replace("</application>", f"{service_decl}\n    </application>", 1)
+          if "StopWayLocationService" not in xml and "</application>" in xml:
+              xml = xml.replace("</application>", f"{service_decl}\n    </application>", 1)
 
-p.write_text(xml, encoding="utf-8")
-PY
+          p.write_text(xml, encoding="utf-8")
+          PY
           fi
 
           PKG_DIR="android/app/src/main/java/com/stopway/app"
           mkdir -p "$PKG_DIR"
 
           cat <<'EOF' > "$PKG_DIR/StopWayLocationService.java"
-package com.stopway.app;
+          package com.stopway.app;
 
-import android.Manifest;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.Service;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ServiceInfo;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.media.AudioAttributes;
-import android.media.AudioManager;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Looper;
-import android.os.PowerManager;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
+          import android.Manifest;
+          import android.app.Notification;
+          import android.app.NotificationChannel;
+          import android.app.NotificationManager;
+          import android.app.PendingIntent;
+          import android.app.Service;
+          import android.content.Context;
+          import android.content.Intent;
+          import android.content.pm.PackageManager;
+          import android.content.pm.ServiceInfo;
+          import android.location.Location;
+          import android.location.LocationListener;
+          import android.location.LocationManager;
+          import android.media.AudioAttributes;
+          import android.media.AudioManager;
+          import android.media.Ringtone;
+          import android.media.RingtoneManager;
+          import android.net.Uri;
+          import android.os.Build;
+          import android.os.Bundle;
+          import android.os.Handler;
+          import android.os.IBinder;
+          import android.os.Looper;
+          import android.os.PowerManager;
+          import android.os.VibrationEffect;
+          import android.os.Vibrator;
 
-import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
+          import androidx.annotation.Nullable;
+          import androidx.core.app.NotificationCompat;
+          import androidx.core.content.ContextCompat;
 
-import org.json.JSONObject;
+          import org.json.JSONObject;
 
-public class StopWayLocationService extends Service implements LocationListener {
-    public static final String CHANNEL_ID = "stopway_fg_channel";
-    public static final String ALERT_CHANNEL_ID = "stopway_alert_channel";
-    public static final int NOTIF_ID = 1001;
-    public static final int ALERT_NOTIF_ID = 1002;
+          public class StopWayLocationService extends Service implements LocationListener {
+              public static final String CHANNEL_ID = "stopway_fg_channel";
+              public static final String ALERT_CHANNEL_ID = "stopway_alert_channel";
+              public static final int NOTIF_ID = 1001;
+              public static final int ALERT_NOTIF_ID = 1002;
 
-    public static final String ACTION_START = "com.stopway.app.action.START";
-    public static final String ACTION_STOP = "com.stopway.app.action.STOP";
-    public static final String ACTION_POLL = "com.stopway.app.action.POLL";
-    public static final String ACTION_ALERT = "com.stopway.app.action.ALERT";
+              public static final String ACTION_START = "com.stopway.app.action.START";
+              public static final String ACTION_STOP = "com.stopway.app.action.STOP";
+              public static final String ACTION_POLL = "com.stopway.app.action.POLL";
+              public static final String ACTION_ALERT = "com.stopway.app.action.ALERT";
 
-    private static volatile boolean running = false;
-    private static volatile Location lastLocation = null;
-    private static volatile boolean signalLost = false;
-    private static Ringtone activeRingtone = null;
-    private static final Handler ringHandler = new Handler(Looper.getMainLooper());
-    private static Runnable stopRingRunnable = null;
+              private static volatile boolean running = false;
+              private static volatile Location lastLocation = null;
+              private static volatile boolean signalLost = false;
+              private static Ringtone activeRingtone = null;
+              private static final Handler ringHandler = new Handler(Looper.getMainLooper());
+              private static Runnable stopRingRunnable = null;
 
-    private LocationManager locationManager;
-    private PowerManager.WakeLock wakeLock;
+              private LocationManager locationManager;
+              private PowerManager.WakeLock wakeLock;
 
-    public static boolean isRunning() {
-        return running;
-    }
+              public static boolean isRunning() {
+                  return running;
+              }
 
-    public static Location getLastLocation() {
-        return lastLocation;
-    }
+              public static Location getLastLocation() {
+                  return lastLocation;
+              }
 
-    public static void stopAlertAudio() {
-        if (stopRingRunnable != null) {
-            ringHandler.removeCallbacks(stopRingRunnable);
-            stopRingRunnable = null;
-        }
-        try {
-            if (activeRingtone != null && activeRingtone.isPlaying()) {
-                activeRingtone.stop();
-            }
-        } catch (Exception ignored) {}
-        activeRingtone = null;
-    }
+              public static void stopAlertAudio() {
+                  if (stopRingRunnable != null) {
+                      ringHandler.removeCallbacks(stopRingRunnable);
+                      stopRingRunnable = null;
+                  }
+                  try {
+                      if (activeRingtone != null && activeRingtone.isPlaying()) {
+                          activeRingtone.stop();
+                      }
+                  } catch (Exception ignored) {}
+                  activeRingtone = null;
+              }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        createChannels();
-        acquireWakeLock();
-    }
+              @Override
+              public void onCreate() {
+                  super.onCreate();
+                  locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                  createChannels();
+                  acquireWakeLock();
+              }
 
-    private void acquireWakeLock() {
-        try {
-            if (wakeLock == null) {
-                PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-                if (pm != null) {
-                    wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "StopWay:LocationWakeLock");
-                    wakeLock.setReferenceCounted(false);
-                }
-            }
-            if (wakeLock != null && !wakeLock.isHeld()) {
-                wakeLock.acquire(6 * 60 * 60 * 1000L);
-            }
-        } catch (Exception ignored) {}
-    }
+              private void acquireWakeLock() {
+                  try {
+                      if (wakeLock == null) {
+                          PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                          if (pm != null) {
+                              wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "StopWay:LocationWakeLock");
+                              wakeLock.setReferenceCounted(false);
+                          }
+                      }
+                      if (wakeLock != null && !wakeLock.isHeld()) {
+                          wakeLock.acquire(6 * 60 * 60 * 1000L);
+                      }
+                  } catch (Exception ignored) {}
+              }
 
-    private void releaseWakeLock() {
-        try {
-            if (wakeLock != null && wakeLock.isHeld()) {
-                wakeLock.release();
-            }
-        } catch (Exception ignored) {}
-    }
+              private void releaseWakeLock() {
+                  try {
+                      if (wakeLock != null && wakeLock.isHeld()) {
+                          wakeLock.release();
+                      }
+                  } catch (Exception ignored) {}
+              }
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        String action = intent != null ? intent.getAction() : ACTION_START;
+              @Override
+              public int onStartCommand(Intent intent, int flags, int startId) {
+                  String action = intent != null ? intent.getAction() : ACTION_START;
 
-        if (ACTION_STOP.equals(action)) {
-            running = false;
-            signalLost = false;
-            stopAlertAudio();
-            stopLocationUpdates();
-            releaseWakeLock();
-            stopForeground(true);
-            stopSelf();
-            return START_NOT_STICKY;
-        }
+                  if (ACTION_STOP.equals(action)) {
+                      running = false;
+                      signalLost = false;
+                      stopAlertAudio();
+                      stopLocationUpdates();
+                      releaseWakeLock();
+                      stopForeground(true);
+                      stopSelf();
+                      return START_NOT_STICKY;
+                  }
 
-        if (ACTION_ALERT.equals(action)) {
-            String title = intent != null && intent.getStringExtra("title") != null
-                ? intent.getStringExtra("title") : "StopWay Riasztás";
-            String body = intent != null && intent.getStringExtra("body") != null
-                ? intent.getStringExtra("body") : "Célpont közelében vagy stagnálás észlelve.";
-            String kind = intent != null && intent.getStringExtra("kind") != null
-                ? intent.getStringExtra("kind") : "ARRIVAL_ALARM";
-            triggerStrongAlarmAndBringFront(title, body, kind);
-            return START_STICKY;
-        }
+                  if (ACTION_ALERT.equals(action)) {
+                      String title = intent != null && intent.getStringExtra("title") != null
+                          ? intent.getStringExtra("title") : "StopWay Riasztás";
+                      String body = intent != null && intent.getStringExtra("body") != null
+                          ? intent.getStringExtra("body") : "Célpont közelében vagy stagnálás észlelve.";
+                      String kind = intent != null && intent.getStringExtra("kind") != null
+                          ? intent.getStringExtra("kind") : "ARRIVAL_ALARM";
+                      triggerStrongAlarmAndBringFront(title, body, kind);
+                      return START_STICKY;
+                  }
 
-        running = true;
-        acquireWakeLock();
-        Notification notif = buildForegroundNotification("StopWay figyelés aktív");
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                startForeground(NOTIF_ID, notif, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
-            } else {
-                startForeground(NOTIF_ID, notif);
-            }
-        } catch (Exception ignored) {}
+                  running = true;
+                  acquireWakeLock();
+                  Notification notif = buildForegroundNotification("StopWay figyelés aktív");
+                  try {
+                      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                          startForeground(NOTIF_ID, notif, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+                      } else {
+                          startForeground(NOTIF_ID, notif);
+                      }
+                  } catch (Exception ignored) {}
 
-        requestUpdatesNow();
-        return START_STICKY;
-    }
+                  requestUpdatesNow();
+                  return START_STICKY;
+              }
 
-    private void requestUpdatesNow() {
-        if (locationManager == null) return;
-        boolean hasFine = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-        boolean hasCoarse = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-        if (!hasFine && !hasCoarse) return;
+              private void requestUpdatesNow() {
+                  if (locationManager == null) return;
+                  boolean hasFine = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+                  boolean hasCoarse = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+                  if (!hasFine && !hasCoarse) return;
 
-        try {
-            locationManager.removeUpdates(this);
-            if (hasFine && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000L, 0f, this, Looper.getMainLooper());
-            }
-            if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 4000L, 0f, this, Looper.getMainLooper());
-            }
-            Location best = null;
-            if (hasFine) {
-                Location g = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                if (g != null) best = g;
-            }
-            if (hasCoarse) {
-                Location n = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                if (n != null && (best == null || n.getTime() > best.getTime())) best = n;
-            }
-            if (best != null) {
-                onLocationChanged(best);
-            }
-        } catch (SecurityException ignored) {}
-    }
+                  try {
+                      locationManager.removeUpdates(this);
+                      if (hasFine && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                          locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000L, 0f, this, Looper.getMainLooper());
+                      }
+                      if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                          locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 4000L, 0f, this, Looper.getMainLooper());
+                      }
+                      Location best = null;
+                      if (hasFine) {
+                          Location g = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                          if (g != null) best = g;
+                      }
+                      if (hasCoarse) {
+                          Location n = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                          if (n != null && (best == null || n.getTime() > best.getTime())) best = n;
+                      }
+                      if (best != null) {
+                          onLocationChanged(best);
+                      }
+                  } catch (SecurityException ignored) {}
+              }
 
-    private void stopLocationUpdates() {
-        try {
-            if (locationManager != null) {
-                locationManager.removeUpdates(this);
-            }
-        } catch (Exception ignored) {}
-    }
+              private void stopLocationUpdates() {
+                  try {
+                      if (locationManager != null) {
+                          locationManager.removeUpdates(this);
+                      }
+                  } catch (Exception ignored) {}
+              }
 
-    @Override
-    public void onLocationChanged(Location location) {
-        if (location == null) return;
-        lastLocation = location;
-        if (signalLost) {
-            signalLost = false;
-            notifySignalState(true);
-        }
-        try {
-            JSONObject obj = new JSONObject();
-            obj.put("type", "STOPWAY_GPS_POSITION");
-            JSONObject coords = new JSONObject();
-            coords.put("latitude", location.getLatitude());
-            coords.put("longitude", location.getLongitude());
-            coords.put("accuracy", location.getAccuracy());
-            obj.put("coords", coords);
-            MainActivity.sendToWebView(obj.toString());
-        } catch (Exception ignored) {}
-    }
+              @Override
+              public void onLocationChanged(Location location) {
+                  if (location == null) return;
+                  lastLocation = location;
+                  if (signalLost) {
+                      signalLost = false;
+                      notifySignalState(true);
+                  }
+                  try {
+                      JSONObject obj = new JSONObject();
+                      obj.put("type", "STOPWAY_GPS_POSITION");
+                      JSONObject coords = new JSONObject();
+                      coords.put("latitude", location.getLatitude());
+                      coords.put("longitude", location.getLongitude());
+                      coords.put("accuracy", location.getAccuracy());
+                      obj.put("coords", coords);
+                      MainActivity.sendToWebView(obj.toString());
+                  } catch (Exception ignored) {}
+              }
 
-    @Override
-    public void onProviderDisabled(String provider) {
-        if (LocationManager.GPS_PROVIDER.equals(provider)) {
-            signalLost = true;
-            notifySignalState(false);
-        }
-    }
+              @Override
+              public void onProviderDisabled(String provider) {
+                  if (LocationManager.GPS_PROVIDER.equals(provider)) {
+                      signalLost = true;
+                      notifySignalState(false);
+                  }
+              }
 
-    @Override
-    public void onProviderEnabled(String provider) {
-        if (LocationManager.GPS_PROVIDER.equals(provider) && signalLost) {
-            signalLost = false;
-            notifySignalState(true);
-        }
-    }
+              @Override
+              public void onProviderEnabled(String provider) {
+                  if (LocationManager.GPS_PROVIDER.equals(provider) && signalLost) {
+                      signalLost = false;
+                      notifySignalState(true);
+                  }
+              }
 
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {}
+              @Override
+              public void onStatusChanged(String provider, int status, Bundle extras) {}
 
-    private void notifySignalState(boolean restored) {
-        try {
-            JSONObject obj = new JSONObject();
-            obj.put("type", "STOPWAY_GPS_SIGNAL");
-            obj.put("restored", restored);
-            MainActivity.sendToWebView(obj.toString());
-        } catch (Exception ignored) {}
-    }
+              private void notifySignalState(boolean restored) {
+                  try {
+                      JSONObject obj = new JSONObject();
+                      obj.put("type", "STOPWAY_GPS_SIGNAL");
+                      obj.put("restored", restored);
+                      MainActivity.sendToWebView(obj.toString());
+                  } catch (Exception ignored) {}
+              }
 
-    private void triggerStrongAlarmAndBringFront(String title, String body, String kind) {
-        try {
-            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-            if (am != null) {
-                int maxAlarm = am.getStreamMaxVolume(AudioManager.STREAM_ALARM);
-                am.setStreamVolume(AudioManager.STREAM_ALARM, maxAlarm, 0);
-            }
-        } catch (Exception ignored) {}
+              private void triggerStrongAlarmAndBringFront(String title, String body, String kind) {
+                  try {
+                      AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                      if (am != null) {
+                          int maxAlarm = am.getStreamMaxVolume(AudioManager.STREAM_ALARM);
+                          am.setStreamVolume(AudioManager.STREAM_ALARM, maxAlarm, 0);
+                      }
+                  } catch (Exception ignored) {}
 
-        stopAlertAudio();
-        try {
-            Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-            if (alarmUri == null) {
-                alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            }
-            if (alarmUri != null) {
-                activeRingtone = RingtoneManager.getRingtone(getApplicationContext(), alarmUri);
-                if (activeRingtone != null) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        activeRingtone.setAudioAttributes(new AudioAttributes.Builder()
-                            .setUsage(AudioAttributes.USAGE_ALARM)
-                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                            .build());
-                    } else {
-                        activeRingtone.setStreamType(AudioManager.STREAM_ALARM);
-                    }
-                    activeRingtone.play();
-                    stopRingRunnable = StopWayLocationService::stopAlertAudio;
-                    ringHandler.postDelayed(stopRingRunnable, 8000L);
-                }
-            }
-        } catch (Exception ignored) {}
+                  stopAlertAudio();
+                  try {
+                      Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+                      if (alarmUri == null) {
+                          alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                      }
+                      if (alarmUri != null) {
+                          activeRingtone = RingtoneManager.getRingtone(getApplicationContext(), alarmUri);
+                          if (activeRingtone != null) {
+                              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                  activeRingtone.setAudioAttributes(new AudioAttributes.Builder()
+                                      .setUsage(AudioAttributes.USAGE_ALARM)
+                                      .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                                      .build());
+                              } else {
+                                  activeRingtone.setStreamType(AudioManager.STREAM_ALARM);
+                              }
+                              activeRingtone.play();
+                              stopRingRunnable = StopWayLocationService::stopAlertAudio;
+                              ringHandler.postDelayed(stopRingRunnable, 8000L);
+                          }
+                      }
+                  } catch (Exception ignored) {}
 
-        try {
-            Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-            if (vib != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vib.vibrate(VibrationEffect.createWaveform(new long[]{0, 600, 250, 600, 250, 800}, -1));
-                } else {
-                    vib.vibrate(new long[]{0, 600, 250, 600, 250, 800}, -1);
-                }
-            }
-        } catch (Exception ignored) {}
+                  try {
+                      Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                      if (vib != null) {
+                          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                              vib.vibrate(VibrationEffect.createWaveform(new long[]{0, 600, 250, 600, 250, 800}, -1));
+                          } else {
+                              vib.vibrate(new long[]{0, 600, 250, 600, 250, 800}, -1);
+                          }
+                      }
+                  } catch (Exception ignored) {}
 
-        Intent launch = new Intent(this, MainActivity.class);
-        launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        launch.putExtra("alarm_kind", kind);
-        launch.putExtra("alarm_title", title);
-        launch.putExtra("alarm_body", body);
+                  Intent launch = new Intent(this, MainActivity.class);
+                  launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                  launch.putExtra("alarm_kind", kind);
+                  launch.putExtra("alarm_title", title);
+                  launch.putExtra("alarm_body", body);
 
-        PendingIntent pi = PendingIntent.getActivity(
-            this,
-            2002,
-            launch,
-            PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
-        );
+                  PendingIntent pi = PendingIntent.getActivity(
+                      this,
+                      2002,
+                      launch,
+                      PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+                  );
 
-        Notification alertNotif = new NotificationCompat.Builder(this, ALERT_CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_alert)
-            .setContentTitle(title)
-            .setContentText(body)
-            .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setCategory(NotificationCompat.CATEGORY_ALARM)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setFullScreenIntent(pi, true)
-            .setContentIntent(pi)
-            .setAutoCancel(true)
-            .build();
+                  Notification alertNotif = new NotificationCompat.Builder(this, ALERT_CHANNEL_ID)
+                      .setSmallIcon(android.R.drawable.ic_dialog_alert)
+                      .setContentTitle(title)
+                      .setContentText(body)
+                      .setPriority(NotificationCompat.PRIORITY_MAX)
+                      .setCategory(NotificationCompat.CATEGORY_ALARM)
+                      .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                      .setFullScreenIntent(pi, true)
+                      .setContentIntent(pi)
+                      .setAutoCancel(true)
+                      .build();
 
-        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (nm != null) {
-            nm.notify(ALERT_NOTIF_ID, alertNotif);
-        }
+                  NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                  if (nm != null) {
+                      nm.notify(ALERT_NOTIF_ID, alertNotif);
+                  }
 
-        try {
-            startActivity(launch);
-        } catch (Exception ignored) {}
-    }
+                  try {
+                      startActivity(launch);
+                  } catch (Exception ignored) {}
+              }
 
-    private Notification buildForegroundNotification(String text) {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pi = PendingIntent.getActivity(
-            this,
-            1001,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
-        );
+              private Notification buildForegroundNotification(String text) {
+                  Intent intent = new Intent(this, MainActivity.class);
+                  intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                  PendingIntent pi = PendingIntent.getActivity(
+                      this,
+                      1001,
+                      intent,
+                      PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+                  );
 
-        return new NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-            .setContentTitle("StopWay")
-            .setContentText(text)
-            .setOngoing(true)
-            .setOnlyAlertOnce(true)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setContentIntent(pi)
-            .build();
-    }
+                  return new NotificationCompat.Builder(this, CHANNEL_ID)
+                      .setSmallIcon(android.R.drawable.ic_menu_mylocation)
+                      .setContentTitle("StopWay")
+                      .setContentText(text)
+                      .setOngoing(true)
+                      .setOnlyAlertOnce(true)
+                      .setPriority(NotificationCompat.PRIORITY_LOW)
+                      .setContentIntent(pi)
+                      .build();
+              }
 
-    private void createChannels() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
-        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (nm == null) return;
+              private void createChannels() {
+                  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
+                  NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                  if (nm == null) return;
 
-        NotificationChannel fgChannel = new NotificationChannel(
-            CHANNEL_ID,
-            "StopWay háttér-helyzetjelzés",
-            NotificationManager.IMPORTANCE_LOW
-        );
-        fgChannel.setSound(null, null);
-        fgChannel.enableVibration(false);
-        nm.createNotificationChannel(fgChannel);
+                  NotificationChannel fgChannel = new NotificationChannel(
+                      CHANNEL_ID,
+                      "StopWay háttér-helyzetjelzés",
+                      NotificationManager.IMPORTANCE_LOW
+                  );
+                  fgChannel.setSound(null, null);
+                  fgChannel.enableVibration(false);
+                  nm.createNotificationChannel(fgChannel);
 
-        NotificationChannel alertChannel = new NotificationChannel(
-            ALERT_CHANNEL_ID,
-            "StopWay riasztások",
-            NotificationManager.IMPORTANCE_HIGH
-        );
-        alertChannel.enableVibration(true);
-        alertChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-        nm.createNotificationChannel(alertChannel);
-    }
+                  NotificationChannel alertChannel = new NotificationChannel(
+                      ALERT_CHANNEL_ID,
+                      "StopWay riasztások",
+                      NotificationManager.IMPORTANCE_HIGH
+                  );
+                  alertChannel.enableVibration(true);
+                  alertChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+                  nm.createNotificationChannel(alertChannel);
+              }
 
-    @Override
-    public void onDestroy() {
-        running = false;
-        stopLocationUpdates();
-        releaseWakeLock();
-        super.onDestroy();
-    }
+              @Override
+              public void onDestroy() {
+                  running = false;
+                  stopLocationUpdates();
+                  releaseWakeLock();
+                  super.onDestroy();
+              }
 
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-}
-EOF
+              @Nullable
+              @Override
+              public IBinder onBind(Intent intent) {
+                  return null;
+              }
+          }
+          EOF
 
           cat <<'EOF' > "$PKG_DIR/MainActivity.java"
-package com.stopway.app;
+          package com.stopway.app;
 
-import android.Manifest;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.LocationManager;
-import android.os.Build;
-import android.os.Bundle;
-import android.provider.Settings;
-import android.webkit.GeolocationPermissions;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
+          import android.Manifest;
+          import android.content.Context;
+          import android.content.Intent;
+          import android.content.pm.PackageManager;
+          import android.location.LocationManager;
+          import android.os.Build;
+          import android.os.Bundle;
+          import android.provider.Settings;
+          import android.webkit.GeolocationPermissions;
+          import android.webkit.JavascriptInterface;
+          import android.webkit.WebChromeClient;
+          import android.webkit.WebView;
 
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+          import androidx.core.app.ActivityCompat;
+          import androidx.core.content.ContextCompat;
 
-import com.getcapacitor.BridgeActivity;
+          import com.getcapacitor.BridgeActivity;
 
-import org.json.JSONObject;
+          import org.json.JSONObject;
 
-import java.lang.ref.WeakReference;
+          import java.lang.ref.WeakReference;
 
-public class MainActivity extends BridgeActivity {
-    private static final int REQ_LOC = 3001;
-    private static final int REQ_BG_LOC = 3002;
-    private static final int REQ_NOTIF = 3003;
+          public class MainActivity extends BridgeActivity {
+              private static final int REQ_LOC = 3001;
+              private static final int REQ_BG_LOC = 3002;
+              private static final int REQ_NOTIF = 3003;
 
-    private static WeakReference<MainActivity> instanceRef = new WeakReference<>(null);
+              private static WeakReference<MainActivity> instanceRef = new WeakReference<>(null);
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        instanceRef = new WeakReference<>(this);
+              @Override
+              public void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  instanceRef = new WeakReference<>(this);
 
-        getBridge().getWebView().post(() -> {
-            WebView wv = getBridge().getWebView();
-            if (wv == null) return;
-            wv.getSettings().setJavaScriptEnabled(true);
-            wv.getSettings().setDomStorageEnabled(true);
-            wv.getSettings().setGeolocationEnabled(true);
-            wv.getSettings().setMediaPlaybackRequiresUserGesture(false);
+                  getBridge().getWebView().post(() -> {
+                      WebView wv = getBridge().getWebView();
+                      if (wv == null) return;
+                      wv.getSettings().setJavaScriptEnabled(true);
+                      wv.getSettings().setDomStorageEnabled(true);
+                      wv.getSettings().setGeolocationEnabled(true);
+                      wv.getSettings().setMediaPlaybackRequiresUserGesture(false);
 
-            wv.setWebChromeClient(new WebChromeClient() {
-                @Override
-                public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
-                    callback.invoke(origin, true, true);
-                }
-            });
+                      wv.setWebChromeClient(new WebChromeClient() {
+                          @Override
+                          public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
+                              callback.invoke(origin, true, true);
+                          }
+                      });
 
-            NativeBridge bridge = new NativeBridge(this);
-            wv.addJavascriptInterface(bridge, "StopWayNative");
-            wv.addJavascriptInterface(bridge, "Android");
+                      NativeBridge bridge = new NativeBridge(this);
+                      wv.addJavascriptInterface(bridge, "StopWayNative");
+                      wv.addJavascriptInterface(bridge, "Android");
 
-            pushPermState();
-        });
+                      pushPermState();
+                  });
 
-        handleAlarmIntent(getIntent());
-    }
+                  handleAlarmIntent(getIntent());
+              }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        setIntent(intent);
-        handleAlarmIntent(intent);
-    }
+              @Override
+              protected void onNewIntent(Intent intent) {
+                  super.onNewIntent(intent);
+                  setIntent(intent);
+                  handleAlarmIntent(intent);
+              }
 
-    private void handleAlarmIntent(Intent intent) {
-        if (intent == null) return;
-        String kind = intent.getStringExtra("alarm_kind");
-        if (kind != null && !kind.isEmpty()) {
-            String title = intent.getStringExtra("alarm_title");
-            String body = intent.getStringExtra("alarm_body");
-            try {
-                JSONObject obj = new JSONObject();
-                obj.put("type", "STOPWAY_ALARM_SIGNAL");
-                obj.put("kind", kind);
-                obj.put("title", title != null ? title : "StopWay");
-                obj.put("message", body != null ? body : "");
-                sendToWebView(obj.toString());
-            } catch (Exception ignored) {}
-        }
-    }
+              private void handleAlarmIntent(Intent intent) {
+                  if (intent == null) return;
+                  String kind = intent.getStringExtra("alarm_kind");
+                  if (kind != null && !kind.isEmpty()) {
+                      String title = intent.getStringExtra("alarm_title");
+                      String body = intent.getStringExtra("alarm_body");
+                      try {
+                          JSONObject obj = new JSONObject();
+                          obj.put("type", "STOPWAY_ALARM_SIGNAL");
+                          obj.put("kind", kind);
+                          obj.put("title", title != null ? title : "StopWay");
+                          obj.put("message", body != null ? body : "");
+                          sendToWebView(obj.toString());
+                      } catch (Exception ignored) {}
+                  }
+              }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        pushPermState();
-    }
+              @Override
+              protected void onResume() {
+                  super.onResume();
+                  pushPermState();
+              }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQ_LOC && hasForegroundLocationPermission()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !hasBackgroundLocationPermission()) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, REQ_BG_LOC);
-            }
-        }
-        pushPermState();
-    }
+              @Override
+              public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+                  super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+                  if (requestCode == REQ_LOC && hasForegroundLocationPermission()) {
+                      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !hasBackgroundLocationPermission()) {
+                          ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, REQ_BG_LOC);
+                      }
+                  }
+                  pushPermState();
+              }
 
-    public boolean isLocationServiceEnabled() {
-        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (lm == null) return false;
-        boolean gps = false;
-        boolean net = false;
-        try { gps = lm.isProviderEnabled(LocationManager.GPS_PROVIDER); } catch (Exception ignored) {}
-        try { net = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER); } catch (Exception ignored) {}
-        return gps || net;
-    }
+              public boolean isLocationServiceEnabled() {
+                  LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                  if (lm == null) return false;
+                  boolean gps = false;
+                  boolean net = false;
+                  try { gps = lm.isProviderEnabled(LocationManager.GPS_PROVIDER); } catch (Exception ignored) {}
+                  try { net = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER); } catch (Exception ignored) {}
+                  return gps || net;
+              }
 
-    public boolean hasForegroundLocationPermission() {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-            || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-    }
+              public boolean hasForegroundLocationPermission() {
+                  return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                      || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+              }
 
-    public boolean hasBackgroundLocationPermission() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return hasForegroundLocationPermission();
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED;
-    }
+              public boolean hasBackgroundLocationPermission() {
+                  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return hasForegroundLocationPermission();
+                  return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED;
+              }
 
-    public boolean hasNotificationPermission() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return true;
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
-    }
+              public boolean hasNotificationPermission() {
+                  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return true;
+                  return ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
+              }
 
-    public void pushPermState() {
-        try {
-            JSONObject obj = new JSONObject();
-            obj.put("type", "STOPWAY_PERM_STATE");
-            obj.put("locationEnabled", isLocationServiceEnabled());
-            obj.put("locationPermission", hasForegroundLocationPermission());
-            obj.put("backgroundEnabled", hasBackgroundLocationPermission() || StopWayLocationService.isRunning());
-            obj.put("notificationsEnabled", hasNotificationPermission());
-            sendToWebView(obj.toString());
-        } catch (Exception ignored) {}
-    }
+              public void pushPermState() {
+                  try {
+                      JSONObject obj = new JSONObject();
+                      obj.put("type", "STOPWAY_PERM_STATE");
+                      obj.put("locationEnabled", isLocationServiceEnabled());
+                      obj.put("locationPermission", hasForegroundLocationPermission());
+                      obj.put("backgroundEnabled", hasBackgroundLocationPermission() || StopWayLocationService.isRunning());
+                      obj.put("notificationsEnabled", hasNotificationPermission());
+                      sendToWebView(obj.toString());
+                  } catch (Exception ignored) {}
+              }
 
-    public static void sendToWebView(String jsonPayload) {
-        MainActivity act = instanceRef.get();
-        if (act == null) return;
-        act.runOnUiThread(() -> {
-            try {
-                WebView wv = act.getBridge() != null ? act.getBridge().getWebView() : null;
-                if (wv == null) return;
-                String escaped = JSONObject.quote(jsonPayload);
-                String js = "(function(raw){"
-                    + "try { var parsed = JSON.parse(raw);"
-                    + "if (typeof window.StopWayReceive === 'function') window.StopWayReceive(parsed);"
-                    + "window.postMessage(parsed, '*');"
-                    + "} catch(e) {}"
-                    + "})(" + escaped + ");";
-                wv.evaluateJavascript(js, null);
-            } catch (Exception ignored) {}
-        });
-    }
+              public static void sendToWebView(String jsonPayload) {
+                  MainActivity act = instanceRef.get();
+                  if (act == null) return;
+                  act.runOnUiThread(() -> {
+                      try {
+                          WebView wv = act.getBridge() != null ? act.getBridge().getWebView() : null;
+                          if (wv == null) return;
+                          String escaped = JSONObject.quote(jsonPayload);
+                          String js = "(function(raw){"
+                              + "try { var parsed = JSON.parse(raw);"
+                              + "if (typeof window.StopWayReceive === 'function') window.StopWayReceive(parsed);"
+                              + "window.postMessage(parsed, '*');"
+                              + "} catch(e) {}"
+                              + "})(" + escaped + ");";
+                          wv.evaluateJavascript(js, null);
+                      } catch (Exception ignored) {}
+                  });
+              }
 
-    private void startServiceAction(String action, String title, String body, String kind) {
-        Intent svc = new Intent(this, StopWayLocationService.class);
-        svc.setAction(action);
-        if (title != null) svc.putExtra("title", title);
-        if (body != null) svc.putExtra("body", body);
-        if (kind != null) svc.putExtra("kind", kind);
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !StopWayLocationService.ACTION_STOP.equals(action)) {
-                ContextCompat.startForegroundService(this, svc);
-            } else {
-                startService(svc);
-            }
-        } catch (Exception ignored) {}
-    }
+              private void startServiceAction(String action, String title, String body, String kind) {
+                  Intent svc = new Intent(this, StopWayLocationService.class);
+                  svc.setAction(action);
+                  if (title != null) svc.putExtra("title", title);
+                  if (body != null) svc.putExtra("body", body);
+                  if (kind != null) svc.putExtra("kind", kind);
+                  try {
+                      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !StopWayLocationService.ACTION_STOP.equals(action)) {
+                          ContextCompat.startForegroundService(this, svc);
+                      } else {
+                          startService(svc);
+                      }
+                  } catch (Exception ignored) {}
+              }
 
-    public static class NativeBridge {
-        private final MainActivity activity;
+              public static class NativeBridge {
+                  private final MainActivity activity;
 
-        public NativeBridge(MainActivity activity) {
-            this.activity = activity;
-        }
+                  public NativeBridge(MainActivity activity) {
+                      this.activity = activity;
+                  }
 
-        @JavascriptInterface
-        public void checkLocationService(String ignored) {
-            activity.runOnUiThread(activity::pushPermState);
-        }
+                  @JavascriptInterface
+                  public void checkLocationService(String ignored) {
+                      activity.runOnUiThread(activity::pushPermState);
+                  }
 
-        @JavascriptInterface
-        public void enableLocationService(String ignored) {
-            activity.runOnUiThread(() -> {
-                if (!activity.isLocationServiceEnabled()) {
-                    try {
-                        Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        activity.startActivity(i);
-                    } catch (Exception ignored) {}
-                }
-                activity.pushPermState();
-            });
-        }
+                  @JavascriptInterface
+                  public void enableLocationService(String ignored) {
+                      activity.runOnUiThread(() -> {
+                          if (!activity.isLocationServiceEnabled()) {
+                              try {
+                                  Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                  activity.startActivity(i);
+                              } catch (Exception ignored) {}
+                          }
+                          activity.pushPermState();
+                      });
+                  }
 
-        @JavascriptInterface
-        public void requestLocationPermission(String ignored) {
-            activity.runOnUiThread(() -> {
-                if (!activity.hasForegroundLocationPermission()) {
-                    ActivityCompat.requestPermissions(
-                        activity,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
-                        REQ_LOC
-                    );
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !activity.hasBackgroundLocationPermission()) {
-                    ActivityCompat.requestPermissions(
-                        activity,
-                        new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                        REQ_BG_LOC
-                    );
-                }
-                activity.pushPermState();
-            });
-        }
+                  @JavascriptInterface
+                  public void requestLocationPermission(String ignored) {
+                      activity.runOnUiThread(() -> {
+                          if (!activity.hasForegroundLocationPermission()) {
+                              ActivityCompat.requestPermissions(
+                                  activity,
+                                  new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                                  REQ_LOC
+                              );
+                          } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !activity.hasBackgroundLocationPermission()) {
+                              ActivityCompat.requestPermissions(
+                                  activity,
+                                  new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                                  REQ_BG_LOC
+                              );
+                          }
+                          activity.pushPermState();
+                      });
+                  }
 
-        @JavascriptInterface
-        public void enableBackgroundAndNonstopGps(String ignored) {
-            activity.runOnUiThread(() -> {
-                if (!activity.hasForegroundLocationPermission()) {
-                    ActivityCompat.requestPermissions(
-                        activity,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
-                        REQ_LOC
-                    );
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !activity.hasBackgroundLocationPermission()) {
-                    ActivityCompat.requestPermissions(
-                        activity,
-                        new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                        REQ_BG_LOC
-                    );
-                }
-                activity.startServiceAction(StopWayLocationService.ACTION_START, null, null, null);
-                activity.pushPermState();
-            });
-        }
+                  @JavascriptInterface
+                  public void enableBackgroundAndNonstopGps(String ignored) {
+                      activity.runOnUiThread(() -> {
+                          if (!activity.hasForegroundLocationPermission()) {
+                              ActivityCompat.requestPermissions(
+                                  activity,
+                                  new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                                  REQ_LOC
+                              );
+                          } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !activity.hasBackgroundLocationPermission()) {
+                              ActivityCompat.requestPermissions(
+                                  activity,
+                                  new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                                  REQ_BG_LOC
+                              );
+                          }
+                          activity.startServiceAction(StopWayLocationService.ACTION_START, null, null, null);
+                          activity.pushPermState();
+                      });
+                  }
 
-        @JavascriptInterface
-        public void requestNotificationPermission(String ignored) {
-            activity.runOnUiThread(() -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !activity.hasNotificationPermission()) {
-                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQ_NOTIF);
-                }
-                activity.pushPermState();
-            });
-        }
+                  @JavascriptInterface
+                  public void requestNotificationPermission(String ignored) {
+                      activity.runOnUiThread(() -> {
+                          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !activity.hasNotificationPermission()) {
+                              ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQ_NOTIF);
+                          }
+                          activity.pushPermState();
+                      });
+                  }
 
-        @JavascriptInterface
-        public void startNonstopLocation(String ignored) {
-            activity.runOnUiThread(() -> {
-                activity.startServiceAction(StopWayLocationService.ACTION_START, null, null, null);
-                activity.pushPermState();
-            });
-        }
+                  @JavascriptInterface
+                  public void startNonstopLocation(String ignored) {
+                      activity.runOnUiThread(() -> {
+                          activity.startServiceAction(StopWayLocationService.ACTION_START, null, null, null);
+                          activity.pushPermState();
+                      });
+                  }
 
-        @JavascriptInterface
-        public void stopNonstopLocation(String ignored) {
-            activity.runOnUiThread(() -> {
-                StopWayLocationService.stopAlertAudio();
-                activity.startServiceAction(StopWayLocationService.ACTION_STOP, null, null, null);
-                activity.pushPermState();
-            });
-        }
+                  @JavascriptInterface
+                  public void stopNonstopLocation(String ignored) {
+                      activity.runOnUiThread(() -> {
+                          StopWayLocationService.stopAlertAudio();
+                          activity.startServiceAction(StopWayLocationService.ACTION_STOP, null, null, null);
+                          activity.pushPermState();
+                      });
+                  }
 
-        @JavascriptInterface
-        public void pollLocation(String ignored) {
-            activity.runOnUiThread(() -> {
-                if (StopWayLocationService.isRunning()) {
-                    activity.startServiceAction(StopWayLocationService.ACTION_POLL, null, null, null);
-                }
-                activity.pushPermState();
-            });
-        }
+                  @JavascriptInterface
+                  public void pollLocation(String ignored) {
+                      activity.runOnUiThread(() -> {
+                          if (StopWayLocationService.isRunning()) {
+                              activity.startServiceAction(StopWayLocationService.ACTION_POLL, null, null, null);
+                          }
+                          activity.pushPermState();
+                      });
+                  }
 
-        @JavascriptInterface
-        public void reconnectLocation(String ignored) {
-            activity.runOnUiThread(() -> {
-                activity.startServiceAction(StopWayLocationService.ACTION_START, null, null, null);
-                activity.pushPermState();
-            });
-        }
+                  @JavascriptInterface
+                  public void reconnectLocation(String ignored) {
+                      activity.runOnUiThread(() -> {
+                          activity.startServiceAction(StopWayLocationService.ACTION_START, null, null, null);
+                          activity.pushPermState();
+                      });
+                  }
 
-        @JavascriptInterface
-        public void ensureBackgroundRunning(String ignored) {
-            activity.runOnUiThread(() -> {
-                activity.startServiceAction(StopWayLocationService.ACTION_START, null, null, null);
-            });
-        }
+                  @JavascriptInterface
+                  public void ensureBackgroundRunning(String ignored) {
+                      activity.runOnUiThread(() -> {
+                          activity.startServiceAction(StopWayLocationService.ACTION_START, null, null, null);
+                      });
+                  }
 
-        @JavascriptInterface
-        public void triggerNativeAlert(String rawJson) {
-            activity.runOnUiThread(() -> {
-                String title = "StopWay Riasztás";
-                String body = "Célpont közelében vagy stagnálás észlelve.";
-                String kind = "ARRIVAL_ALARM";
-                try {
-                    if (rawJson != null && !rawJson.isEmpty()) {
-                        JSONObject o = new JSONObject(rawJson);
-                        if (o.has("title")) title = o.optString("title", title);
-                        if (o.has("body")) body = o.optString("body", body);
-                        if (o.has("kind")) kind = o.optString("kind", kind);
-                    }
-                } catch (Exception ignored) {}
-                activity.startServiceAction(StopWayLocationService.ACTION_ALERT, title, body, kind);
-            });
-        }
-    }
-}
-EOF
+                  @JavascriptInterface
+                  public void triggerNativeAlert(String rawJson) {
+                      activity.runOnUiThread(() -> {
+                          String title = "StopWay Riasztás";
+                          String body = "Célpont közelében vagy stagnálás észlelve.";
+                          String kind = "ARRIVAL_ALARM";
+                          try {
+                              if (rawJson != null && !rawJson.isEmpty()) {
+                                  JSONObject o = new JSONObject(rawJson);
+                                  if (o.has("title")) title = o.optString("title", title);
+                                  if (o.has("body")) body = o.optString("body", body);
+                                  if (o.has("kind")) kind = o.optString("kind", kind);
+                              }
+                          } catch (Exception ignored) {}
+                          activity.startServiceAction(StopWayLocationService.ACTION_ALERT, title, body, kind);
+                      });
+                  }
+              }
+          }
+          EOF
 
       - name: Build Debug APK
         run: |
