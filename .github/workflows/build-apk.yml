@@ -267,9 +267,9 @@ jobs:
                   if (!idleAlertSent && lastMoveMs > 0L && (now - lastMoveMs) >= (60L * 60L * 1000L)) {{
                       idleAlertSent = true;
                       postHighPriorityAlert(
-                          "1 órája nincs 100 méteres mozgás",
-                          "Az elmúlt 1 órában nem történt 100 métert elérő elmozdulás. Folytatod az utazást vagy megszünteted?",
-                          "IDLE_1H"
+                          "1 órája nem mozdult el (100 méteren belül)",
+                          "Egy órája nem mozdult el a pozíció 100 méteren belül. Folytatod az utazást, vagy megszünteted?",
+                          "IDLE_1H_ALARM"
                       );
                   }}
               }}
@@ -315,9 +315,9 @@ jobs:
                       Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                       if (vib != null && vib.hasVibrator()) {{
                           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {{
-                              vib.vibrate(VibrationEffect.createWaveform(new long[]{{0, 600, 250, 600, 250, 700}}, -1));
+                              vib.vibrate(VibrationEffect.createWaveform(new long[]{{0, 650, 220, 650, 220, 750}}, -1));
                           }} else {{
-                              vib.vibrate(new long[]{{0, 600, 250, 600, 250, 700}}, -1);
+                              vib.vibrate(new long[]{{0, 650, 220, 650, 220, 750}}, -1);
                           }}
                       }}
                   }} catch (Exception ignored) {{}}
@@ -448,7 +448,7 @@ jobs:
                           NotificationManager.IMPORTANCE_HIGH
                       );
                       alertCh.enableVibration(true);
-                      alertCh.setVibrationPattern(new long[]{{0, 600, 250, 600, 250, 700}});
+                      alertCh.setVibrationPattern(new long[]{{0, 650, 220, 650, 220, 750}});
                       alertCh.setSound(null, null);
                       nm.createNotificationChannel(alertCh);
                   }}
@@ -542,7 +542,7 @@ jobs:
                   String title = intent.getStringExtra("stopway_alert_title");
                   String body = intent.getStringExtra("stopway_alert_body");
                   if (kind != null || title != null) {{
-                      boostAlarmOnlyVolume();
+                      forceMaxAlarmVolumeOnly();
                       wakeScreenAndBringWindow();
                       dispatchNativeAlertToWebView(
                           title != null ? title : "Cél-ébresztő",
@@ -552,7 +552,8 @@ jobs:
                   }}
               }}
 
-              public void boostAlarmOnlyVolume() {{
+              // Kizárólag a riasztási sávot (STREAM_ALARM) húzza fel maximumra; a film/zene (STREAM_MUSIC) érintetlen marad.
+              public void forceMaxAlarmVolumeOnly() {{
                   try {{
                       AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
                       if (am == null) return;
@@ -560,9 +561,8 @@ jobs:
                           savedAlarmVol = am.getStreamVolume(AudioManager.STREAM_ALARM);
                       }}
                       int maxAlarm = am.getStreamMaxVolume(AudioManager.STREAM_ALARM);
-                      int targetAlarm = Math.max(1, (int) Math.ceil(maxAlarm * 0.85));
-                      if (am.getStreamVolume(AudioManager.STREAM_ALARM) < targetAlarm) {{
-                          am.setStreamVolume(AudioManager.STREAM_ALARM, targetAlarm, 0);
+                      if (am.getStreamVolume(AudioManager.STREAM_ALARM) < maxAlarm) {{
+                          am.setStreamVolume(AudioManager.STREAM_ALARM, maxAlarm, 0);
                       }}
                   }} catch (Exception ignored) {{}}
               }}
@@ -608,7 +608,7 @@ jobs:
                               PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP,
                               "StopWay:ScreenWakeLock"
                           );
-                          wl.acquire(5000L);
+                          wl.acquire(6000L);
                       }}
                   }} catch (Exception ignored) {{}}
               }}
@@ -617,7 +617,7 @@ jobs:
                   MainActivity act = instance;
                   if (act == null) return;
                   act.runOnUiThread(() -> {{
-                      act.boostAlarmOnlyVolume();
+                      act.forceMaxAlarmVolumeOnly();
                       act.wakeScreenAndBringWindow();
                       try {{
                           if (openIntent != null) {{
@@ -629,7 +629,7 @@ jobs:
               }}
 
               public void triggerNativeAlert(String title, String body, String kind) {{
-                  boostAlarmOnlyVolume();
+                  forceMaxAlarmVolumeOnly();
                   wakeScreenAndBringWindow();
                   Intent intent = new Intent(this, StopWayLocationService.class);
                   intent.setAction(StopWayLocationService.ACTION_ALERT);
