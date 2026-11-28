@@ -174,7 +174,7 @@ jobs:
                       if (activeRingtone != null && activeRingtone.isPlaying()) {
                           activeRingtone.stop();
                       }
-                  } catch (Exception ignored) {}
+                  } catch (Exception ex) {}
                   activeRingtone = null;
               }
 
@@ -198,7 +198,7 @@ jobs:
                       if (wakeLock != null && !wakeLock.isHeld()) {
                           wakeLock.acquire(6 * 60 * 60 * 1000L);
                       }
-                  } catch (Exception ignored) {}
+                  } catch (Exception ex) {}
               }
 
               private void releaseWakeLock() {
@@ -206,7 +206,7 @@ jobs:
                       if (wakeLock != null && wakeLock.isHeld()) {
                           wakeLock.release();
                       }
-                  } catch (Exception ignored) {}
+                  } catch (Exception ex) {}
               }
 
               @Override
@@ -244,7 +244,7 @@ jobs:
                       } else {
                           startForeground(NOTIF_ID, notif);
                       }
-                  } catch (Exception ignored) {}
+                  } catch (Exception ex) {}
 
                   requestUpdatesNow();
                   return START_STICKY;
@@ -276,7 +276,7 @@ jobs:
                       if (best != null) {
                           onLocationChanged(best);
                       }
-                  } catch (SecurityException ignored) {}
+                  } catch (SecurityException ex) {}
               }
 
               private void stopLocationUpdates() {
@@ -284,7 +284,7 @@ jobs:
                       if (locationManager != null) {
                           locationManager.removeUpdates(this);
                       }
-                  } catch (Exception ignored) {}
+                  } catch (Exception ex) {}
               }
 
               @Override
@@ -304,7 +304,7 @@ jobs:
                       coords.put("accuracy", location.getAccuracy());
                       obj.put("coords", coords);
                       MainActivity.sendToWebView(obj.toString());
-                  } catch (Exception ignored) {}
+                  } catch (Exception ex) {}
               }
 
               @Override
@@ -332,7 +332,7 @@ jobs:
                       obj.put("type", "STOPWAY_GPS_SIGNAL");
                       obj.put("restored", restored);
                       MainActivity.sendToWebView(obj.toString());
-                  } catch (Exception ignored) {}
+                  } catch (Exception ex) {}
               }
 
               private void triggerStrongAlarmAndBringFront(String title, String body, String kind) {
@@ -342,7 +342,7 @@ jobs:
                           int maxAlarm = am.getStreamMaxVolume(AudioManager.STREAM_ALARM);
                           am.setStreamVolume(AudioManager.STREAM_ALARM, maxAlarm, 0);
                       }
-                  } catch (Exception ignored) {}
+                  } catch (Exception ex) {}
 
                   stopAlertAudio();
                   try {
@@ -366,7 +366,7 @@ jobs:
                               ringHandler.postDelayed(stopRingRunnable, 8000L);
                           }
                       }
-                  } catch (Exception ignored) {}
+                  } catch (Exception ex) {}
 
                   try {
                       Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -377,7 +377,7 @@ jobs:
                               vib.vibrate(new long[]{0, 600, 250, 600, 250, 800}, -1);
                           }
                       }
-                  } catch (Exception ignored) {}
+                  } catch (Exception ex) {}
 
                   Intent launch = new Intent(this, MainActivity.class);
                   launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -411,7 +411,7 @@ jobs:
 
                   try {
                       startActivity(launch);
-                  } catch (Exception ignored) {}
+                  } catch (Exception ex) {}
               }
 
               private Notification buildForegroundNotification(String text) {
@@ -557,12 +557,12 @@ jobs:
                           obj.put("title", title != null ? title : "StopWay");
                           obj.put("message", body != null ? body : "");
                           sendToWebView(obj.toString());
-                      } catch (Exception ignored) {}
+                      } catch (Exception ex) {}
                   }
               }
 
               @Override
-              protected void onResume() {
+              public void onResume() {
                   super.onResume();
                   pushPermState();
               }
@@ -583,8 +583,8 @@ jobs:
                   if (lm == null) return false;
                   boolean gps = false;
                   boolean net = false;
-                  try { gps = lm.isProviderEnabled(LocationManager.GPS_PROVIDER); } catch (Exception ignored) {}
-                  try { net = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER); } catch (Exception ignored) {}
+                  try { gps = lm.isProviderEnabled(LocationManager.GPS_PROVIDER); } catch (Exception ex) {}
+                  try { net = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER); } catch (Exception ex) {}
                   return gps || net;
               }
 
@@ -612,7 +612,7 @@ jobs:
                       obj.put("backgroundEnabled", hasBackgroundLocationPermission() || StopWayLocationService.isRunning());
                       obj.put("notificationsEnabled", hasNotificationPermission());
                       sendToWebView(obj.toString());
-                  } catch (Exception ignored) {}
+                  } catch (Exception ex) {}
               }
 
               public static void sendToWebView(String jsonPayload) {
@@ -630,7 +630,7 @@ jobs:
                               + "} catch(e) {}"
                               + "})(" + escaped + ");";
                           wv.evaluateJavascript(js, null);
-                      } catch (Exception ignored) {}
+                      } catch (Exception ex) {}
                   });
               }
 
@@ -646,7 +646,7 @@ jobs:
                       } else {
                           startService(svc);
                       }
-                  } catch (Exception ignored) {}
+                  } catch (Exception ex) {}
               }
 
               public static class NativeBridge {
@@ -668,7 +668,7 @@ jobs:
                               try {
                                   Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                                   activity.startActivity(i);
-                              } catch (Exception ignored) {}
+                              } catch (Exception ex) {}
                           }
                           activity.pushPermState();
                       });
@@ -780,7 +780,7 @@ jobs:
                                   if (o.has("body")) body = o.optString("body", body);
                                   if (o.has("kind")) kind = o.optString("kind", kind);
                               }
-                          } catch (Exception ignored) {}
+                          } catch (Exception ex) {}
                           activity.startServiceAction(StopWayLocationService.ACTION_ALERT, title, body, kind);
                       });
                   }
