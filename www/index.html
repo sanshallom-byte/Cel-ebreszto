@@ -2421,10 +2421,10 @@
       }
 
       function getGainMultiplier() {
-        return state.loudMode ? 1.8 : 1.0;
+        return state.loudMode ? 2.2 : 1.3;
       }
 
-      function playTone(freq, duration, type = "sawtooth", delay = 0, peak = 0.28, endFreq = null) {
+      function playTone(freq, duration, type = "sawtooth", delay = 0, peak = 0.36, endFreq = null) {
         const ctx = ensureAudioContext();
         if (!ctx) return;
         const start = ctx.currentTime + delay;
@@ -2436,7 +2436,7 @@
           osc.frequency.exponentialRampToValueAtTime(Math.max(40, endFreq), start + duration);
         }
 
-        const scaledPeak = Math.min(0.75, peak * getGainMultiplier());
+        const scaledPeak = Math.min(0.88, peak * getGainMultiplier());
         gain.gain.setValueAtTime(0.0001, start);
         gain.gain.linearRampToValueAtTime(scaledPeak, start + 0.02);
         gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
@@ -2459,19 +2459,21 @@
       }
 
       function triggerSoundOnce(soundId) {
-        if (soundId === "__custom__" && customAudioUrl) {
+        const chosenId = (soundId === "__custom__" && customAudioUrl) ? "__custom__" : (customAudioUrl ? "__custom__" : soundId);
+        if (chosenId === "__custom__" && customAudioUrl) {
           if (!customAudioPlayer) {
             customAudioPlayer = new Audio(customAudioUrl);
           } else if (customAudioPlayer.src !== customAudioUrl) {
             customAudioPlayer.src = customAudioUrl;
           }
+          customAudioPlayer.muted = false;
           customAudioPlayer.volume = 1.0;
           customAudioPlayer.currentTime = 0;
           customAudioPlayer.play().catch(() => {});
           return;
         }
 
-        switch (soundId) {
+        switch (chosenId) {
           case "roman_horn":
             playTone(146.8, 0.9, "sawtooth", 0.0, 0.36, 152);
             playTone(146.8, 0.9, "triangle", 0.0, 0.26, 152);
@@ -2530,8 +2532,23 @@
         ensureAudioContext();
         triggerSoundOnce(state.soundId);
         try {
-          if (navigator.vibrate) navigator.vibrate([450, 200, 450]);
+          if (navigator.vibrate) navigator.vibrate([500, 220, 500]);
         } catch (e) {}
+      };
+
+      window.startAlarmLoop = function () {
+        stopAllSounds();
+        triggerSoundOnce(state.soundId);
+        alarmLoopInterval = setInterval(() => {
+          triggerSoundOnce(state.soundId);
+          try {
+            if (navigator.vibrate) navigator.vibrate([450, 200, 450]);
+          } catch (e) {}
+        }, 2200);
+      };
+
+      window.stopAlarmLoop = function () {
+        stopAllSounds();
       };
 
       function startAlarm(messageSub = "") {
@@ -2567,14 +2584,7 @@
           navigator.vibrate([500, 250, 500, 250, 800]);
         }
 
-        stopAllSounds();
-        triggerSoundOnce(state.soundId);
-        alarmLoopInterval = setInterval(() => {
-          if (alarmActive && snoozeRemaining <= 0) {
-            triggerSoundOnce(state.soundId);
-            if (navigator.vibrate) navigator.vibrate([400, 200, 400]);
-          }
-        }, 2400);
+        window.startAlarmLoop();
       }
 
       function snoozeFor20Seconds() {
@@ -2977,9 +2987,9 @@
           bgBack: "Vissza az engedélyezéshez",
           bgConfirm: "Igen, biztos",
           idleTitle: "1 órája nem mozdult el (100 méteren belül)",
-          idleDesc: "Egy órája nem mozdult el a pozíció 100 méteren belül. Befejezed az utazást, vagy folytatod?",
-          idleContinue: "Folytatod",
-          idleStop: "Befejezed az utazást",
+          idleDesc: "Egy órája nem mozdult el a pozíció 100 méteren belül. Folytatod az utazást, vagy megszünteted?",
+          idleContinue: "Folytatom az utazást",
+          idleStop: "Megszüntetem az utazást",
           goodbyeTitle: "Köszönjük, hogy velünk utaztál",
           goodbyeDesc: "Jó pihenést és biztonságos folytatást! Ha már nincs szükség a helymeghatározásra, ne felejtsd el kikapcsolni.",
           reconnectingMsg: "GPS jel keresése (90 mp-es újracsatlakozás aktív)...",
@@ -3007,9 +3017,9 @@
           bgBack: "Back to permission",
           bgConfirm: "Yes, I'm sure",
           idleTitle: "No 100 m movement for 1 hour",
-          idleDesc: "No movement of at least 100 meters has been detected for an hour. End the trip or continue?",
-          idleContinue: "Continue",
-          idleStop: "End trip",
+          idleDesc: "No movement of at least 100 meters has been detected for an hour. Continue the trip or stop it?",
+          idleContinue: "Continue trip",
+          idleStop: "Stop trip",
           goodbyeTitle: "Thank you for traveling with us",
           goodbyeDesc: "If you no longer need location services, don't forget to turn them off.",
           reconnectingMsg: "Searching for GPS signal (90s reconnect active)...",
@@ -3179,28 +3189,37 @@
           clearInterval(idleRingTimer);
           idleRingTimer = null;
         }
-      }
-
-      function triggerStagnationPrompt() {
-        if (idlePromptOpen || !watchSessionActive) return;
-        idlePromptOpen = true;
-        refreshAddonUI();
-        idleBackdrop.classList.add("open");
-
         try {
-          const txt = getAddonLang();
-          const idlePayload = JSON.stringify({
-            title: txt.idleTitle,
-            body: txt.idleDesc,
-            kind: "IDLE_1H_ALARM"
-          });
-          if (window.__swDebugLog) window.__swDebugLog("NATIVE_ALERT_OUT", idlePayload);
-          if (window.StopWayNative && typeof window.StopWayNative.triggerNativeAlert === "function") {
-            window.StopWayNative.triggerNativeAlert(idlePayload);
-          } else if (window.Android && typeof window.Android.triggerNativeAlert === "function") {
-            window.Android.triggerNativeAlert(idlePayload);
+          if (typeof window.stopAlarmLoop === "function") {
+            window.stopAlarmLoop();
           }
         } catch (e) {}
+      }
+
+      function triggerStagnationPrompt(customTitle, customBody) {
+        if (idlePromptOpen) return;
+        idlePromptOpen = true;
+        refreshAddonUI();
+        const txt = getAddonLang();
+        if (customTitle) idleTitleEl.textContent = customTitle;
+        if (customBody) idleDescEl.textContent = customBody;
+        idleBackdrop.classList.add("open");
+
+        if (watchSessionActive) {
+          try {
+            const idlePayload = JSON.stringify({
+              title: customTitle || txt.idleTitle,
+              body: customBody || txt.idleDesc,
+              kind: "IDLE_1H_ALARM"
+            });
+            if (window.__swDebugLog) window.__swDebugLog("NATIVE_ALERT_OUT", idlePayload);
+            if (window.StopWayNative && typeof window.StopWayNative.triggerNativeAlert === "function") {
+              window.StopWayNative.triggerNativeAlert(idlePayload);
+            } else if (window.Android && typeof window.Android.triggerNativeAlert === "function") {
+              window.Android.triggerNativeAlert(idlePayload);
+            }
+          } catch (e) {}
+        }
 
         const ringOnce = () => {
           if (typeof window.__swTriggerConfiguredAlarmOnce === "function") {
@@ -3210,12 +3229,12 @@
         ringOnce();
         stopIdleContinuousRing();
         idleRingTimer = setInterval(() => {
-          if (idlePromptOpen && watchSessionActive) {
+          if (idlePromptOpen) {
             ringOnce();
           } else {
             stopIdleContinuousRing();
           }
-        }, 2600);
+        }, 2400);
       }
 
       window.__swOpenStagnationPrompt = triggerStagnationPrompt;
@@ -3504,7 +3523,11 @@
           idlePromptOpen = false;
           idleBackdrop.classList.remove("open");
           explicitStopPending = true;
-          if (watchStopBtn) watchStopBtn.click();
+          if (watchStopBtn && watchStopBtn.style.display !== "none") {
+            watchStopBtn.click();
+          } else {
+            showGoodbyeBanner();
+          }
         });
       }
 
@@ -3609,174 +3632,60 @@
     })();
   </script>
 
-  <!-- StopWay háttér-túlélő, híd-fogadó és riasztás-összehangoló réteg -->
-  <script id="stopway-bg-survival-addon">
-    (function () {
-      "use strict";
+  <!-- StopWay GPS-jel ablak (✕-szel zárható, rövid halk bip, felirat-átírás / újbóli felugrás) -->
+  <style id="stopway-gps-modal-style">
+    #stopwayGpsSignalModal {
+      position: fixed;
+      left: 14px;
+      right: 14px;
+      bottom: 18px;
+      max-width: 612px;
+      margin: 0 auto;
+      z-index: 260;
+      display: none;
+      padding: 14px 44px 14px 16px;
+      border-radius: 14px;
+      background: #141923;
+      color: #f3f6fb;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-left: 5px solid #f59e0b;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    #stopwayGpsSignalModal.restored {
+      border-left-color: #10b981;
+    }
+    #stopwayGpsSignalModal .sw-gps-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    #stopwayGpsSignalModal .sw-gps-sub {
+      font-size: 13px;
+      line-height: 1.4;
+      color: #cbd5e1;
+    }
+    #stopwayGpsSignalModal .sw-gps-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      font-size: 16px;
+      line-height: 1;
+      cursor: pointer;
+    }
+  </style>
 
-      let pendingAlarmPayload = null;
-      let lastBridgeFixAt = 0;
-
-      function logMsg(tag, detail) {
-        try {
-          if (typeof window.__swDebugLog === "function") {
-            window.__swDebugLog(tag, detail || "");
-          }
-        } catch (e) {}
-      }
-
-      function nudgeSoundAndVibration(strong) {
-        if (strong) {
-          if (typeof window.__swTriggerConfiguredAlarmOnce === "function") {
-            window.__swTriggerConfiguredAlarmOnce();
-            return;
-          }
-        }
-        try {
-          const Ctx = window.AudioContext || window.webkitAudioContext;
-          if (Ctx) {
-            if (!window.__swSurvivalCtx) window.__swSurvivalCtx = new Ctx();
-            const ctx = window.__swSurvivalCtx;
-            if (ctx.state === "suspended") {
-              ctx.resume().catch(function () {});
-            }
-            const now = ctx.currentTime;
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = "sine";
-            osc.frequency.setValueAtTime(880, now);
-            gain.gain.setValueAtTime(0.0001, now);
-            gain.gain.linearRampToValueAtTime(0.16, now + 0.015);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(now);
-            osc.stop(now + 0.16);
-          }
-        } catch (e) {}
-
-        try {
-          if (navigator.vibrate) {
-            navigator.vibrate(140);
-          }
-        } catch (e) {}
-      }
-
-      function applyIncomingCoords(coords, sourceLabel) {
-        if (!coords || typeof coords.latitude !== "number" || typeof coords.longitude !== "number") return;
-        lastBridgeFixAt = Date.now();
-        logMsg(sourceLabel || "BRIDGE_GPS", `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`);
-        try {
-          window.dispatchEvent(new CustomEvent("stopway:gps-position", { detail: { coords: coords } }));
-        } catch (e) {}
-        if (typeof window.__stopwayEvaluateCoords === "function") {
-          try {
-            window.__stopwayEvaluateCoords(coords);
-          } catch (e) {
-            logMsg("EVAL_ERR", String(e && e.message || e));
-          }
-        }
-      }
-
-      function handleNativeMessage(rawData) {
-        let data = rawData;
-        if (typeof data === "string") {
-          try {
-            data = JSON.parse(data);
-          } catch (e) {
-            return;
-          }
-        }
-        if (!data || typeof data !== "object") return;
-
-        const msgType = data.type || data.event || data.action || "";
-        if (msgType === "STOPWAY_GPS_POSITION" || msgType === "GPS_POSITION" || msgType === "locationUpdate") {
-          const coords = data.coords || (
-            typeof data.latitude === "number" && typeof data.longitude === "number"
-              ? { latitude: data.latitude, longitude: data.longitude, accuracy: data.accuracy || 0 }
-              : null
-          );
-          applyIncomingCoords(coords, "NATIVE_POS");
-        } else if (msgType === "STOPWAY_PERM_STATE") {
-          logMsg("NATIVE_PERM", JSON.stringify(data));
-          try {
-            window.postMessage(data, "*");
-          } catch (e) {}
-        } else if (msgType === "STOPWAY_ALARM_SIGNAL" || msgType === "TRIGGER_ALARM") {
-          pendingAlarmPayload = data;
-          logMsg("NATIVE_ALARM", data.reason || data.message || "riasztás");
-          if (data.kind === "IDLE_1H" || data.kind === "IDLE_1H_ALARM") {
-            if (typeof window.__swOpenStagnationPrompt === "function") {
-              window.__swOpenStagnationPrompt();
-            }
-          } else {
-            nudgeSoundAndVibration(true);
-            const overlay = document.getElementById("alarmOverlay");
-            if (overlay && document.visibilityState === "visible") {
-              overlay.classList.add("active");
-            }
-          }
-          if (data.coords) {
-            applyIncomingCoords(data.coords, "ALARM_POS");
-          }
-        } else if (msgType === "STOPWAY_IDLE_SIGNAL" || msgType === "STOPWAY_RECONNECT_SIGNAL") {
-          logMsg("NATIVE_SIGNAL", msgType + (data.message ? ": " + data.message : ""));
-          nudgeSoundAndVibration(false);
-        }
-      }
-
-      window.addEventListener("message", function (ev) {
-        handleNativeMessage(ev && ev.data);
-      });
-
-      window.StopWayReceive = handleNativeMessage;
-
-      function probeNow(reason) {
-        const stopBtn = document.getElementById("stopWatchBtn");
-        const isActive = Boolean(stopBtn && stopBtn.style.display !== "none");
-        logMsg("PROBE", reason + (isActive ? " (watch=ON)" : " (watch=OFF)"));
-        if (!isActive || !navigator.geolocation) return;
-
-        navigator.geolocation.getCurrentPosition(
-          function (pos) {
-            if (pos && pos.coords) {
-              applyIncomingCoords(pos.coords, "PROBE_GPS");
-            }
-          },
-          function (err) {
-            const sinceBridge = lastBridgeFixAt ? Math.round((Date.now() - lastBridgeFixAt) / 1000) : -1;
-            logMsg("PROBE_ERR", `${err && err.message ? err.message : "no fix"} (lastBridge=${sinceBridge}s)`);
-            try {
-              window.dispatchEvent(new CustomEvent("stopway:gps-error", { detail: { error: err } }));
-            } catch (e) {}
-          },
-          { enableHighAccuracy: true, maximumAge: 0, timeout: 9000 }
-        );
-      }
-
-      document.addEventListener("visibilitychange", function () {
-        if (document.visibilityState === "visible") {
-          probeNow("resume_visible");
-          if (pendingAlarmPayload) {
-            const overlay = document.getElementById("alarmOverlay");
-            if (overlay && !overlay.classList.contains("active")) {
-              overlay.classList.add("active");
-            }
-            nudgeSoundAndVibration(true);
-            pendingAlarmPayload = null;
-          }
-        } else {
-          logMsg("BG_ENTER", "alkalmazás háttérbe került");
-        }
-      });
-
-      window.addEventListener("focus", function () {
-        probeNow("window_focus");
-      });
-
-      logMsg("SURVIVAL_INIT", "Háttér-túlélő réteg aktív");
-    })();
-  </script>
+  <div id="stopwayGpsSignalModal" role="status" aria-live="polite">
+    <button type="button" id="stopwayGpsCloseBtn" class="sw-gps-close" aria-label="Bezárás">✕</button>
+    <div id="stopwayGpsTitle" class="sw-gps-title">GPS-jel elment</div>
+    <div id="stopwayGpsDesc" class="sw-gps-sub">Jelenleg nincs GPS-jel. Nyomd ki az ✕-szel, ha nem kell már.</div>
+  </div>
 
   <!-- StopWay 90 másodperces jelkimaradás- és újraigénylés-toldalék -->
   <script id="stopway-90s-addon">
@@ -3787,12 +3696,16 @@
 
       const SIGNAL_TEXT = {
         hu: {
-          lost: "Kikerültél a helymeghatározási pontból. Ne aggódj, 90 másodpercenként újra próbálunk csatlakozni.",
-          restored: "Újra csatlakozni tudtunk a helymeghatározáshoz. A megfigyelés folytatódik. További jó utat."
+          lostTitle: "GPS-jel elment",
+          lostSub: "Jelenleg nincs GPS-jel. 90 másodpercenként újra próbálunk csatlakozni.",
+          restoredTitle: "GPS-jel visszajött — újra csatlakoztunk",
+          restoredSub: "A helymeghatározási jel ismét megvan. Az ablak addig marad kint, amíg ki nem nyomod az ✕-szel."
         },
         en: {
-          lost: "You moved out of the location fix. Don't worry, we will try to reconnect every 90 seconds.",
-          restored: "We reconnected to location services. Monitoring continues. Have a safe trip."
+          lostTitle: "GPS signal lost",
+          lostSub: "No GPS signal right now. Retrying every 90 seconds.",
+          restoredTitle: "GPS signal restored — reconnected",
+          restoredSub: "Location signal is back. This window stays open until you close it with ✕."
         }
       };
 
@@ -3801,14 +3714,16 @@
       let reconnectTimer = null;
       let watchdogTimer = null;
       let isSignalLost = false;
-      let bubbleEl = null;
-      let bubbleTextEl = null;
+      let gpsModalVisible = false;
+      let gpsDismissedWhileLost = false;
+      let gpsLastState = null; // 'LOST' | 'RESTORED' | null
 
       function getTexts() {
         return document.documentElement.lang === "hu" ? SIGNAL_TEXT.hu : SIGNAL_TEXT.en;
       }
 
-      function playFixedBeep() {
+      // Egyetlen rövid, halk/kíméletes bip — nem ébreszt fel alvás közben
+      function playGentleSignalBeep() {
         try {
           const Ctx = window.AudioContext || window.webkitAudioContext;
           if (!Ctx) return;
@@ -3824,116 +3739,93 @@
           const gain = ctx.createGain();
           osc.type = "sine";
           osc.frequency.setValueAtTime(880, start);
-          gain.gain.setValueAtTime(0.0001, start);
-          gain.gain.linearRampToValueAtTime(0.16, start + 0.015);
-          gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.14);
+          gain.gain.setValueAtTime(0.0005, start);
+          gain.gain.linearRampToValueAtTime(0.035, start + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.13);
           osc.connect(gain);
           gain.connect(ctx.destination);
           osc.start(start);
-          osc.stop(start + 0.16);
-        } catch (e) {}
-        try {
-          if (navigator.vibrate) navigator.vibrate(140);
+          osc.stop(start + 0.14);
         } catch (e) {}
       }
 
-      function ensureBubble() {
-        if (bubbleEl) return;
+      function renderGpsModal(restored) {
+        const modal = document.getElementById("stopwayGpsSignalModal");
+        const titleEl = document.getElementById("stopwayGpsTitle");
+        const descEl = document.getElementById("stopwayGpsDesc");
+        if (!modal || !titleEl || !descEl) return;
+        const txt = getTexts();
 
-        const style = document.createElement("style");
-        style.id = "sw-90s-signal-bubble-style";
-        style.textContent = `
-          #sw-90s-signal-bubble {
-            position: fixed;
-            left: 14px;
-            right: 14px;
-            bottom: 18px;
-            max-width: 612px;
-            margin: 0 auto;
-            z-index: 260;
-            display: none;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 14px 16px;
-            border-radius: 16px;
-            background: var(--surface, #1e293b);
-            color: var(--text, #f8fafc);
-            border: 2px solid var(--accent, #38bdf8);
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
-            font-family: inherit;
-            font-size: 0.92rem;
-            font-weight: 700;
-            line-height: 1.42;
-          }
-          #sw-90s-signal-bubble.open { display: flex; }
-          #sw-90s-signal-bubble-close {
-            width: 32px;
-            height: 32px;
-            border-radius: 999px;
-            border: 1.5px solid var(--border, #475569);
-            background: var(--surface-2, #334155);
-            color: var(--text, #f8fafc);
-            font-size: 1rem;
-            font-weight: 800;
-            cursor: pointer;
-            flex-shrink: 0;
-          }
-        `;
-        document.head.appendChild(style);
+        if (!restored) {
+          modal.classList.remove("restored");
+          titleEl.textContent = txt.lostTitle;
+          descEl.textContent = txt.lostSub;
+        } else {
+          modal.classList.add("restored");
+          titleEl.textContent = txt.restoredTitle;
+          descEl.textContent = txt.restoredSub;
+        }
+        modal.style.display = "block";
+        gpsModalVisible = true;
+      }
 
-        bubbleEl = document.createElement("div");
-        bubbleEl.id = "sw-90s-signal-bubble";
-        bubbleEl.setAttribute("role", "status");
-        bubbleEl.setAttribute("aria-live", "polite");
+      function applyGpsWindowState(restored) {
+        if (!restored) {
+          gpsLastState = "LOST";
+          gpsDismissedWhileLost = false;
+          renderGpsModal(false);
+          playGentleSignalBeep();
+          return;
+        }
 
-        bubbleTextEl = document.createElement("div");
-        bubbleTextEl.id = "sw-90s-signal-bubble-text";
+        // restored === true
+        if (gpsModalVisible) {
+          // Ablak még kint van: nem záródik be, csak átíródik a felirata, és bittyen egyet
+          gpsLastState = "RESTORED";
+          renderGpsModal(true);
+          playGentleSignalBeep();
+          return;
+        }
 
-        const closeBtn = document.createElement("button");
-        closeBtn.id = "sw-90s-signal-bubble-close";
-        closeBtn.type = "button";
-        closeBtn.setAttribute("aria-label", "Bezárás");
-        closeBtn.textContent = "✕";
+        // Ha már ki volt nyomva az ✕-szel (pl. bevásárlóközpont pincéje után): újra feljön
+        if (gpsLastState === "LOST" || gpsDismissedWhileLost || !gpsModalVisible) {
+          gpsLastState = "RESTORED";
+          gpsDismissedWhileLost = false;
+          renderGpsModal(true);
+          playGentleSignalBeep();
+        }
+      }
+
+      window.__swHandleGpsSignal = function (restored) {
+        const isRestored = Boolean(restored);
+        isSignalLost = !isRestored;
+        if (isRestored) {
+          lastPosReceivedAt = Date.now();
+        }
+        applyGpsWindowState(isRestored);
+      };
+
+      const closeBtn = document.getElementById("stopwayGpsCloseBtn");
+      if (closeBtn) {
         closeBtn.addEventListener("click", () => {
-          bubbleEl.classList.remove("open");
+          const modal = document.getElementById("stopwayGpsSignalModal");
+          if (modal) modal.style.display = "none";
+          gpsModalVisible = false;
+          if (gpsLastState === "LOST") {
+            gpsDismissedWhileLost = true;
+          }
         });
-
-        bubbleEl.appendChild(bubbleTextEl);
-        bubbleEl.appendChild(closeBtn);
-        document.body.appendChild(bubbleEl);
-      }
-
-      function setBubbleTextKeepOpen(messageText) {
-        ensureBubble();
-        bubbleTextEl.textContent = messageText;
-        bubbleEl.classList.add("open");
-        playFixedBeep();
       }
 
       function markSignalLost() {
         if (!sessionActive) return;
-        if (isSignalLost) {
-          if (bubbleEl && bubbleEl.classList.contains("open")) {
-            bubbleTextEl.textContent = getTexts().lost;
-          }
-          return;
-        }
+        const alreadyLost = isSignalLost;
         isSignalLost = true;
-        setBubbleTextKeepOpen(getTexts().lost);
-        try {
-          const lostPayload = JSON.stringify({
-            title: "GPS jel megszakadt",
-            body: getTexts().lost,
-            kind: "SIGNAL_LOST"
-          });
-          if (window.__swDebugLog) window.__swDebugLog("NATIVE_ALERT_OUT", lostPayload);
-          if (window.StopWayNative && typeof window.StopWayNative.triggerNativeAlert === "function") {
-            window.StopWayNative.triggerNativeAlert(lostPayload);
-          } else if (window.Android && typeof window.Android.triggerNativeAlert === "function") {
-            window.Android.triggerNativeAlert(lostPayload);
-          }
-        } catch (e) {}
+        if (!alreadyLost) {
+          applyGpsWindowState(false);
+        } else if (gpsModalVisible) {
+          renderGpsModal(false);
+        }
       }
 
       function markSignalRestored() {
@@ -3941,7 +3833,7 @@
         lastPosReceivedAt = Date.now();
         if (!isSignalLost) return;
         isSignalLost = false;
-        setBubbleTextKeepOpen(getTexts().restored);
+        applyGpsWindowState(true);
       }
 
       function dispatchBridge(action, extra = {}) {
@@ -4228,332 +4120,186 @@
       addLog("INIT", "Naplózó betöltve");
     })();
   </script>
-  <!-- StopWay GPS & Stagnálás ablak- és hangvezérlő réteg -->
-<style id="stopway-signal-layer-style">
-  #stopwayGpsSignalModal {
-    position: fixed;
-    left: 14px;
-    right: 14px;
-    bottom: 18px;
-    z-index: 99990;
-    display: none;
-    background: #141923;
-    color: #f3f6fb;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-left: 5px solid #f59e0b;
-    border-radius: 14px;
-    padding: 14px 44px 14px 16px;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
-    font-family: system-ui, -apple-system, sans-serif;
-  }
-  #stopwayGpsSignalModal.restored {
-    border-left-color: #10b981;
-  }
-  #stopwayGpsSignalModal .sw-gps-title {
-    font-size: 15px;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
-  #stopwayGpsSignalModal .sw-gps-sub {
-    font-size: 13px;
-    line-height: 1.4;
-    color: #cbd5e1;
-  }
-  #stopwayGpsSignalModal .sw-gps-close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 28px;
-    height: 28px;
-    border: none;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-    font-size: 16px;
-    line-height: 1;
-    cursor: pointer;
-  }
 
-  #stopwayIdleModal {
-    position: fixed;
-    inset: 0;
-    z-index: 99995;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 18px;
-    background: rgba(5, 8, 15, 0.78);
-    font-family: system-ui, -apple-system, sans-serif;
-  }
-  #stopwayIdleModal .sw-idle-card {
-    width: 100%;
-    max-width: 420px;
-    background: #141923;
-    color: #f8fafc;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 18px;
-    padding: 20px;
-    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.6);
-  }
-  #stopwayIdleModal .sw-idle-title {
-    font-size: 18px;
-    font-weight: 800;
-    margin-bottom: 8px;
-  }
-  #stopwayIdleModal .sw-idle-body {
-    font-size: 14px;
-    line-height: 1.45;
-    color: #cbd5e1;
-    margin-bottom: 18px;
-  }
-  #stopwayIdleModal .sw-idle-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  #stopwayIdleModal button {
-    width: 100%;
-    padding: 13px 14px;
-    border: none;
-    border-radius: 12px;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-  #stopwayContinueTripBtn {
-    background: #10b981;
-    color: #062116;
-  }
-  #stopwayStopTripBtn {
-    background: #ef4444;
-    color: #ffffff;
-  }
-</style>
+  <!-- StopWay háttér-túlélő, híd-fogadó és riasztás-összehangoló réteg (egyetlen egységes vevő) -->
+  <script id="stopway-bg-survival-addon">
+    (function () {
+      "use strict";
 
-<div id="stopwayGpsSignalModal" role="status" aria-live="polite">
-  <button type="button" id="stopwayGpsCloseBtn" class="sw-gps-close" aria-label="Bezárás">✕</button>
-  <div id="stopwayGpsTitle" class="sw-gps-title">GPS-jel megszakadt</div>
-  <div id="stopwayGpsDesc" class="sw-gps-sub">Jelenleg nincs friss helymeghatározási jel. A figyelés a háttérben tovább fut.</div>
-</div>
+      let pendingAlarmPayload = null;
+      let lastBridgeFixAt = 0;
 
-<div id="stopwayIdleModal" role="dialog" aria-modal="true">
-  <div class="sw-idle-card">
-    <div id="stopwayIdleTitle" class="sw-idle-title">1 órája nincs 100 méteres mozgás</div>
-    <div id="stopwayIdleBody" class="sw-idle-body">Az elmúlt 1 órában nem történt 100 métert elérő elmozdulás. Folytatod az utazást vagy megszünteted?</div>
-    <div class="sw-idle-actions">
-      <button type="button" id="stopwayContinueTripBtn">Folytatom az utazást</button>
-      <button type="button" id="stopwayStopTripBtn">Megszüntetem az utazást</button>
-    </div>
-  </div>
-</div>
-
-<script id="stopway-signal-layer-script">
-(function() {
-  var gpsModalVisible = false;
-  var gpsDismissedWhileLost = false;
-  var gpsLastState = null; // 'LOST' | 'RESTORED' | null
-  var idleAlarmTimer = null;
-  var audioCtx = null;
-
-  function playGentleBeep() {
-    try {
-      var Ctx = window.AudioContext || window.webkitAudioContext;
-      if (!Ctx) return;
-      if (!audioCtx) audioCtx = new Ctx();
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume().catch(function(){});
-      }
-      var osc = audioCtx.createOscillator();
-      var gain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-      gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.06, audioCtx.currentTime + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.16);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start(audioCtx.currentTime);
-      osc.stop(audioCtx.currentTime + 0.17);
-    } catch (e) {}
-  }
-
-  function playPersistentAlertPulse() {
-    try {
-      if (typeof window.startAlarmLoop === 'function') {
-        window.startAlarmLoop();
-        return;
-      }
-      if (typeof window.nudgeSoundAndVibration === 'function') {
-        window.nudgeSoundAndVibration();
-      }
-      var Ctx = window.AudioContext || window.webkitAudioContext;
-      if (!Ctx) return;
-      if (!audioCtx) audioCtx = new Ctx();
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume().catch(function(){});
-      }
-      var now = audioCtx.currentTime;
-      [0, 0.28].forEach(function(offset) {
-        var osc = audioCtx.createOscillator();
-        var gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(1046.5, now + offset);
-        gain.gain.setValueAtTime(0.001, now + offset);
-        gain.gain.exponentialRampToValueAtTime(0.28, now + offset + 0.03);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + 0.22);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now + offset);
-        osc.stop(now + offset + 0.23);
-      });
-    } catch (e) {}
-  }
-
-  function startPersistentIdleAlarm() {
-    stopPersistentIdleAlarm();
-    playPersistentAlertPulse();
-    idleAlarmTimer = setInterval(playPersistentAlertPulse, 1800);
-  }
-
-  function stopPersistentIdleAlarm() {
-    if (idleAlarmTimer) {
-      clearInterval(idleAlarmTimer);
-      idleAlarmTimer = null;
-    }
-    try {
-      if (typeof window.stopAlarmLoop === 'function') {
-        window.stopAlarmLoop();
-      }
-    } catch (e) {}
-  }
-
-  function renderGpsModal(restored) {
-    var modal = document.getElementById('stopwayGpsSignalModal');
-    var titleEl = document.getElementById('stopwayGpsTitle');
-    var descEl = document.getElementById('stopwayGpsDesc');
-    if (!modal || !titleEl || !descEl) return;
-
-    if (!restored) {
-      modal.classList.remove('restored');
-      titleEl.textContent = 'GPS-jel elment';
-      descEl.textContent = 'Jelenleg nincs GPS-jel (alagút vagy zárt tér). Nyomd ki az ✕-szel, ha nem kell már.';
-    } else {
-      modal.classList.add('restored');
-      titleEl.textContent = 'GPS-jel visszajött — újra csatlakoztunk';
-      descEl.textContent = 'A helymeghatározási jel ismét megvan. Az ablak addig marad kint, amíg ki nem nyomod az ✕-szel.';
-    }
-    modal.style.display = 'block';
-    gpsModalVisible = true;
-  }
-
-  function handleGpsSignal(restored) {
-    if (!restored) {
-      gpsLastState = 'LOST';
-      gpsDismissedWhileLost = false;
-      renderGpsModal(false);
-      playGentleBeep();
-      return;
-    }
-
-    // restored === true
-    if (gpsModalVisible) {
-      // Ablak még kint van: nem zárjuk be, csak átírjuk a feliratot, és egy rövid bip szól
-      gpsLastState = 'RESTORED';
-      renderGpsModal(true);
-      playGentleBeep();
-      return;
-    }
-
-    // Ablak már ki volt nyomva az ✕-szel (pl. kijöttél a bevásárlóközpontból): újra feljön
-    if (gpsLastState === 'LOST' || gpsDismissedWhileLost || !gpsModalVisible) {
-      gpsLastState = 'RESTORED';
-      gpsDismissedWhileLost = false;
-      renderGpsModal(true);
-      playGentleBeep();
-    }
-  }
-
-  function showIdleModal(title, body) {
-    var modal = document.getElementById('stopwayIdleModal');
-    var titleEl = document.getElementById('stopwayIdleTitle');
-    var bodyEl = document.getElementById('stopwayIdleBody');
-    if (titleEl && title) titleEl.textContent = title;
-    if (bodyEl && body) bodyEl.textContent = body;
-    if (modal) {
-      modal.style.display = 'flex';
-    }
-    var overlay = document.getElementById('alarmOverlay');
-    if (overlay) {
-      overlay.style.display = 'flex';
-      overlay.classList.remove('hidden');
-    }
-    startPersistentIdleAlarm();
-  }
-
-  function hideIdleModal() {
-    var modal = document.getElementById('stopwayIdleModal');
-    if (modal) {
-      modal.style.display = 'none';
-    }
-    stopPersistentIdleAlarm();
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    var closeBtn = document.getElementById('stopwayGpsCloseBtn');
-    if (closeBtn) {
-      closeBtn.addEventListener('click', function() {
-        var modal = document.getElementById('stopwayGpsSignalModal');
-        if (modal) modal.style.display = 'none';
-        gpsModalVisible = false;
-        if (gpsLastState === 'LOST') {
-          gpsDismissedWhileLost = true;
-        }
-      });
-    }
-
-    var contBtn = document.getElementById('stopwayContinueTripBtn');
-    if (contBtn) {
-      contBtn.addEventListener('click', function() {
-        hideIdleModal();
+      function logMsg(tag, detail) {
         try {
-          if (typeof window.resumeTrip === 'function') window.resumeTrip();
-          else if (typeof window.dismissAlarm === 'function') window.dismissAlarm();
-        } catch (e) {}
-      });
-    }
-
-    var stopBtn = document.getElementById('stopwayStopTripBtn');
-    if (stopBtn) {
-      stopBtn.addEventListener('click', function() {
-        hideIdleModal();
-        try {
-          if (typeof window.stopTrip === 'function') window.stopTrip();
-          else if (window.StopWayNative && window.StopWayNative.stopNonstopLocation) {
-            window.StopWayNative.stopNonstopLocation('{}');
+          if (typeof window.__swDebugLog === "function") {
+            window.__swDebugLog(tag, detail || "");
           }
         } catch (e) {}
-      });
-    }
-  });
-
-  var prevReceive = window.StopWayReceive;
-  window.StopWayReceive = function(msg) {
-    if (msg && msg.type === 'STOPWAY_GPS_SIGNAL') {
-      handleGpsSignal(Boolean(msg.restored));
-      return;
-    }
-    if (msg && msg.type === 'STOPWAY_ALARM_SIGNAL') {
-      if (msg.kind === 'IDLE_1H') {
-        showIdleModal(msg.title, msg.message);
-        return;
       }
-      playPersistentAlertPulse();
-    }
-    if (typeof prevReceive === 'function') {
-      return prevReceive(msg);
-    }
-  };
-})();
-</script>
+
+      function nudgeSoundAndVibration(strong) {
+        if (strong) {
+          if (typeof window.startAlarmLoop === "function") {
+            window.startAlarmLoop();
+            return;
+          }
+          if (typeof window.__swTriggerConfiguredAlarmOnce === "function") {
+            window.__swTriggerConfiguredAlarmOnce();
+            return;
+          }
+        }
+        try {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (Ctx) {
+            if (!window.__swSurvivalCtx) window.__swSurvivalCtx = new Ctx();
+            const ctx = window.__swSurvivalCtx;
+            if (ctx.state === "suspended") {
+              ctx.resume().catch(function () {});
+            }
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(880, now);
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.linearRampToValueAtTime(0.04, now + 0.015);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.13);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.14);
+          }
+        } catch (e) {}
+      }
+
+      function applyIncomingCoords(coords, sourceLabel) {
+        if (!coords || typeof coords.latitude !== "number" || typeof coords.longitude !== "number") return;
+        lastBridgeFixAt = Date.now();
+        logMsg(sourceLabel || "BRIDGE_GPS", `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`);
+        try {
+          window.dispatchEvent(new CustomEvent("stopway:gps-position", { detail: { coords: coords } }));
+        } catch (e) {}
+        if (typeof window.__stopwayEvaluateCoords === "function") {
+          try {
+            window.__stopwayEvaluateCoords(coords);
+          } catch (e) {
+            logMsg("EVAL_ERR", String(e && e.message || e));
+          }
+        }
+      }
+
+      function handleNativeMessage(rawData) {
+        let data = rawData;
+        if (typeof data === "string") {
+          try {
+            data = JSON.parse(data);
+          } catch (e) {
+            return;
+          }
+        }
+        if (!data || typeof data !== "object") return;
+
+        const msgType = data.type || data.event || data.action || "";
+        if (msgType === "STOPWAY_GPS_POSITION" || msgType === "GPS_POSITION" || msgType === "locationUpdate") {
+          const coords = data.coords || (
+            typeof data.latitude === "number" && typeof data.longitude === "number"
+              ? { latitude: data.latitude, longitude: data.longitude, accuracy: data.accuracy || 0 }
+              : null
+          );
+          applyIncomingCoords(coords, "NATIVE_POS");
+        } else if (msgType === "STOPWAY_GPS_SIGNAL") {
+          const restored = Boolean(data.restored);
+          logMsg("NATIVE_GPS_SIG", restored ? "RESTORED" : "LOST");
+          if (typeof window.__swHandleGpsSignal === "function") {
+            window.__swHandleGpsSignal(restored);
+          }
+        } else if (msgType === "STOPWAY_PERM_STATE") {
+          logMsg("NATIVE_PERM", JSON.stringify(data));
+          try {
+            window.postMessage(data, "*");
+          } catch (e) {}
+        } else if (msgType === "STOPWAY_ALARM_SIGNAL" || msgType === "TRIGGER_ALARM") {
+          pendingAlarmPayload = data;
+          logMsg("NATIVE_ALARM", (data.kind ? data.kind + ": " : "") + (data.reason || data.message || "riasztás"));
+          const isIdle = data.kind === "IDLE_1H" || data.kind === "IDLE_1H_ALARM" ||
+            (typeof data.kind === "string" && data.kind.indexOf("IDLE_1H") === 0);
+          if (isIdle) {
+            if (typeof window.__swOpenStagnationPrompt === "function") {
+              window.__swOpenStagnationPrompt(data.title, data.message);
+            }
+          } else {
+            nudgeSoundAndVibration(true);
+            const overlay = document.getElementById("alarmOverlay");
+            if (overlay && document.visibilityState === "visible") {
+              overlay.classList.add("active");
+            }
+          }
+          if (data.coords) {
+            applyIncomingCoords(data.coords, "ALARM_POS");
+          }
+        } else if (msgType === "STOPWAY_IDLE_SIGNAL" || msgType === "STOPWAY_RECONNECT_SIGNAL") {
+          logMsg("NATIVE_SIGNAL", msgType + (data.message ? ": " + data.message : ""));
+          nudgeSoundAndVibration(false);
+        }
+      }
+
+      window.addEventListener("message", function (ev) {
+        handleNativeMessage(ev && ev.data);
+      });
+
+      window.StopWayReceive = handleNativeMessage;
+
+      function probeNow(reason) {
+        const stopBtn = document.getElementById("stopWatchBtn");
+        const isActive = Boolean(stopBtn && stopBtn.style.display !== "none");
+        logMsg("PROBE", reason + (isActive ? " (watch=ON)" : " (watch=OFF)"));
+        if (!isActive || !navigator.geolocation) return;
+
+        navigator.geolocation.getCurrentPosition(
+          function (pos) {
+            if (pos && pos.coords) {
+              applyIncomingCoords(pos.coords, "PROBE_GPS");
+            }
+          },
+          function (err) {
+            const sinceBridge = lastBridgeFixAt ? Math.round((Date.now() - lastBridgeFixAt) / 1000) : -1;
+            logMsg("PROBE_ERR", `${err && err.message ? err.message : "no fix"} (lastBridge=${sinceBridge}s)`);
+            try {
+              window.dispatchEvent(new CustomEvent("stopway:gps-error", { detail: { error: err } }));
+            } catch (e) {}
+          },
+          { enableHighAccuracy: true, maximumAge: 0, timeout: 9000 }
+        );
+      }
+
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "visible") {
+          probeNow("resume_visible");
+          if (pendingAlarmPayload) {
+            const isIdle = pendingAlarmPayload.kind === "IDLE_1H" || pendingAlarmPayload.kind === "IDLE_1H_ALARM" ||
+              (typeof pendingAlarmPayload.kind === "string" && pendingAlarmPayload.kind.indexOf("IDLE_1H") === 0);
+            if (isIdle && typeof window.__swOpenStagnationPrompt === "function") {
+              window.__swOpenStagnationPrompt(pendingAlarmPayload.title, pendingAlarmPayload.message);
+            } else {
+              const overlay = document.getElementById("alarmOverlay");
+              if (overlay && !overlay.classList.contains("active")) {
+                overlay.classList.add("active");
+              }
+              nudgeSoundAndVibration(true);
+            }
+            pendingAlarmPayload = null;
+          }
+        } else {
+          logMsg("BG_ENTER", "alkalmazás háttérbe került");
+        }
+      });
+
+      window.addEventListener("focus", function () {
+        probeNow("window_focus");
+      });
+
+      logMsg("SURVIVAL_INIT", "Háttér-túlélő réteg aktív");
+    })();
+  </script>
 </body>
 </html>
