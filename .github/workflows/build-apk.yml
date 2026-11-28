@@ -139,11 +139,15 @@ jobs:
               private Location anchorLoc = null;
               private long lastMoveMs = 0L;
               private boolean idleAlertSent = false;
+              private long lastFixMs = 0L;
+              private boolean gpsSignalLost = false;
 
               private final LocationListener listener = new LocationListener() {{
                   @Override
                   public void onLocationChanged(Location loc) {{
                       if (loc != null && running) {{
+                          lastFixMs = System.currentTimeMillis();
+                          handleGpsRestoredIfNeeded();
                           checkNativeStagnation(loc);
                           MainActivity.dispatchLocationToWebView(
                               loc.getLatitude(),
@@ -153,8 +157,16 @@ jobs:
                       }}
                   }}
                   @Override public void onStatusChanged(String provider, int status, Bundle extras) {{}}
-                  @Override public void onProviderEnabled(String provider) {{}}
-                  @Override public void onProviderDisabled(String provider) {{}}
+                  @Override public void onProviderEnabled(String provider) {{
+                      if (running) {{
+                          handleGpsRestoredIfNeeded();
+                      }}
+                  }}
+                  @Override public void onProviderDisabled(String provider) {{
+                      if (running && !hasAnyProviderEnabled()) {{
+                          handleGpsLostIfNeeded();
+                      }}
+                  }}
               }};
 
               private final Runnable pollRunnable = new Runnable() {{
@@ -162,6 +174,7 @@ jobs:
                   public void run() {{
                       if (!running) return;
                       requestSingleFix();
+                      checkGpsSignalHealth();
                       handler.postDelayed(this, 10000);
                   }}
               }};
@@ -200,6 +213,42 @@ jobs:
                   return START_STICKY;
               }}
 
+              private boolean hasAnyProviderEnabled() {{
+                  if (locationManager == null) return false;
+                  try {{
+                      return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                          || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+                  }} catch (Exception e) {{
+                      return false;
+                  }}
+              }}
+
+              private void checkGpsSignalHealth() {{
+                  if (!running) return;
+                  long now = System.currentTimeMillis();
+                  if (!hasAnyProviderEnabled()) {{
+                      handleGpsLostIfNeeded();
+                      return;
+                  }}
+                  if (lastFixMs > 0L && (now - lastFixMs) >= 35000L) {{
+                      handleGpsLostIfNeeded();
+                  }}
+              }}
+
+              private void handleGpsLostIfNeeded() {{
+                  if (!gpsSignalLost) {{
+                      gpsSignalLost = true;
+                      MainActivity.dispatchGpsSignalStateToWebView(false);
+                  }}
+              }}
+
+              private void handleGpsRestoredIfNeeded() {{
+                  if (gpsSignalLost) {{
+                      gpsSignalLost = false;
+                      MainActivity.dispatchGpsSignalStateToWebView(true);
+                  }}
+              }}
+
               private void checkNativeStagnation(Location loc) {{
                   long now = System.currentTimeMillis();
                   if (anchorLoc == null) {{
@@ -219,7 +268,7 @@ jobs:
                       idleAlertSent = true;
                       postHighPriorityAlert(
                           "1 órája nincs 100 méteres mozgás",
-                          "Az elmúlt 1 órában nem történt 100 métert elérő elmozdulás. Nyisd meg az alkalmazást a folytatáshoz vagy leállításhoz.",
+                          "Az elmúlt 1 órában nem történt 100 métert elérő elmozdulás. Folytatod az utazást vagy megszünteted?",
                           "IDLE_1H"
                       );
                   }}
@@ -282,6 +331,8 @@ jobs:
                   isServiceRunning = true;
                   anchorLoc = null;
                   lastMoveMs = System.currentTimeMillis();
+                  lastFixMs = System.currentTimeMillis();
+                  gpsSignalLost = false;
                   idleAlertSent = false;
                   acquireWakeLock();
                   requestUpdates();
@@ -294,6 +345,8 @@ jobs:
                   isServiceRunning = false;
                   anchorLoc = null;
                   lastMoveMs = 0L;
+                  lastFixMs = 0L;
+                  gpsSignalLost = false;
                   idleAlertSent = false;
                   handler.removeCallbacksAndMessages(null);
                   if (locationManager != null) {{
@@ -334,6 +387,8 @@ jobs:
                       Location lastNet = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                       Location best = lastGps != null ? lastGps : lastNet;
                       if (best != null && running) {{
+                          lastFixMs = System.currentTimeMillis();
+                          handleGpsRestoredIfNeeded();
                           checkNativeStagnation(best);
                           MainActivity.dispatchLocationToWebView(best.getLatitude(), best.getLongitude(), best.getAccuracy());
                       }}
@@ -344,6 +399,8 @@ jobs:
                           if (provider != null) {{
                               locationManager.getCurrentLocation(provider, null, getMainExecutor(), loc -> {{
                                   if (loc != null && running) {{
+                                      lastFixMs = System.currentTimeMillis();
+                                      handleGpsRestoredIfNeeded();
                                       checkNativeStagnation(loc);
                                       MainActivity.dispatchLocationToWebView(loc.getLatitude(), loc.getLongitude(), loc.getAccuracy());
                                   }}
@@ -597,6 +654,19 @@ jobs:
                       String js = "javascript:(function(){{" +
                           "var msg={{type:'STOPWAY_ALARM_SIGNAL',kind:'" + safeKind +
                           "',title:'" + safeTitle + "',message:'" + safeBody + "'}};" +
+                          "if(window.StopWayReceive){{window.StopWayReceive(msg);}}" +
+                          "}})();";
+                      act.getBridge().getWebView().evaluateJavascript(js, null);
+                  }});
+              }}
+
+              public static void dispatchGpsSignalStateToWebView(boolean restored) {{
+                  MainActivity act = instance;
+                  if (act == null) return;
+                  act.runOnUiThread(() -> {{
+                      if (act.getBridge() == null || act.getBridge().getWebView() == null) return;
+                      String js = "javascript:(function(){{" +
+                          "var msg={{type:'STOPWAY_GPS_SIGNAL',restored:" + restored + "}};" +
                           "if(window.StopWayReceive){{window.StopWayReceive(msg);}}" +
                           "}})();";
                       act.getBridge().getWebView().evaluateJavascript(js, null);
